@@ -2,35 +2,37 @@
 -- options, see
 -- http://www.haskell.org/cabal/release/cabal-latest/doc/users-guide/authors.html#pkg-descr.
 
-Name:           bakers12
-Version:        0.1
-Synopsis:       This is a boot-camp style series of thirteen one-day coding projects. The aim is to experiment with NLP in Haskell.
-Homepage:       https://bitbucket.org/erochest/bakers12
-License:        BSD3
-License-file:   LICENSE
-Author:         Eric Rochester
-Maintainer:     erochest@gmail.com
-Copyright:      Copyright (c)2011, Eric Rochester
-Stability:      Experimental
-Category:       Text
-Build-type:     Simple
-Cabal-version:  >=1.2
+Name:		bakers12
+Version:	0.1
+Synopsis:	This is a boot-camp style series of thirteen one-day coding projects. The aim is to experiment with NLP in Haskell.
+Homepage:	https://bitbucket.org/erochest/bakers12
+License:	BSD3
+License-file:	LICENSE
+Author:		Eric Rochester <erochest@gmail.com>
+Maintainer:	erochest@gmail.com
+Bug-reports:    https://bitbucket.org/erochest/bakers12/issues
+Copyright:	Copyright (c)2011, Eric Rochester
+Stability:	Experimental
+Category:	Text
+Build-type:	Simple
+Cabal-version:	>=1.9.2
 
 -- A longer description of the package.
--- Description:                
+-- Description:		       
 
 -- Extra files to be distributed with the package, such as examples or
 -- a README.
 Extra-source-files:
-  README.mkd
+    README.mkd
+  , tests/TestBakers12.hs
 
 Flag development
-  Description:  Whether to build in development mode.
-  Default:      False
+  Description:	Whether to build in development mode.
+  Default:	False
 
 Executable bakers12
   hs-source-dirs:  src
-  Main-is:         Bakers12.lhs
+  Main-is:	   Bakers12.lhs
   
   Build-depends:
     base >= 4.3 && < 5,
@@ -39,10 +41,10 @@ Executable bakers12
   extensions: DeriveDataTypeable
   
   -- Modules not exported by this package.
-  -- Other-modules:          
+  -- Other-modules:	     
   
   -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
-  -- Build-tools:          
+  -- Build-tools:	   
 
   if flag(development)
     cpp-options -DDEVELOPMENT
@@ -51,4 +53,17 @@ Executable bakers12
   else
     if impl(ghc >= 6.12.0)
       ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-  
+
+Test-Suite test-bakers12
+  type:                  exitcode-stdio-1.0
+  hs-source-dirs:	 tests
+  main-is:               TestBakers12.hs
+  build-depends:
+    base >= 4.3 && < 5,
+    test-framework >= 0.3.3 && < 0.5,
+    test-framework-quickcheck2 >= 0.2.9 && < 0.3,
+    test-framework-hunit >= 0.2.6 && < 0.3,
+    QuickCheck >= 2.4.0.1,
+    HUnit >= 1.2 && < 2
+  ghc-options:		 -Wall
+
