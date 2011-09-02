@@ -6,3 +6,4 @@ dist/
 *.hc
 *.o
 *.orig
+.DS_Store
