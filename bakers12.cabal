@@ -35,8 +35,10 @@ Library
 
   exposed-modules:
     Text.Bakers12.Tokenizer
+    Text.Bakers12.Tokenizer.String
 
-  -- other-modules:
+  other-modules:
+    Text.Bakers12.Tokenizer.Types
 
   Build-depends:
     base >= 4.3 && < 5,

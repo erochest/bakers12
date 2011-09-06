@@ -8,6 +8,9 @@ apostrophes and dashes). It maintains the token's position in the original
 input stream (for later highlighting or other processing) and both its raw and
 normalized forms.
 
+(This hides several functions in Prelude, so you'll want to use a qualified
+import.)
+
 \begin{code}
 
 module Text.Bakers12.Tokenizer
@@ -23,39 +26,47 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as E
 import qualified Data.Text.Lazy as LT
 import qualified Data.Text.Lazy.Encoding as LE
+import           Prelude hiding (dropWhile, length, null, span)
+import           Text.Bakers12.Tokenizer.Types
 
-\end{code}
-
-isTokenChar
-
-This defines that is and isn't a token. This is bad, bad, bad, but it gets the
-job done for what I want to do today.
-
-\begin{code}
-isTokenChar :: Char -> Bool
-isTokenChar c = isAlphaNum c || c `elem` "'-"
 \end{code}
 
 Tokenizable
 
-The Tokenizable type class exposes the function tokenize.
+The Tokenizable type class exposes the function tokenize. It also defines the
+interface that Tokenizable interfaced data types must define. Interfaces can
+simply define those functions, and the tokenize functions should work for free.
 
 \begin{code}
 class Tokenizable a where
 
     -- | This tokenizes a file from a source and returns a list of Tokens.
-    tokenize :: String -> a -> [Token]
-    tokenize = fullTokenize
+    fullTokenize :: String -> a -> [Token a]
+    fullTokenize = fullTokenize'
 
     -- | This tokenizes a file from a source and returns a list of light-weight
     -- tokens, just the normalized data of the same type as the input.
     tokenize :: a -> [a]
+    tokenize = fastTokenize'
 
     -- | This returns True if the input is empty.
     null :: a -> Bool
 
     -- | This breaks the first Char off of the input.
     uncons :: a -> Maybe (Char, a)
+
+    -- | This converts a string to the tokenizable type.
+    fromString :: String -> a
+
+    -- | This returns the length of a tokenizable.
+    length :: a -> Int
+
+    -- | This splits the input into two parts according to a predicate.
+    span :: (Char -> Bool) -> (a, a)
+
+    -- | This drops everything that matches a predicate from the beginning of
+    -- the input.
+    dropWhile :: (Char -> Bool) -> a -> a
 
 \end{code}
 
@@ -65,7 +76,7 @@ This is the State monad for the tokenizer. It tracks the parser's location in
 the input.
 
 \begin{code}
-type Tokenizer a = State (TokenState a) [Token]
+type Tokenizer a = State (TokenState a) [Token a]
 \end{code}
 
 TokenState tracks the tokenizer's state as it walks through the input. It keeps
@@ -84,19 +95,21 @@ fullTokenize takes an input Tokenizable instance and tokenizes it into a list
 of tokens. It pulls it into a Tokenizer monad.
 
 \begin{code}
-fullTokenize :: Tokenizable a => String -> a -> [Token]
-fullTokenize = evalState tokenize' . TokenState 0
+fullTokenize' :: Tokenizable a => String -> a -> [Token a]
+fullTokenize' source = evalState tokenize' . TokenState 0 source
     where
-        tokenize' :: Tokenize Token
+        {- | Tokenize the data in the state monad -}
+        tokenize' :: Tokenizer a
         tokenize' = do
             state <- get
-            let (token, state') = parseToken . parseGarbage $ state in
+            (token, state') <- return . parseToken . parseGarbage $ state
             put state'
             case token of
                 Nothing -> return []
                 Just t  -> tokenize' >>= (return . (t :))
 
-        parseGarbage :: Tokenizable a => TokenState a -> TokenState a
+        {- | Strip any non-token characters off the front of the input. -}
+        parseGarbage :: TokenState a -> TokenState a
         parseGarbage state@(TokenState _ _ input) | null input = state
         parseGarbage state@(TokenState cursor source input)    =
             garbage cursor input
@@ -111,110 +124,94 @@ fullTokenize = evalState tokenize' . TokenState 0
                         Nothing ->
                             TokenState source cursor input
 
-        parseToken :: Tokenizable a => TokenState a -> (Maybe Token, TokenState a)
+        {- | Maybe parse a token off the front of the input, if there's
+         - actually one there. -}
+        parseToken :: TokenState a -> (Maybe (Token a), TokenState a)
         parseToken state@(TokenState _ _ input) | null input = (Nothing, state)
-        parseToken state@(TokenState cursor source input) =
+        parseToken state@(TokenState cursor source input)    =
             token [] 0 input
             where
-                token :: String -> Int -> a -> (Maybe Token, TokenState a)
+                token :: String -> Int -> a -> (Maybe (Token a), TokenState a)
                 token text tlen input =
                     case uncons input of
                         Just (c, rest) | isAlphaNum c ->
-                            token (toLower c:text) (tlen+1) rest
+                            token (c:text) (tlen+1) rest
                         Just ('\'', rest) ->
                             let (cont, clen, rest') = parseContraction rest
-                                raw = (reverse text) ++ ('\'' : cont)
-                                tkn = Token ((reverse text) ++ ('\'':cont)) source input
-                            in
+                                (tkn, nextcur) = mkToken source text cont cursor
+                            in  (Just tkn, TokenState nextcur source rest')
+                        Just (_, rest) ->
+                            let (tkn, nextcur) = mkToken source text "" cursor
+                            in  (Just tkn, TokenState nextcur source input)
+                        Nothing | tlen == 0 ->
+                            (Nothing, TokenState cursor source input)
+                        Nothing ->
+                            let (tkn, nextcur) = mkToken source text "" cursor
+                            in  (Just tkn, TokenState nextcur source input)
+
+        {- | Parse a contraction, which is one or more apostrophes plus one or
+         - more letters. This returns the raw contraction (with apostrophes),
+         - the length of the raw contraction, and the rest of the input.
+         -
+         - This also assumes that one apostrophe has already been removed from
+         - the input. -}
+        parseContraction :: a -> (String, String, Int, a)
+        parseContraction input = contraction ['\''] 0 input
+            where
+                contraction :: String -> Int -> a -> (String, String, Int, a)
+                contraction cont clen inp =
+                    case uncons inp of
+                        Just (c, inp') | isAlphaNum c ->
+                            contraction (c:cont) (clen+1) inp'
+                        Just (_, inp') ->
+                            (reverse cont, clen, inp')
+                        Nothing ->
+                            (reverse cont, clen, inp)
+
+        {- | A factory function for tokens. -}
+        mkToken :: String -> String -> String -> Int -> (Token a, Int)
+        mkToken source rawStart cont offset =
+            let revraw  = reverse rawStart
+                cont'   = dropWhile ('\'' ==) cont
+                raw     = fromString $ revraw ++ cont
+                norm    = fromString . toLower $ revraw ++ ('\'' : cont')
+                rawlen  = length raw
+                offset' = offset + rawlen
+                tkn     = Token raw norm source offset rawlen
+            in  (tkn, offset')
+
 \end{code}
 
-
-tokenize' handles tokenizing the input within the Tokenizer monad. garbage eats
-any non-token characters, and token reads a token from the beginning of the
-input and returns a Token, if it can.
+This is the fast tokenizer. It just pulls the normalized tokens off the input
+into a list. Since it doesn't need to track the offset or anything, it doesn't
+need to run in a State.
 
 \begin{code}
-tokenize' :: Tokenizable a => String -> a -> [Token]
 
-tokenize' :: Tokenizer Token
-tokenize' = do
-    state <- get
-    let (tkn, state') = token . garbage $ state
-    put state'
-    case tkn of
-        Nothing -> return []
-        Just t  -> tokenizer' >>= (return . (t :))
+fastTokenize' :: Tokenizable a => a -> [a]
+fastTokenize' input =
+    case currentToken of
+        (Just token, input') -> (token : fastTokenize' input')
+        (Nothing, _)         -> []
+    where
+        currentToken = parseToken . parseGarbage $ input
 
-garbage :: TokenState -> TokenState
-garbage state | (T.null . input) state = state
-garbage state = garbage' (cursor state) (input state)
-    where garbage' :: Int -> T.Text -> TokenState
-          garbage' cur inp =
-            case T.uncons inp of
-                Just (c, _) | isTokenChar c ->
-                    TokenState { cursor=c
-                               , source=(source state)
-                               , input=inp
-                               }
-                Just (_, inp') ->
-                    garbage' (cur + 1) inp
-                Nothing ->
-                    TokenState { cursor=c
-                               , source=(source state)
-                               , input=T.empty
-                               }
+        parseGarbage :: Tokenizable a => a -> a
+        parseGarbage input =
+            case uncons input of
+                Just (c, _) | isAlphaNum c -> input
+                Just (_, input')           -> parseGarbage input'
+                Nothing                    -> input
 
-token :: TokenState -> (Maybe Token, TokenState)
-token state | (T.null . input) state = (Nothing, (input state))
-token state = token' cur cur [] (input state)
-    where cur = cursor state
-
-          token' :: Int -> Int -> String -> T.Text -> (Maybe Token, TokenState)
-          token' start cursor text input =
-            case T.uncons input of
-                Just (c, rest) | isAlphaNum c ->
-                    token' start (cursor + 1) (c : text) rest
-                Just ('\'', rest) ->
-                    let (cont, cursor', rest') = contraction rest in
-                    let raw = T.pack $ (reverse text) ++ ('\'' : cont) in
-                    ( Just Token { raw=raw
-                                 , text=T.toLower raw
-                                 , source=(source state)
-                                 , offset=start
-                                 , length=(cursor' - start) }
-                    , TokenState { cursor=cursor'
-                                 , source=(source state)
-                                 , input=input
-                                 }
-                    )
-                Just (_, rest) ->
-                    let raw = T.pack . reverse $ text
-                    ( Just Token { raw=raw
-                                 , text=T.toLower raw
-                                 , source=(source state)
-                                 , offset=start
-                                 , length=(cursor start)
-                                 }
-                    , TokenState { cursor=cursor + 1
-                                 , source=(source state)
-                                 , input=input
-                                 }
-                    )
-                Nothing | start == cursor ->
-                    (Nothing, TokenState { source=(source state), cursor=cursor+1, input=input })
-                Nothing ->
-                    Just Token { raw=raw
-                                 , text=T.toLower raw
-                                 , source=(source state)
-                                 , offset=start
-                                 , length=(cursor start)
-                                 }
-                    , TokenState { cursor=cursor + 1
-                                 , source=(source state)
-                                 , input=input
-                                 }
-                    )
+        parseToken :: Tokenizable a => a -> (Maybe a, a)
+        parseToken input =
+            let (prefix, input1) = span isAlphaNum input
+                (cont, input2)   = span ('\'' ==)  input1
+            in  if null cont
+                then (Just $ toLower prefix, input1)
+                else let (suffix, input3) = span isAlphaNum input2
+                         token = prefix ++ ('\'' : suffix)
+                     in  (Just $ toLower token, input3)
 
 \end{code}
-
 

@@ -10,10 +10,7 @@ data in the input (e.g., uncons).
 
 module Text.Bakers12.Tokenizer.Types
     ( Token(..)
-    , Tokenizable(..)
     ) where
-
-import Control.Monad.State
 
 \end{code}
 
@@ -27,12 +24,12 @@ The offset and length are both evaluated strictly; otherwise, if these values
 aren't used, then their thunks accumlate and fill all available space.
 
 \begin{code}
-data Token = Token
-    { raw     :: T.Text     -- The raw token as it appeared in the input text.
-    , text    :: T.Text     -- The normalized token.
+data Token a = Token
+    { raw     :: a          -- The raw token as it appeared in the input text.
+    , text    :: a          -- The normalized token.
     , source  :: String     -- The source of the token.
     , offset  :: !Int       -- The offset of the token in the input text.
-    , length  :: !Int       -- The length of the token in the input text.
+    , extent  :: !Int       -- The length of the token in the input text.
     }
     deriving (Show)
 \end{code}
