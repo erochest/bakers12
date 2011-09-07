@@ -94,7 +94,7 @@ Test-Suite test-bakers12
     HUnit >= 1.2 && < 2,
     text >= 0.11.1.5 && < 0.12,
     bakers12
-  ghc-options:		 -Wall
+  ghc-options:		 -Wall -rtsopts
 
 source-repository head
   type:     mercurial

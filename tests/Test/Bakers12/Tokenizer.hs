@@ -5,10 +5,10 @@ module Test.Bakers12.Tokenizer (tokenizerTests) where
 import qualified Data.Char as C
 import qualified Data.List as L
 -- import qualified Data.Text as T
--- import           Test.HUnit hiding (Test)
+import           Test.HUnit (Assertion, assertBool)
 -- import           Test.QuickCheck
 import           Test.Framework (Test, testGroup)
--- import           Test.Framework.Providers.HUnit (testCase)
+import           Test.Framework.Providers.HUnit (testCase)
 import           Test.Framework.Providers.QuickCheck2 (testProperty)
 import           Text.Bakers12.Tokenizer
 import           Text.Bakers12.Tokenizer.String ()
@@ -40,16 +40,16 @@ pOffsetIncreasing input =
           increasing (prev, ok) current =
                 (current, ok && prev <= current)
 
-assertFullTokensEqual :: String -> [[String]] -> Assertion
-assertFullTokensEqual expected actual =
-    assertBool . L.and . map (uncurry (==)) $ L.zip expTokens actual
-    where expFull   = fullTokenize "<assertFullTokensEqual>" expected
-          expTokens = map tokenText expFull
+assertFullTokensEqual :: String -> [String] -> [[String]] -> Assertion
+assertFullTokensEqual msg expected actual =
+    assertBool msg . L.and $ L.zipWith (==) expTokens actual
+    where expFull   = map (fullTokenize "<assertFullTokensEqual>") expected
+          expTokens = map (map tokenText) expFull
 
 -- unit     : tokenized correctly
 assertFullTokenizedCorrectly :: Assertion
 assertFullTokenizedCorrectly =
-    assertFullTokensEqual expected actual
+    assertFullTokensEqual "assertFullTokenizedCorrectly" expected actual
     where
         expected = [ "These are the days that try men's souls."
                    , "I said, \"Hi there.\""
@@ -63,7 +63,7 @@ assertFullTokenizedCorrectly =
 -- unit     : tokenized numbers
 assertFullTokenizedNumbers :: Assertion
 assertFullTokenizedNumbers =
-    assertFullTokensEqual expected actual
+    assertFullTokensEqual "assertFullTokenizedNumbers" expected actual
     where
         expected = [ "1 2 3 4 5 3.1415 1,200,000 -33" ]
         actual   = [ ["1", "2", "3", "4", "5", "3", "1415", "1", "200", "000", "33" ] ]
@@ -71,15 +71,15 @@ assertFullTokenizedNumbers =
 -- unit     : tokenized contractions
 assertFullTokenizedContractions :: Assertion
 assertFullTokenizedContractions =
-    assertFullTokensEqual expected actual
+    assertFullTokensEqual "assertFullTokenizedContractions" expected actual
     where
-        expectd = [ "They'll can't isn't won't" ]
-        actual  = [ ["they'll", "can't", "isn't", "won't" ] ]
+        expected = [ "They'll can't isn't won't" ]
+        actual   = [ ["they'll", "can't", "isn't", "won't" ] ]
 
 -- unit     : not tokenized leading-, trailing-apostrophes
 assertFullTokenizedApos :: Assertion
 assertFullTokenizedApos =
-    assertFullTokenEqual expected actual
+    assertFullTokensEqual "assertFullTokenizedApos" expected actual
     where
         expected = [ "'tis 'will young'uns eat'?" ]
         actual   = [ ["tis", "will", "young'uns", "eat"] ]
@@ -88,18 +88,18 @@ assertFullTokenizedApos =
 -- property : toLower
 pFastNormalized :: String -> Bool
 pFastNormalized input =
-    L.and [L.all isLower token | token <- tokens]
-    where tokens = fastTokenizer input
+    L.and [L.all C.isLower token | token <- tokens]
+    where tokens = fastTokenize input
 
 -- unit     : tokenized correctly
-assertFastTokensEqual :: String -> [[String]] -> Assertion
-assertFastTokensEqual expected actual =
-    assertBool . L.and . map (uncurry (==)) $ L.zip expTokens actual
-    where expTokens = fastTokenize expected
+assertFastTokensEqual :: String -> [String] -> [[String]] -> Assertion
+assertFastTokensEqual msg expected actual =
+    assertBool msg . L.and $ L.zipWith (==) expTokens actual
+    where expTokens = map fastTokenize expected
 
 assertFastTokenizedCorrectly :: Assertion
 assertFastTokenizedCorrectly =
-    assertFastTokensEqual expected actual
+    assertFastTokensEqual "assertFastTokenizedCorrectly" expected actual
     where
         expected = [ "These are the days that try men's souls."
                    , "I said, \"Hi there.\""
@@ -113,7 +113,7 @@ assertFastTokenizedCorrectly =
 -- unit     : tokenized numbers
 assertFastTokenizedNumbers :: Assertion
 assertFastTokenizedNumbers =
-    assertFastTokensEqual expected actual
+    assertFastTokensEqual "assertFastTokenizedNumbers" expected actual
     where
         expected = [ "1 2 3 4 5 3.1415 1,200,000 -33" ]
         actual   = [ ["1", "2", "3", "4", "5", "3", "1415", "1", "200", "000", "33" ] ]
@@ -121,15 +121,15 @@ assertFastTokenizedNumbers =
 -- unit     : tokenized contractions
 assertFastTokenizedContractions :: Assertion
 assertFastTokenizedContractions =
-    assertFastTokensEqual expected actual
+    assertFastTokensEqual "assertFastTokenizedContractions" expected actual
     where
-        expectd = [ "They'll can't isn't won't" ]
-        actual  = [ ["they'll", "can't", "isn't", "won't" ] ]
+        expected = [ "They'll can't isn't won't" ]
+        actual   = [ ["they'll", "can't", "isn't", "won't" ] ]
 
 -- unit     : not tokenized leading-, trailing-apostrophes
 assertFastTokenizedApos :: Assertion
 assertFastTokenizedApos =
-    assertFastTokenEqual expected actual
+    assertFastTokensEqual "assertFastTokenizedApos" expected actual
     where
         expected = [ "'tis 'will young'uns eat'?" ]
         actual   = [ ["tis", "will", "young'uns", "eat"] ]

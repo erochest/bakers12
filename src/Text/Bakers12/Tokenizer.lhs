@@ -153,18 +153,41 @@ fastGarbage :: Tokenizable a => a -> a
 fastGarbage input =
     case uncons input of
         Just (c, _) | C.isAlphaNum c -> input
-        Just (_, input')           -> fastGarbage input'
-        Nothing                    -> input
+        Just (_, input')             -> fastGarbage input'
+        Nothing                      -> input
 
 fastToken :: Tokenizable a => a -> (Maybe a, a)
 fastToken input =
-    let (prefix, input1) = span C.isAlphaNum input
-        (cont, input2)   = span ('\'' ==)  input1
-    in  if null cont
-        then (Just $ toLower prefix, input1)
-        else let (suffix, input3) = span C.isAlphaNum input2
-                 token = (toString prefix) ++ ('\'' : toString suffix)
-             in  (Just . toLower . fromString $ token, input3)
+    case (body, apos, cont) of
+        (Just b,  Just _, Just c ) -> (Just . fromString $ b ++ ('\'':c), input3)
+        (Just b,  _,      Nothing) -> (Just $ fromString b, input1)
+        (Nothing, _,      _      ) -> (Nothing, input)
+
+    where (body, input1) = fastParseWord input []
+          (apos, input2) = fastParseApos input1 []
+          (cont, input3) = fastParseWord input2 []
+
+fastParseWord :: Tokenizable a => a -> String -> (Maybe String, a)
+fastParseWord inp accum =
+    case uncons inp of
+        Just (c, inp') | C.isAlphaNum c ->
+            fastParseWord inp' (c:accum)
+        Just _ ->
+            if L.null accum
+            then (Nothing, inp)
+            else (Just $ reverse accum, inp)
+        Nothing -> (Nothing, inp)
+
+fastParseApos :: Tokenizable a => a -> String -> (Maybe String, a)
+fastParseApos inp accum =
+    case uncons inp of
+        Just ('\'', inp') ->
+            fastParseApos inp' ('\'':accum)
+        Just _ ->
+            if L.null accum
+            then (Nothing, inp)
+            else (Just accum, inp)
+        Nothing -> (Nothing, inp)
 
 \end{code}
 
