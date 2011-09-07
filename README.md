@@ -30,6 +30,21 @@ Other topics:
 
 ## Commands
 
+### tokenize
+
+    bakers12 tokenize [FILE] [...]
+
+This tokenizes the files listed on the command line, and it prints each token
+out. The output is formatted as CSV, and it includes these fields:
+
+ * the normalized token;
+ * the raw token;
+ * the name of the file the token was from;
+ * the offset character of the token in the file; and
+ * the raw length of the token.
+
+### Future Commands
+
     bakers12 init
 
 Initialize a directory for analyzing documents.
