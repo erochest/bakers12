@@ -7,11 +7,12 @@ is to experiment with NLP in Haskell.
 ## Notes
 
   1. Tokenizer and application framework;
-  1. Corpus processing;
-  1. Search;
-  1. Persistence in Level DB or SQLite in RDF;
   1. Type/token ratios, graph of changing ratio over the course of a text or
      corpus;
+  1. Persistence in Level DB or SQLite in RDF;
+  1. Snap server;
+  1. Corpus processing;
+  1. Search;
   1. Morphological tagger;
   1. POS tagger;
   1. Collocates, analysis and statistics;
