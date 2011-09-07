@@ -58,7 +58,7 @@ Library
 
 Executable bakers12
   hs-source-dirs:  src
-  Main-is:	   Bakers12.lhs
+  Main-is:	   Bakers12.hs
   
   Build-depends:
     base >= 4.3 && < 5,
