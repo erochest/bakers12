@@ -5,6 +5,7 @@ module Main (main) where
 
 \begin{code}
 import Bakers12.Cli
+import Bakers12.Tokenizer
 
 import qualified Data.Char as C
 import qualified Data.List as L
@@ -15,10 +16,8 @@ import Text.Bakers12.Tokenizer.String ()
 \begin{code}
 main :: IO ()
 main = do
-    let tokens = fastTokenize "1 2 3 4 5 3.1415 1,200,000 -33"
-    putStrLn . ("tokens = " ++) $ show tokens
-    -- putStrLn . show $ [((tokenText token), (map C.toLower $ tokenRaw token)) | token <- tokens]
-    args <- cmdArgs bakers12Modes
-    putStrLn $ show args
+    mode <- cmdArgs bakers12Modes
+    case mode of
+        Tokenize files -> tokenize files
 \end{code}
 
