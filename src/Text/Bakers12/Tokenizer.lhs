@@ -89,8 +89,8 @@ parseToken (TokenState cursor source input) =
             case uncons inp of
                 Just (c, rest) | C.isAlphaNum c ->
                     token (c:text) (tlen+1) rest
-                Just ('\'', rest) ->
-                    let (cont, rest') = parseContraction rest
+                Just ('\'', _) ->
+                    let (cont, rest') = parseContraction inp
                         (tkn, nextcur) = mkToken source text cont cursor
                     in  (Just tkn, TokenState nextcur source rest')
                 Just _ ->
@@ -107,8 +107,10 @@ parseToken (TokenState cursor source input) =
         mkToken sourceName rawStart cont offset =
             let revraw  = reverse rawStart
                 cont'   = L.dropWhile ('\'' ==) cont
-                raw     = fromString $ revraw ++ cont
-                norm    = fromString . map C.toLower $ revraw ++ ('\'' : cont')
+                raw     = fromString $ if L.null cont' then revraw else revraw ++ cont
+                norm    = fromString . map C.toLower $ if L.null cont'
+                                                       then revraw
+                                                       else revraw ++ ('\'' : cont')
                 rawlen  = length raw
                 offset' = offset + rawlen
                 tkn     = Token raw norm sourceName offset rawlen
@@ -116,16 +118,15 @@ parseToken (TokenState cursor source input) =
 
 {- | Parse a contraction, which is one or more apostrophes plus one or
  - more letters. This returns the raw contraction (with apostrophes)
- - and the rest of the input.
- -
- - This also assumes that one apostrophe has already been removed from
- - the input. -}
+ - and the rest of the input. -}
 parseContraction :: Tokenizable a => a -> (String, a)
-parseContraction input = contraction ['\''] input
+parseContraction input = contraction [] input
 
 contraction :: Tokenizable a => String -> a -> (String, a)
 contraction cont inp =
     case uncons inp of
+        Just ('\'', inp') ->
+            contraction ('\'':cont) inp'
         Just (c, inp') | C.isAlphaNum c ->
             contraction (c:cont) inp'
         Just (_, inp') ->

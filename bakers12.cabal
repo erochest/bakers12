@@ -63,6 +63,7 @@ Executable bakers12
   Build-depends:
     base >= 4.3 && < 5,
     cmdargs >= 0.8,
+    mtl >= 2.0.1.0 && < 3,
     bakers12
 
   extensions: DeriveDataTypeable

@@ -1,3 +1,6 @@
+\begin{code}
+{-# LANGUAGE TypeSynonymInstances #-}
+\end{code}
 
 Text.Bakers12.Tokenizer.String
 
