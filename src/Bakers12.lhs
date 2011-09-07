@@ -15,9 +15,9 @@ import Text.Bakers12.Tokenizer.String ()
 \begin{code}
 main :: IO ()
 main = do
-    let tokens = fullTokenize "<a>" "a"
+    let tokens = fastTokenize "1 2 3 4 5 3.1415 1,200,000 -33"
     putStrLn . ("tokens = " ++) $ show tokens
-    putStrLn . show $ [((tokenText token), (map C.toLower $ tokenRaw token)) | token <- tokens]
+    -- putStrLn . show $ [((tokenText token), (map C.toLower $ tokenRaw token)) | token <- tokens]
     args <- cmdArgs bakers12Modes
     putStrLn $ show args
 \end{code}

@@ -160,8 +160,8 @@ fastGarbage input =
 fastToken :: Tokenizable a => a -> (Maybe a, a)
 fastToken input =
     case (body, apos, cont) of
-        (Just b,  Just _, Just c ) -> (Just . fromString $ b ++ ('\'':c), input3)
-        (Just b,  _,      Nothing) -> (Just $ fromString b, input1)
+        (Just b,  Just _, Just c ) -> (Just . fromString . map C.toLower $ b ++ ('\'':c), input3)
+        (Just b,  _,      Nothing) -> (Just . fromString . map C.toLower $ b, input1)
         (Nothing, _,      _      ) -> (Nothing, input)
 
     where (body, input1) = fastParseWord input []
@@ -177,7 +177,8 @@ fastParseWord inp accum =
             if L.null accum
             then (Nothing, inp)
             else (Just $ reverse accum, inp)
-        Nothing -> (Nothing, inp)
+        Nothing | L.null accum -> (Nothing, inp)
+        Nothing -> (Just $ reverse accum, inp)
 
 fastParseApos :: Tokenizable a => a -> String -> (Maybe String, a)
 fastParseApos inp accum =

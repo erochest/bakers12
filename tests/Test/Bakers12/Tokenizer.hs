@@ -88,8 +88,9 @@ assertFullTokenizedApos =
 -- property : toLower
 pFastNormalized :: String -> Bool
 pFastNormalized input =
-    L.and [L.all C.isLower token | token <- tokens]
+    L.and [L.all isLowerAlpha token | token <- tokens]
     where tokens = fastTokenize input
+          isLowerAlpha c = C.isLower c || not (C.isLetter c)
 
 -- unit     : tokenized correctly
 assertFastTokensEqual :: String -> [String] -> [[String]] -> Assertion
