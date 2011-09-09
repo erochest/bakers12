@@ -64,12 +64,15 @@ Executable bakers12
     base >= 4.3 && < 5,
     cmdargs >= 0.8,
     mtl >= 2.0.1.0 && < 3,
+    filepath >= 1.2.0.0 && < 2,
+    directory >= 1.1.0.0 && < 2,
     bakers12
 
   extensions: DeriveDataTypeable
   
   -- Modules not exported by this package.
-  -- Other-modules:	     
+  Other-modules:
+    System.Bakers12.Utils
   
   -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
   -- Build-tools:	   
