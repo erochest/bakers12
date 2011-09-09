@@ -18,9 +18,7 @@ This tokenzes the file and writes it to the screen as CSV.
 The type transformation pipeline for this is:
 
         [FilePath]                          -- input
-            -> [IO [FilePath]]              -- expand directories
-            -> IO [[FilePath]]              -- lift out of IO
-            -> IO [FilePath]                -- concat file paths
+            -> IO [FilePath]                -- expand directories
             -> IO [[Token String]]          -- read and tokenize files (may need to lift this too)
             -> IO [Token String]            -- concat token lists
             -> IO [(Token String, Float)]   -- type-to-token ratio decorator
@@ -31,7 +29,6 @@ The type transformation pipeline for this is:
 
 TODO:
 
- * expandDirectories
  * addTypeTokenRatio tests (Test.Bakers12.Utils)
  * addTypeTokenRatio implement (Text.Bakers12.Utils)
  * showToken
