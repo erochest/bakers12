@@ -36,15 +36,17 @@ Library
   exposed-modules:
     Text.Bakers12.Tokenizer
     Text.Bakers12.Tokenizer.String
-
-  other-modules:
     Text.Bakers12.Tokenizer.Types
+    Text.Bakers12.Utils
+
+  -- other-modules:
 
   Build-depends:
     base >= 4.3 && < 5,
     mtl >= 2.0.1.0 && < 3,
     bytestring >= 0.9.1.10 && < 0.10,
-    text >= 0.11.1.5 && < 0.12
+    text >= 0.11.1.5 && < 0.12,
+    containers >= 0.4.0.0 && < 1
 
   extensions: TypeSynonymInstances
 
@@ -66,6 +68,7 @@ Executable bakers12
     mtl >= 2.0.1.0 && < 3,
     filepath >= 1.2.0.0 && < 2,
     directory >= 1.1.0.0 && < 2,
+    containers >= 0.4.0.0 && < 1,
     bakers12
 
   extensions: DeriveDataTypeable

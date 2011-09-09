@@ -11,6 +11,7 @@ import qualified Data.List as L
 import           System.IO (readFile)
 import           Text.Bakers12.Tokenizer (Token(..), fullTokenize)
 import           Text.Bakers12.Tokenizer.String ()
+import           Text.Bakers12.Utils (addTypeTokenRatio)
 \end{code}
 
 This tokenzes the file and writes it to the screen as CSV.
@@ -27,11 +28,6 @@ The type transformation pipeline for this is:
             -> IO String                    -- convert to output string
             -> IO ()                        -- print it out
 
-TODO:
-
- * addTypeTokenRatio tests (Test.Bakers12.Utils)
- * addTypeTokenRatio implement (Text.Bakers12.Utils)
-
 \begin{code}
 tokenize :: [FilePath] -> IO ()
 tokenize inputs = do
@@ -39,14 +35,10 @@ tokenize inputs = do
 
     where
         processTokens :: [[Token String]] -> String
-        processTokens = L.intercalate "\n" . map processToken . concat
-
-        processToken :: Token String -> String
-        processToken = showTokenInfo . addTypeTokenRatio
-
-        -- TODO: decorate tokens with type-to-token ratios
-        addTypeTokenRatio :: Token String -> (Token String, Double)
-        addTypeTokenRatio token = (token, 0.0)
+        processTokens = L.intercalate "\n"
+                      . map showTokenInfo
+                      . addTypeTokenRatio
+                      . concat
 \end{code}
 
 This tokenizes a single file.

@@ -2,6 +2,7 @@
 module Main where
 
 import Test.Bakers12.Tokenizer
+import Test.Bakers12.Utils
 
 -- import Test.HUnit (Assertion, assertBool, assertFailure)
 -- import Test.QuickCheck
@@ -32,6 +33,7 @@ main = defaultMain tests
 tests :: [Test]
 tests =
     [ testGroup "tokenizer" tokenizerTests
+    , testGroup "utilities" utilsTests
     ]
 
 --     [ testGroup "properties" [ testProperty "string/reverse" pStringReverse ]
