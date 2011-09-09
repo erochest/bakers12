@@ -3,7 +3,8 @@ This defines the controller and output for the tokenize mode.
 
 \begin{code}
 module Bakers12.Tokenizer
-    ( tokenize
+    ( modeTokenize
+    , tokenize
     ) where
 
 import qualified Data.List as L
@@ -14,7 +15,32 @@ import           Text.Bakers12.Tokenizer.String ()
 
 This tokenzes the file and writes it to the screen as CSV.
 
+The type transformation pipeline for this is:
+
+        [FilePath]                          -- input
+            -> [IO [FilePath]]              -- expand directories
+            -> IO [[FilePath]]              -- lift out of IO
+            -> IO [FilePath]                -- concat file paths
+            -> IO [[Token String]]          -- read and tokenize files (may need to lift this too)
+            -> IO [Token String]            -- concat token lists
+            -> IO [(Token String, Float)]   -- type-to-token ratio decorator
+            -> IO [[String]]                -- convert to row lists
+            -> IO [String]                  -- convert to row strings
+            -> IO String                    -- convert to output string
+            -> IO ()                        -- print it out
+
+TODO:
+
+ * expandDirectories
+ * addTypeTokenRatio tests (Test.Bakers12.Utils)
+ * addTypeTokenRatio implement (Text.Bakers12.Utils)
+ * showToken
+ * showTokenList
+
 \begin{code}
+modeTokenize :: [FilePath] -> IO ()
+modeTokenize inputs = return ()
+
 tokenize :: [FilePath] -> IO ()
 tokenize [] = return ()
 tokenize (fp:fps) = do
