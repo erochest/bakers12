@@ -7,3 +7,6 @@ dist/
 *.o
 *.orig
 .DS_Store
+.bundle/
+.rvmrc
+Gemfile*
