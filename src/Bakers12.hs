@@ -2,6 +2,7 @@
 module Main (main) where
 
 import Bakers12.Cli
+import Bakers12.Snap
 import Bakers12.Tokenizer
 
 import qualified Data.Char as C
@@ -15,4 +16,5 @@ main = do
     mode <- cmdArgs bakers12Modes
     case mode of
         Tokenize files -> normalizeFilePaths files >>= tokenize
+        Serve port     -> serveSnap port
 
