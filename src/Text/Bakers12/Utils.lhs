@@ -6,8 +6,7 @@ else.
 
 \begin{code}
 module Text.Bakers12.Utils
-    ( addTypeTokenRatio --addFullTypeTokenRatio
-    -- , addFastTypeTokenRatio
+    ( addTypeTokenRatio
     ) where
 
 import           Text.Bakers12.Tokenizer.Types
