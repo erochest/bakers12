@@ -3,10 +3,10 @@ This defines the controller and output for the tokenize mode.
 
 \begin{code}
 module Bakers12.Tokenizer
-    ( modeTokenize
-    , tokenize
+    ( tokenize
     ) where
 
+import           Control.Monad ((=<<), liftM, mapM)
 import qualified Data.List as L
 import           System.IO (readFile)
 import           Text.Bakers12.Tokenizer (Token(..), fullTokenize)
@@ -19,7 +19,7 @@ The type transformation pipeline for this is:
 
         [FilePath]                          -- input
             -> IO [FilePath]                -- expand directories
-            -> IO [[Token String]]          -- read and tokenize files (may need to lift this too)
+            -> IO [[Token String]]          -- read and tokenize files
             -> IO [Token String]            -- concat token lists
             -> IO [(Token String, Float)]   -- type-to-token ratio decorator
             -> IO [[String]]                -- convert to row lists
@@ -31,34 +31,44 @@ TODO:
 
  * addTypeTokenRatio tests (Test.Bakers12.Utils)
  * addTypeTokenRatio implement (Text.Bakers12.Utils)
- * showToken
- * showTokenList
 
 \begin{code}
-modeTokenize :: [FilePath] -> IO ()
-modeTokenize inputs = return ()
-
 tokenize :: [FilePath] -> IO ()
-tokenize [] = return ()
-tokenize (fp:fps) = do
-    text <- readFile fp
-    let tokens = fullTokenize fp text :: [Token String]
-    putStrLn $ showTokens tokens
-    tokenize fps
+tokenize inputs = do
+    (putStrLn =<<) . liftM processTokens . mapM tokenizeFile $ inputs
+
+    where
+        processTokens :: [[Token String]] -> String
+        processTokens = L.intercalate "\n" . map processToken . concat
+
+        processToken :: Token String -> String
+        processToken = showTokenInfo . addTypeTokenRatio
+
+        -- TODO: decorate tokens with type-to-token ratios
+        addTypeTokenRatio :: Token String -> (Token String, Double)
+        addTypeTokenRatio token = (token, 0.0)
 \end{code}
 
-This outputs it by writing all the parts as CSV.
+This tokenizes a single file.
 
 \begin{code}
-showTokens :: [Token String] -> String
-showTokens [] = ""
-showTokens (t:ts) =
-    L.intercalate "," [ tokenText t
-                      , '"' : (tokenRaw t) ++ "\""
-                      , tokenSource t
-                      , show $ tokenOffset t
-                      , show $ tokenLength t
-                      ] ++ ('\n' : showTokens ts)
+tokenizeFile :: FilePath -> IO [Token String]
+tokenizeFile filename = liftM (fullTokenize filename) (readFile filename)
+\end{code}
+
+This takes a token and a running type-to-token ratio and turns it into a CSV
+row.
+
+\begin{code}
+showTokenInfo :: (Token String, Double) -> String
+showTokenInfo (token, ttRatio) =
+    L.intercalate "," [ tokenText token
+                      , '"' : (tokenRaw token) ++ "\""
+                      , tokenSource token
+                      , show $ tokenOffset token
+                      , show $ tokenLength token
+                      , show ttRatio
+                      ]
 \end{code}
 
 
