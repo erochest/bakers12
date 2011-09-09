@@ -1,4 +1,0 @@
-#!/bin/sh
-
-cabal configure -f development --enable-tests
-
