@@ -7,7 +7,7 @@ This is where all the routes and handlers are defined for your site. The
 
 -}
 
-module Site
+module Bakers12.Snap.Site
   ( site
   ) where
 
@@ -15,12 +15,11 @@ import           Control.Applicative
 import           Data.Maybe
 import qualified Data.Text.Encoding as T
 import           Snap.Extension.Heist
-import           Snap.Extension.Timer
 import           Snap.Util.FileServe
 import           Snap.Types
 import           Text.Templating.Heist
 
-import           Application
+import           Bakers12.Snap.Application
 
 
 ------------------------------------------------------------------------------
@@ -30,28 +29,12 @@ import           Application
 -- Otherwise, the way the route table is currently set up, this action
 -- would be given every request.
 index :: Application ()
-index = ifTop $ heistLocal (bindSplices indexSplices) $ render "index"
-  where
-    indexSplices =
-        [ ("start-time",   startTimeSplice)
-        , ("current-time", currentTimeSplice)
-        ]
-
-
-------------------------------------------------------------------------------
--- | Renders the echo page.
-echo :: Application ()
-echo = do
-    message <- decodedParam "stuff"
-    heistLocal (bindString "message" (T.decodeUtf8 message)) $ render "echo"
-  where
-    decodedParam p = fromMaybe "" <$> getParam p
+index = ifTop $ render "index"
 
 
 ------------------------------------------------------------------------------
 -- | The main entry point handler.
 site :: Application ()
 site = route [ ("/",            index)
-             , ("/echo/:stuff", echo)
              ]
        <|> serveDirectory "resources/static"

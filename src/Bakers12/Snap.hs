@@ -71,5 +71,35 @@ main = quickHttpServe applicationInitializer site
 
 module Bakers12.Snap (serveSnap) where
 
+#ifdef DEVELOPMENT
+import           Control.Exception (SomeException, try)
+
+import           Snap.Extension.Loader.Devel
+import           Snap.Http.Server (simpleHttpServe)
+#else
+import           Snap.Extension.Server
+#endif
+
+import           Data.Monoid (mempty)
+import           Bakers12.Snap.Application
+import           Bakers12.Snap.Site
+
+
 serveSnap :: Int -> IO ()
-serveSnap port = return ()
+#ifdef DEVELOPMENT
+serveSnap port =
+    -- All source directories will be watched for updates
+    -- automatically.  If any extra directories should be watched for
+    -- updates, include them here.
+    (snap, cleanup) <- $(let watchDirs = ["resources/templates"]
+                         in loadSnapTH 'applicationInitializer 'site watchDirs)
+    try $ simpleHttpServe config snap :: IO (Either SomeException ())
+    cleanup
+    where config :: Config m a
+          config = setPort port mempty
+#else
+serveSnap port =
+    httpServe config applicationInitializer site
+    where config :: ConfigExtend s
+          config = setPort port mempty
+#endif
