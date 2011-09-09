@@ -10,3 +10,4 @@ dist/
 .bundle/
 .rvmrc
 Gemfile*
+snap-tmp/
