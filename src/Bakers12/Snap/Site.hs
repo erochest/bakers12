@@ -16,6 +16,7 @@ import           Control.Monad (liftM)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Either
 import           Data.Maybe
+import qualified Data.List as L
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as T
 import           Snap.Extension.Heist
@@ -45,7 +46,9 @@ index = ifTop $ render "index"
 tokenize :: Application ()
 tokenize = do
     tokenData <- handleFileUploads "tmp" defaultUploadPolicy partUploadPolicy processFiles
-    heistLocal (bindSplice "tokens" $ tokenLoop tokenData) $ render "tokenize"
+    heistLocal (bindSplice "tokens" $ tokenLoop tokenData)
+        . heistLocal (bindSplice "ratioarray" $ ratioArray tokenData)
+        $ render "tokenize"
     where
         -- TODO: handle errors
         processFiles :: [(PartInfo, Either PolicyViolationException FilePath)] -> Application [(Token String, Double)]
@@ -83,6 +86,28 @@ tokenLoop tokens = do
         stringToSplice string = return $ [convert string]
             where convert :: String -> X.Node
                   convert = X.TextNode . Text.pack
+
+ratioArray :: [(Token String, Double)] -> Splice Application
+ratioArray tokens = return $ [script ratios]
+    where
+        ratios :: String
+        ratios =
+            ("var ratioData = " ++) . toArray . map showPair . zip ns . map snd $ tokens
+
+        script :: String -> X.Node
+        script body =
+            X.Element (Text.pack "script") [(Text.pack "type", Text.pack "text/javascript")]
+                      [X.TextNode . Text.pack $ body]
+
+        ns :: [Int]
+        ns = L.iterate (1+) 1
+
+        showPair :: (Int, Double) -> String
+        showPair (n, ratio) = toArray [show n, show ratio]
+
+        toArray :: [String] -> String
+        toArray items = '[' : ar ++ "]"
+            where ar = L.intercalate "," items
 
 
 ------------------------------------------------------------------------------
