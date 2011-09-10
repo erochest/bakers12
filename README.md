@@ -41,8 +41,9 @@ out. The output is formatted as CSV, and it includes these fields:
  * the normalized token;
  * the raw token;
  * the name of the file the token was from;
- * the offset character of the token in the file; and
- * the raw length of the token.
+ * the offset character of the token in the file;
+ * the raw length of the token; and
+ * the running type-to-token ratio.
 
 ### serve
 
