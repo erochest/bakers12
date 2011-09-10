@@ -11,3 +11,4 @@ dist/
 .rvmrc
 Gemfile*
 snap-tmp/
+flot/
