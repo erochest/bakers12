@@ -7,11 +7,16 @@ else.
 \begin{code}
 module Text.Bakers12.Utils
     ( addTypeTokenRatio
+    , fullTokenizeFile
+    , fastTokenizeFile
     ) where
 
-import           Text.Bakers12.Tokenizer.Types
+import           Control.Monad (liftM)
 import qualified Data.List as L
 import qualified Data.Set as S
+import           Text.Bakers12.Tokenizer (fullTokenize, fastTokenize)
+import           Text.Bakers12.Tokenizer.Types
+import           Text.Bakers12.Tokenizer.String ()
 \end{code}
 
 This is a utility to handle type conversions and compute the ratio.
@@ -49,5 +54,15 @@ ratio.
 addTypeTokenRatio :: Ord a => [a] -> [(a, Double)]
 addTypeTokenRatio tokens =
     snd . L.mapAccumL step (RatioAccum S.empty 0) $ tokens
+\end{code}
+
+These tokenize a single file.
+
+\begin{code}
+fullTokenizeFile :: FilePath -> IO [Token String]
+fullTokenizeFile filename = liftM (fullTokenize filename) (readFile filename)
+
+fastTokenizeFile :: FilePath -> IO [String]
+fastTokenizeFile filename = liftM fastTokenize (readFile filename)
 \end{code}
 

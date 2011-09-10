@@ -9,9 +9,9 @@ module Bakers12.Tokenizer
 import           Control.Monad ((=<<), liftM, mapM)
 import qualified Data.List as L
 import           System.IO (readFile)
-import           Text.Bakers12.Tokenizer (Token(..), fullTokenize)
+import           Text.Bakers12.Tokenizer (Token(..))
 import           Text.Bakers12.Tokenizer.String ()
-import           Text.Bakers12.Utils (addTypeTokenRatio)
+import           Text.Bakers12.Utils (addTypeTokenRatio, fullTokenizeFile)
 \end{code}
 
 This tokenzes the file and writes it to the screen as CSV.
@@ -31,7 +31,7 @@ The type transformation pipeline for this is:
 \begin{code}
 tokenize :: [FilePath] -> IO ()
 tokenize inputs = do
-    (putStrLn =<<) . liftM processTokens . mapM tokenizeFile $ inputs
+    (putStrLn =<<) . liftM processTokens . mapM fullTokenizeFile $ inputs
 
     where
         processTokens :: [[Token String]] -> String
@@ -39,13 +39,6 @@ tokenize inputs = do
                       . map showTokenInfo
                       . addTypeTokenRatio
                       . concat
-\end{code}
-
-This tokenizes a single file.
-
-\begin{code}
-tokenizeFile :: FilePath -> IO [Token String]
-tokenizeFile filename = liftM (fullTokenize filename) (readFile filename)
 \end{code}
 
 This takes a token and a running type-to-token ratio and turns it into a CSV
