@@ -14,6 +14,7 @@ module Text.Bakers12.Utils
 import           Control.Monad (liftM)
 import qualified Data.List as L
 import qualified Data.Set as S
+import           System.IO
 import           Text.Bakers12.Tokenizer (fullTokenize, fastTokenize)
 import           Text.Bakers12.Tokenizer.Types
 import           Text.Bakers12.Tokenizer.String ()
@@ -60,9 +61,15 @@ These tokenize a single file.
 
 \begin{code}
 fullTokenizeFile :: FilePath -> IO [Token String]
-fullTokenizeFile filename = liftM (fullTokenize filename) (readFile filename)
+fullTokenizeFile filename =
+    withFile filename ReadMode $ \h -> do
+        text <- hGetContents h
+        L.length text `seq` return (fullTokenize filename text)
 
 fastTokenizeFile :: FilePath -> IO [String]
-fastTokenizeFile filename = liftM fastTokenize (readFile filename)
+fastTokenizeFile filename =
+    withFile filename ReadMode $ \h -> do
+        text <- hGetContents h
+        L.length text `seq` return (fastTokenize text)
 \end{code}
 
