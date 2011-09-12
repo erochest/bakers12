@@ -57,7 +57,9 @@ addTypeTokenRatio tokens =
     snd . L.mapAccumL step (RatioAccum S.empty 0) $ tokens
 \end{code}
 
-These tokenize a single file.
+These tokenize a single file. They read the content strictly, because
+otherwise, attempting to tokenize a large list of files will cause an error
+because too many files will be open.
 
 \begin{code}
 fullTokenizeFile :: FilePath -> IO [Token String]
