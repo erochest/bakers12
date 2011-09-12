@@ -15,6 +15,7 @@ import           Control.Applicative
 import           Control.Monad (liftM)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Either
+import           Data.Int (Int64)
 import           Data.Maybe
 import qualified Data.List as L
 import qualified Data.Text as Text
@@ -59,7 +60,10 @@ tokenize = do
         processTokens = addTypeTokenRatio . concat
 
         partUploadPolicy :: PartInfo -> PartUploadPolicy
-        partUploadPolicy _ = allowWithMaximumSize (1024 * 10)
+        partUploadPolicy _ = allowWithMaximumSize maxSize
+
+        maxSize :: Int64
+        maxSize = fromIntegral 5242880
 
 tokenLoop :: [(Token String, Double)] -> Splice Application
 tokenLoop tokens = do
