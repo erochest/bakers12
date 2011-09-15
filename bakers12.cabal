@@ -50,7 +50,7 @@ Library
     base >= 4.3 && < 5,
     mtl >= 2.0.1.0 && < 3,
     bytestring >= 0.9.1.10 && < 0.10,
-    text >= 0.11.1.5 && < 0.12,
+    text >= 0.11.0.6 && < 0.12,
     containers >= 0.4.0.0 && < 1
 
   extensions: TypeSynonymInstances
@@ -122,7 +122,7 @@ Test-Suite test-bakers12
     test-framework-hunit >= 0.2.6 && < 0.3,
     QuickCheck >= 2.4.0.1,
     HUnit >= 1.2 && < 2,
-    text >= 0.11.1.5 && < 0.12,
+    text >= 0.11 && < 0.12,
     bakers12
   ghc-options:		 -Wall -rtsopts
 
