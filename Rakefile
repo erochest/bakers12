@@ -37,3 +37,18 @@ task :run, [:args] => :build do |t, args|
   sh %{./dist/build/bakers12/bakers12 #{args[:args]}}
 end
 
+namespace :release do
+
+  desc 'Cleans up everything and configures for release.'
+  task :build => [:clean, 'release:config'] do
+    sh %{cabal build}
+  end
+
+  desc 'Configures the project for development.'
+  task :config do
+    sh %{cabal configure}
+  end
+
+end
+
+
