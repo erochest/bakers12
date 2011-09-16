@@ -10,7 +10,7 @@ is to experiment with NLP in Haskell.
   1. Type/token ratios, graph of changing ratio over the course of a text or
      corpus (*done*);
   1. Snap server (*done*);
-  1. Frequency report;
+  1. Frequency report (*done*);
   1. Persistence in Level DB or SQLite in RDF;
   1. Corpus management;
   1. Corpus processing;
