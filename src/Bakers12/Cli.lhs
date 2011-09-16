@@ -24,6 +24,9 @@ data Modes
     = Tokenize
         { files :: [FilePath]
         }
+    | Freq
+        { files :: [FilePath]
+        }
     | Serve
         { port :: Int
         }
@@ -38,6 +41,10 @@ bakers12Modes = modes
         { files = def &= args
                       &= typ "FILES/DIRS"
         } &= details ["This takes one or more files and tokenizes them."]
+    , Freq
+        { files = def &= args
+                      &= typ "FILES/DIRS"
+        } &= details ["This takes one or more files and calculates the frequencies for their types."]
     , Serve
         { port = defaultPort &= name "p"
         } &= details ["This starts a web server on http://localhost:8080 (or another port) for interacting with the program."]
