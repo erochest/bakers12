@@ -125,6 +125,7 @@ Test-Suite test-bakers12
     QuickCheck >= 2.4.0.1,
     HUnit >= 1.2 && < 2,
     text >= 0.11 && < 0.12,
+    containers >= 0.4.0.0 && < 1,
     bakers12
   ghc-options:		 -Wall -rtsopts
 
