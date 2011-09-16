@@ -11,7 +11,7 @@ import qualified Data.List as L
 import           System.IO (readFile)
 import           Text.Bakers12.Tokenizer (Token(..))
 import           Text.Bakers12.Tokenizer.String ()
-import           Text.Bakers12.Utils (addTypeTokenRatio, fullTokenizeFile)
+import           Text.Bakers12.Stats (addTypeTokenRatio, fullTokenizeFile)
 \end{code}
 
 This tokenzes the file and writes it to the screen as CSV.

@@ -1,5 +1,5 @@
 
-module Test.Bakers12.Utils (utilsTests) where
+module Test.Bakers12.Stats (statsTests) where
 
 import qualified Data.List as L
 import           Test.HUnit (Assertion, assertBool)
@@ -8,7 +8,7 @@ import           Test.Framework.Providers.HUnit (testCase)
 import           Test.Framework.Providers.QuickCheck2 (testProperty)
 import           Text.Bakers12.Tokenizer
 import           Text.Bakers12.Tokenizer.String ()
-import           Text.Bakers12.Utils
+import           Text.Bakers12.Stats
 
 -- property: ratio is always <= 1
 pFullRatioFractional :: String -> Bool
@@ -49,8 +49,8 @@ pMatchRatios input =
     where full = map snd . addTypeTokenRatio . fullTokenize "<pMatchRatios>" $ input
           fast = map snd . addTypeTokenRatio . fastTokenize $ input
 
-utilsTests :: [Test]
-utilsTests =
+statsTests :: [Test]
+statsTests =
     [ testGroup "fullTokenize" [ testProperty "ratio-fractional" pFullRatioFractional
                                , testCase "no-duplicates" assertNoDuplicatesFull
                                ]

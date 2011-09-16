@@ -1,11 +1,11 @@
 
-Text.Bakers12.Utils
+Text.Bakers12.Stats
 
 This contains utility functions and things that just don't seem to fit anywhere
 else.
 
 \begin{code}
-module Text.Bakers12.Utils
+module Text.Bakers12.Stats
     ( addTypeTokenRatio
     , fullTokenizeFile
     , fastTokenizeFile

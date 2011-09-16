@@ -42,7 +42,7 @@ Library
     Text.Bakers12.Tokenizer
     Text.Bakers12.Tokenizer.String
     Text.Bakers12.Tokenizer.Types
-    Text.Bakers12.Utils
+    Text.Bakers12.Stats
 
   -- other-modules:
 

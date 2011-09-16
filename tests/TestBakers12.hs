@@ -2,7 +2,7 @@
 module Main where
 
 import Test.Bakers12.Tokenizer
-import Test.Bakers12.Utils
+import Test.Bakers12.Stats
 
 import Test.Framework (Test, defaultMain, testGroup)
 
@@ -13,6 +13,6 @@ main = defaultMain tests
 tests :: [Test]
 tests =
     [ testGroup "tokenizer" tokenizerTests
-    , testGroup "utilities" utilsTests
+    , testGroup "statistics" statsTests
     ]
 

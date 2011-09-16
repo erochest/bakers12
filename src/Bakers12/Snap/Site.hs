@@ -30,7 +30,7 @@ import qualified Text.XmlHtml as X
 import           Bakers12.Snap.Application
 import           Text.Bakers12.Tokenizer (Token(..))
 import           Text.Bakers12.Tokenizer.String ()
-import           Text.Bakers12.Utils (addTypeTokenRatio, fullTokenizeFile)
+import           Text.Bakers12.Stats (addTypeTokenRatio, fullTokenizeFile)
 
 
 ------------------------------------------------------------------------------
