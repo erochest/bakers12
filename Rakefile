@@ -12,8 +12,17 @@ task :cleanbuild => [:clean,
                      :build]
 
 desc 'Configures the project for development.'
-task :config do
-  sh %{cabal configure -f development --enable-tests}
+task :config, [:target] do |t, args|
+  target = args[:target] || 'development'
+
+  case target
+  when 'development'
+    flags = %{-f development --enable-tests}
+  else
+    flags = ''
+  end
+
+  sh %{cabal configure #{flags}}
 end
 
 desc 'Cleans up everything.'
