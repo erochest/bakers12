@@ -53,6 +53,13 @@ assertFrequencies3 =
         freqs = frequencies input
 
 -- test cases for summaryStats
+assertSumHasOutput :: Assertion
+assertSumHasOutput =
+    assertBool "summarize does produce output."
+               (not (L.null output) || (M.null freqs))
+    where
+        (output, freqs) = summarize "abcdeabcedfdsakl;fdsa"
+
 assertSumNoDups :: Assertion
 assertSumNoDups =
     assertBool "Type/token is always one if there are no duplicates tokens."
@@ -91,11 +98,13 @@ statsTests =
                                , testCase "frequencies-1" assertFrequencies1
                                , testCase "frequencies-2" assertFrequencies2
                                , testCase "frequencies-3" assertFrequencies3
-                               , testCase "summary-stats" assertSumNoDups
-                               , testCase "summary-stats" assertSumFreqs1
-                               , testCase "summary-stats" assertSumFreqs2
-                               , testCase "summary-stats" assertSumFreqs3
                                ]
+    , testGroup "summary-stats" [ testCase "has-output" assertSumHasOutput
+                                , testCase "summary-stats" assertSumNoDups
+                                , testCase "summary-stats" assertSumFreqs1
+                                , testCase "summary-stats" assertSumFreqs2
+                                , testCase "summary-stats" assertSumFreqs3
+                                ]
     ]
 
 

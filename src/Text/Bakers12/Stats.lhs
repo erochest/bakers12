@@ -8,6 +8,7 @@ else.
 module Text.Bakers12.Stats
     ( addTypeTokenRatio
     , frequencies
+    , summarize
     ) where
 
 import qualified Data.List as L
@@ -58,8 +59,30 @@ in the list to their frequencies in it.
 \begin{code}
 frequencies :: Ord a => [a] -> M.Map a Int
 frequencies = L.foldl' freq' M.empty
+
+freq' :: Ord a => M.Map a Int -> a -> M.Map a Int
+freq' m k = M.insertWith' (+) k 1 m
+\end{code}
+
+summarize is a combination of addTypeTokenRatio and frequencies. Because it
+only traverses the input once, it is more efficient.
+
+\begin{code}
+data SumAccum a = SumAccum (RatioAccum a) (M.Map a Int)
+
+summarize :: Ord a => [a] -> ([(a, Double)], M.Map a Int)
+summarize input =
+    let (SumAccum _ freqs, output) = L.mapAccumL sumStep start $ input
+    in  (output, freqs)
     where
-        freq' :: Ord a => M.Map a Int -> a -> M.Map a Int
-        freq' m k = M.insertWith' (+) k 1 m
+        start :: SumAccum a
+        start = SumAccum (RatioAccum S.empty 0) M.empty
+
+sumStep :: Ord a => SumAccum a -> a -> (SumAccum a, (a, Double))
+sumStep (SumAccum accum freqMap) item = (SumAccum accum' freqOut, output)
+    where
+        (accum', output) = step accum item
+        freqOut = freq' freqMap item
+
 \end{code}
 
