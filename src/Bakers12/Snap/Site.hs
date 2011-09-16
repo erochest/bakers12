@@ -14,7 +14,6 @@ module Bakers12.Snap.Site
 import           Control.Applicative
 import           Control.Monad (liftM)
 import           Control.Monad.IO.Class (liftIO)
-import qualified Data.ByteString.Char8 as B
 import           Data.Either
 import           Data.Int (Int64)
 import           Data.Maybe
@@ -30,7 +29,7 @@ import qualified Text.XmlHtml as X
 
 import           Bakers12.Snap.Application
 import           Text.Bakers12.Tokenizer (Token(..))
-import           Text.Bakers12.Tokenizer.ByteString (fullTokenizeFile)
+import           Text.Bakers12.Tokenizer.Text (fullTokenizeFile)
 import           Text.Bakers12.Stats (addTypeTokenRatio)
 
 
@@ -53,11 +52,11 @@ tokenize = do
         $ render "tokenize"
     where
         -- TODO: handle errors
-        processFiles :: [(PartInfo, Either PolicyViolationException FilePath)] -> Application [(Token B.ByteString, Double)]
+        processFiles :: [(PartInfo, Either PolicyViolationException FilePath)] -> Application [(Token Text.Text, Double)]
         processFiles parts =
             liftIO . liftM processTokens . mapM fullTokenizeFile . rights . map snd $ parts
 
-        processTokens :: [[Token B.ByteString]] -> [(Token B.ByteString, Double)]
+        processTokens :: [[Token Text.Text]] -> [(Token Text.Text, Double)]
         processTokens = addTypeTokenRatio . concat
 
         partUploadPolicy :: PartInfo -> PartUploadPolicy
@@ -66,7 +65,7 @@ tokenize = do
         maxSize :: Int64
         maxSize = fromIntegral 5242880
 
-tokenLoop :: [(Token B.ByteString, Double)] -> Splice Application
+tokenLoop :: [(Token Text.Text, Double)] -> Splice Application
 tokenLoop tokens = do
     ts <- getTS
     node <- getParamNode
@@ -76,10 +75,10 @@ tokenLoop tokens = do
     return $ concat bds
     where
 
-        step :: [X.Node] -> Token B.ByteString -> Double -> Splice Application
+        step :: [X.Node] -> Token Text.Text -> Double -> Splice Application
         step body token ratio = do
-            modifyTS $ bindSplices [ ("token", stringToSplice . B.unpack $ tokenText token)
-                                   , ("raw", stringToSplice . B.unpack $ tokenRaw token)
+            modifyTS $ bindSplices [ ("token", stringToSplice . Text.unpack $ tokenText token)
+                                   , ("raw", stringToSplice . Text.unpack $ tokenRaw token)
                                    , ("source", stringToSplice $ tokenSource token)
                                    , ("offset", stringToSplice . show $ tokenOffset token)
                                    , ("length", stringToSplice . show $ tokenLength token)
@@ -92,7 +91,7 @@ tokenLoop tokens = do
             where convert :: String -> X.Node
                   convert = X.TextNode . Text.pack
 
-ratioArray :: [(Token B.ByteString, Double)] -> Splice Application
+ratioArray :: [(Token Text.Text, Double)] -> Splice Application
 ratioArray tokens = return $ [script ratios]
     where
         ratios :: String
