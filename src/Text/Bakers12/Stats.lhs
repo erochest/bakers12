@@ -7,8 +7,6 @@ else.
 \begin{code}
 module Text.Bakers12.Stats
     ( addTypeTokenRatio
-    , fullTokenizeFile
-    , fastTokenizeFile
     ) where
 
 import           Control.Monad (liftM)
@@ -17,7 +15,6 @@ import qualified Data.Set as S
 import           System.IO
 import           Text.Bakers12.Tokenizer (fullTokenize, fastTokenize)
 import           Text.Bakers12.Tokenizer.Types
-import           Text.Bakers12.Tokenizer.String ()
 \end{code}
 
 This is a utility to handle type conversions and compute the ratio.
@@ -55,23 +52,5 @@ ratio.
 addTypeTokenRatio :: Ord a => [a] -> [(a, Double)]
 addTypeTokenRatio tokens =
     snd . L.mapAccumL step (RatioAccum S.empty 0) $ tokens
-\end{code}
-
-These tokenize a single file. They read the content strictly, because
-otherwise, attempting to tokenize a large list of files will cause an error
-because too many files will be open.
-
-\begin{code}
-fullTokenizeFile :: FilePath -> IO [Token String]
-fullTokenizeFile filename =
-    withFile filename ReadMode $ \h -> do
-        text <- hGetContents h
-        L.length text `seq` return (fullTokenize filename text)
-
-fastTokenizeFile :: FilePath -> IO [String]
-fastTokenizeFile filename =
-    withFile filename ReadMode $ \h -> do
-        text <- hGetContents h
-        L.length text `seq` return (fastTokenize text)
 \end{code}
 

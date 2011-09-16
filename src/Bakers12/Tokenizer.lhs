@@ -10,8 +10,8 @@ import           Control.Monad ((=<<), liftM, mapM)
 import qualified Data.List as L
 import           System.IO (readFile)
 import           Text.Bakers12.Tokenizer (Token(..))
-import           Text.Bakers12.Tokenizer.String ()
-import           Text.Bakers12.Stats (addTypeTokenRatio, fullTokenizeFile)
+import           Text.Bakers12.Tokenizer.String (fullTokenizeFile)
+import           Text.Bakers12.Stats (addTypeTokenRatio)
 \end{code}
 
 This tokenzes the file and writes it to the screen as CSV.
