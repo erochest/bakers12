@@ -6,10 +6,9 @@ module Bakers12.Tokenizer
     ( tokenize
     ) where
 
-import           Control.Monad ((=<<), liftM, mapM)
+import           Control.Monad (liftM)
 import qualified Data.List as L
 import qualified Data.Text as T
-import           System.IO (readFile)
 import           Text.Bakers12.Tokenizer (Token(..))
 import           Text.Bakers12.Tokenizer.Text (fullTokenizeFile)
 import           Text.Bakers12.Stats (addTypeTokenRatio)

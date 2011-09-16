@@ -9,12 +9,8 @@ module Text.Bakers12.Stats
     ( addTypeTokenRatio
     ) where
 
-import           Control.Monad (liftM)
 import qualified Data.List as L
 import qualified Data.Set as S
-import           System.IO
-import           Text.Bakers12.Tokenizer (fullTokenize, fastTokenize)
-import           Text.Bakers12.Tokenizer.Types
 \end{code}
 
 This is a utility to handle type conversions and compute the ratio.

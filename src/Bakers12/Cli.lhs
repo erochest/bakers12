@@ -32,6 +32,7 @@ data Modes
 defaultPort :: Int
 defaultPort = 8080
 
+bakers12Modes :: Modes
 bakers12Modes = modes
     [ Tokenize
         { files = def &= args

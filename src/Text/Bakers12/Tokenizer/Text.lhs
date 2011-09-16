@@ -15,8 +15,6 @@ module Text.Bakers12.Tokenizer.Text
     , fastTokenizeFile
     ) where
 
-import qualified Data.Char as C
-import qualified Data.List as L
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import           System.IO
