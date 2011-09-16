@@ -1,6 +1,15 @@
 
 #ratiograph {
+    float: left;
     height: 300px;
     width: 486px;
+    margin-left: 50px;
+}
+
+#freqgraph {
+    float: right;
+    height: 300px;
+    width: 486px;
+    margin-right: 50px;
 }
 

@@ -17,6 +17,8 @@ import           Control.Monad.IO.Class (liftIO)
 import           Data.Either
 import           Data.Int (Int64)
 import qualified Data.List as L
+import qualified Data.Map as M
+import qualified Data.Ord as O
 import qualified Data.Text as T
 import           Snap.Extension.Heist
 import           Snap.Util.FileServe
@@ -28,7 +30,7 @@ import qualified Text.XmlHtml as X
 import           Bakers12.Snap.Application
 import           Text.Bakers12.Tokenizer (Token(..))
 import           Text.Bakers12.Tokenizer.Text (fullTokenizeFile)
-import           Text.Bakers12.Stats (addTypeTokenRatio)
+import           Text.Bakers12.Stats (summarize)
 
 
 ------------------------------------------------------------------------------
@@ -45,17 +47,19 @@ index = ifTop $ render "index"
 tokenize :: Application ()
 tokenize = do
     tokenData <- handleFileUploads "tmp" defaultUploadPolicy partUploadPolicy processFiles
-    heistLocal (bindSplice "tokens" $ tokenLoop tokenData)
-        . heistLocal (bindSplice "ratioarray" $ ratioArray tokenData)
+    heistLocal (bindSplice "tokens" . tokenLoop $ fst tokenData)
+        . heistLocal (bindSplice "ratioarray" . ratioArray $ fst tokenData)
+        . heistLocal (bindSplice "freqarray" . freqArray $ snd tokenData)
         $ render "tokenize"
     where
         -- TODO: handle errors
-        processFiles :: [(PartInfo, Either PolicyViolationException FilePath)] -> Application [(Token T.Text, Double)]
+        processFiles :: [(PartInfo, Either PolicyViolationException FilePath)] -> Application ([(Token T.Text, Double)], M.Map (Token T.Text) Int)
         processFiles parts =
             liftIO . liftM processTokens . mapM fullTokenizeFile . rights . map snd $ parts
 
-        processTokens :: [[Token T.Text]] -> [(Token T.Text, Double)]
-        processTokens = addTypeTokenRatio . concat
+        processTokens :: [[Token T.Text]]
+                      -> ([(Token T.Text, Double)], M.Map (Token T.Text) Int)
+        processTokens = summarize . concat
 
         partUploadPolicy :: PartInfo -> PartUploadPolicy
         partUploadPolicy _ = allowWithMaximumSize maxSize
@@ -96,20 +100,39 @@ ratioArray tokens = return $ [script ratios]
         ratios =
             ("var ratioData = " ++) . toArray . map showPair . zip ns . map snd $ tokens
 
-        script :: String -> X.Node
-        script body =
-            X.Element (T.pack "script") [(T.pack "type", T.pack "text/javascript")]
-                      [X.TextNode . T.pack $ body]
-
         ns :: [Int]
         ns = L.iterate (1+) 1
 
         showPair :: (Int, Double) -> String
         showPair (n, ratio) = toArray [show n, show ratio]
 
-        toArray :: [String] -> String
-        toArray items = '[' : ar ++ "]"
-            where ar = L.intercalate "," items
+freqArray :: M.Map (Token T.Text) Int -> Splice Application
+freqArray freqMap = return $ [script freqs]
+    where
+        freqs :: String
+        freqs =
+            ("var freqData = " ++)
+                . toArray
+                . map showPair
+                . zip ns
+                . L.sort
+                . map snd
+                $ M.toList freqMap
+
+        ns :: [Int]
+        ns = L.iterate (1+) 1
+
+        showPair :: (Int, Int) -> String
+        showPair (n, freq) = toArray [show n, show freq]
+
+script :: String -> X.Node
+script body =
+    X.Element (T.pack "script") [(T.pack "type", T.pack "text/javascript")]
+              [X.TextNode . T.pack $ body]
+
+toArray :: [String] -> String
+toArray items = '[' : ar ++ "]"
+    where ar = L.intercalate "," items
 
 
 ------------------------------------------------------------------------------

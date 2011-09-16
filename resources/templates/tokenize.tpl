@@ -8,6 +8,7 @@
     <div id="content">
       <h1>Bakers12 Tokenizer</h1>
       <div id='ratiograph'></div>
+      <div id='freqgraph'></div>
       <table>
         <thead>
           <tr>
@@ -34,6 +35,7 @@
     </div>
 
   <ratioarray/>
+  <freqarray/>
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script> 
   <script>window.jQuery || document.write('<script src="/js/libs/jquery-1.6.3.min.js"><\/script>')</script> 
