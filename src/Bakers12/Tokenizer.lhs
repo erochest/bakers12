@@ -7,10 +7,11 @@ module Bakers12.Tokenizer
     ) where
 
 import           Control.Monad ((=<<), liftM, mapM)
+import qualified Data.ByteString.Char8 as B
 import qualified Data.List as L
 import           System.IO (readFile)
 import           Text.Bakers12.Tokenizer (Token(..))
-import           Text.Bakers12.Tokenizer.String (fullTokenizeFile)
+import           Text.Bakers12.Tokenizer.ByteString (fullTokenizeFile)
 import           Text.Bakers12.Stats (addTypeTokenRatio)
 \end{code}
 
@@ -34,21 +35,23 @@ tokenize inputs = do
     (putStrLn =<<) . liftM processTokens . mapM fullTokenizeFile $ inputs
 
     where
-        processTokens :: [[Token String]] -> String
-        processTokens = L.intercalate "\n"
+        processTokens :: [[Token B.ByteString]] -> String
+        processTokens = L.intercalate nl
                       . map showTokenInfo
                       . addTypeTokenRatio
                       . concat
+        nl :: String
+        nl = "\n"
 \end{code}
 
 This takes a token and a running type-to-token ratio and turns it into a CSV
 row.
 
 \begin{code}
-showTokenInfo :: (Token String, Double) -> String
+showTokenInfo :: (Token B.ByteString, Double) -> String
 showTokenInfo (token, ttRatio) =
-    L.intercalate "," [ tokenText token
-                      , '"' : (tokenRaw token) ++ "\""
+    L.intercalate "," [ B.unpack $ tokenText token
+                      , '"' : (B.unpack $ tokenRaw token) ++ "\""
                       , tokenSource token
                       , show $ tokenOffset token
                       , show $ tokenLength token

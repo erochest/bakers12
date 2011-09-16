@@ -40,6 +40,7 @@ Library
 
   exposed-modules:
     Text.Bakers12.Tokenizer
+    Text.Bakers12.Tokenizer.ByteString
     Text.Bakers12.Tokenizer.String
     Text.Bakers12.Tokenizer.Types
     Text.Bakers12.Stats
