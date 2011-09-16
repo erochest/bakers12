@@ -7,9 +7,11 @@ else.
 \begin{code}
 module Text.Bakers12.Stats
     ( addTypeTokenRatio
+    , frequencies
     ) where
 
 import qualified Data.List as L
+import qualified Data.Map as M
 import qualified Data.Set as S
 \end{code}
 
@@ -48,5 +50,16 @@ ratio.
 addTypeTokenRatio :: Ord a => [a] -> [(a, Double)]
 addTypeTokenRatio tokens =
     snd . L.mapAccumL step (RatioAccum S.empty 0) $ tokens
+\end{code}
+
+The frequencies code takes a list of Ords and returns a Map mapping the items
+in the list to their frequencies in it.
+
+\begin{code}
+frequencies :: Ord a => [a] -> M.Map a Int
+frequencies = L.foldl' freq' M.empty
+    where
+        freq' :: Ord a => M.Map a Int -> a -> M.Map a Int
+        freq' m k = M.insertWith' (+) k 1 m
 \end{code}
 
