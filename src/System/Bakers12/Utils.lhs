@@ -9,11 +9,17 @@ system.
 module System.Bakers12.Utils
     ( normalizeFilePaths
     , getRecursiveContents
+    , openBrowserOn
     ) where
 
-import Control.Monad (forM, liftM2)
-import System.Directory (doesDirectoryExist, doesFileExist, getDirectoryContents)
-import System.FilePath ((</>))
+import           Control.Monad (forM, liftM2)
+import qualified Data.List as L
+import           System.Directory (doesDirectoryExist, doesFileExist, getDirectoryContents)
+import           System.Exit (ExitCode(..))
+import           System.FilePath ((</>))
+import           System.Info (os)
+import           System.Process (readProcessWithExitCode)
+import           Text.Printf (printf)
 
 \end{code}
 
@@ -58,4 +64,30 @@ getRecursiveContents topdir = do
 
 \end{code}
 
+
+This is borrowed with a slight change from
+http://hackage.haskell.org/packages/archive/hledger/latest/doc/html/src/Hledger-Cli-Utils.html#openBrowserOn.
+
+\begin{code}
+-- | Attempt to open a web browser on the given url, all platforms.
+openBrowserOn :: String -> IO ExitCode
+openBrowserOn u = trybrowsers browsers u
+    where
+      trybrowsers (b:bs) u = do
+        (e,_,_) <- readProcessWithExitCode b [u] ""
+        case e of
+          ExitSuccess -> return ExitSuccess
+          ExitFailure _ -> trybrowsers bs u
+      trybrowsers [] u = do
+        putStrLn $ printf "Could not start a web browser (tried: %s)" $ L.intercalate ", " browsers
+        putStrLn $ printf "Please open your browser and visit %s" u
+        return $ ExitFailure 127
+      browsers | os=="darwin"  = ["open"]
+               | os=="mingw32" = ["start"]
+               | otherwise     = [ "sensible-browser"
+                                 , "gnome-www-browser"
+                                 , "google-chrome"
+                                 , "firefox"
+                                 ]
+\end{code}
 

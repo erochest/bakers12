@@ -80,26 +80,43 @@ import           Snap.Http.Server (simpleHttpServe)
 import           Snap.Extension.Server
 #endif
 
+import           Control.Concurrent (forkIO, threadDelay)
 import           Data.Monoid (mempty)
 import           Bakers12.Snap.Application
 import           Bakers12.Snap.Site
+import           System.Bakers12.Utils (openBrowserOn)
 
 
 serveSnap :: Int -> IO ()
 #ifdef DEVELOPMENT
-serveSnap port =
+serveSnap port = do
     -- All source directories will be watched for updates
     -- automatically.  If any extra directories should be watched for
     -- updates, include them here.
+    putStrLn "DEV MODE"
     (snap, cleanup) <- $(let watchDirs = ["resources/templates"]
                          in loadSnapTH 'applicationInitializer 'site watchDirs)
+    forkIO launch
     try $ simpleHttpServe config snap :: IO (Either SomeException ())
     cleanup
     where config :: Config m a
           config = setPort port mempty
+
+          launch :: IO ()
+          launch = do
+            threadDelay 1000
+            openBrowserOn . ("http://localhost:" ++) $ show port
+            return ()
 #else
-serveSnap port =
+serveSnap port = do
+    forkIO launch
     httpServe config applicationInitializer site
     where config :: ConfigExtend s
           config = setPort port mempty
+
+          launch :: IO ()
+          launch = do
+            threadDelay 1000
+            openBrowserOn . ("http://localhost:" ++) $ show port
+            return ()
 #endif
