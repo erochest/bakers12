@@ -15,7 +15,8 @@
     <meta name="author" content="">
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/libs/modernizr-2.0.6.min.js"></script>
   </head>
   <body>
@@ -25,7 +26,7 @@
         <h1>Bakers12</h1>
 
       </header>
-      <div id="main" role="main">
+      <div id="main" role="main" class='container'>
       <p>
        This is a simple interface to the Baker12 command-line script.
        Currently, you can only load a file. It's tokenized and the results are
@@ -35,18 +36,23 @@
       </p>
 
       <div style="width: 100px">
-        <form action="/tokenize/" method="post" enctype="multipart/form-data">
-          <label for="file">File</label> &nbsp; <input type="file" name="file" size="40" /><br />
-          <div style="text-align: right;">
-            <input type="submit" />
-          </div>
+        <form action="/tokenize/" method="post" enctype="multipart/form-data" class='form-stacked'>
+	  <fieldset>
+	    <div class='clearfix'>
+              <label for="file">File</label>
+	      <div class='input'><input class='input' type="file" name="file" size="40" /></div>
+            </div>
+            <div class='actions'>
+              <input type="submit" class='btn' value='Upload' />
+            </div>
+	  </fieldset>
         </form>
       </div>
       </div>
       <footer>
 
 <p>
-Fri Sep 23 14:08:03 2011
+Fri Sep 23 14:58:39 2011
 </p>
 
       </footer>
