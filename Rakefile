@@ -1,4 +1,8 @@
 
+COFFEE = [
+  'resources/static/js/script.coffee'
+]
+
 task :default => :usage
 
 task :usage do
@@ -31,7 +35,7 @@ task :clean do
 end
 
 desc 'Builds everything.'
-task :build do
+task :build => ['coffee:build'] do
   sh %{cabal build}
 end
 
@@ -44,6 +48,18 @@ desc 'Runs bakers12.'
 task :run, [:args] => :build do |t, args|
   args.with_default(:args => '')
   sh %{./dist/build/bakers12/bakers12 #{args[:args]}}
+end
+
+namespace :coffee do
+  desc 'This watches the CoffeeScript files and recompiles them automatically.'
+  task :watch do
+    sh %(coffee --watch --compile #{COFFEE.join(' ')})
+  end
+
+  desc 'This compiles all the CoffeeScript files.'
+  task :build do
+    sh %(coffee --compile #{COFFEE.join(' ')})
+  end
 end
 
 namespace :release do
