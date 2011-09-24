@@ -1,8 +1,11 @@
 <html>
   <head>
     <title>Bakers12 Tokenizer</title>
-    <link rel="stylesheet" type="text/css" href="/screen.css"/>
-    <link rel="stylesheet" type="text/css" href="/style.css"/>
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/print.css" media="print" rel="stylesheet" type="text/css" />
+    <!--[if lt IE 8]>
+        <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <![endif]-->
   </head>
   <body>
     <div id="content">

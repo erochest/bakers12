@@ -15,11 +15,14 @@
     <meta name="author" content="">
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/print.css" media="print" rel="stylesheet" type="text/css" />
+    <!--[if lt IE 8]>
+        <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <![endif]-->
     <script src="/js/libs/modernizr-2.0.6.min.js"></script>
   </head>
-  <body>
+  <body class='bp'>
     <div id="container">
       <header>
 
@@ -37,7 +40,7 @@
         </p>
 
         <div style="width: 100px">
-          <form action="/tokenize/" method="post" enctype="multipart/form-data" class='form-stacked'>
+          <form action="/tokenize/" method="post" enctype="multipart/form-data" class='bp'>
 	    <fieldset>
 	      <div class='clearfix'>
                 <label for="file">File</label>
@@ -52,10 +55,6 @@
       </div>
 
       <footer>
-
-<p>
-Fri Sep 23 14:58:39 2011
-</p>
 
       </footer>
     </div> <!--! end of #container -->
