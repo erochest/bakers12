@@ -1,6 +1,6 @@
 
 COFFEE = [
-  'resources/static/js/script.coffee'
+  'resources/static/js/script.coffee',
 ]
 
 task :default => :usage
@@ -59,6 +59,18 @@ namespace :coffee do
   desc 'This compiles all the CoffeeScript files.'
   task :build do
     sh %(coffee --compile #{COFFEE.join(' ')})
+  end
+end
+
+namespace :compass do
+  desc 'This watches the SASS files and recompiles them automatically.'
+  task :watch do
+    sh %(compass watch resources/static)
+  end
+
+  desc 'This compiles all the SASS files.'
+  task :build do
+    sh %(compass compile resources/static)
   end
 end
 
