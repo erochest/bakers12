@@ -8,6 +8,7 @@ dist/
 *.orig
 .DS_Store
 .bundle/
+.sass-cache/
 .rvmrc
 Gemfile*
 snap-tmp/
