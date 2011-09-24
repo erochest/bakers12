@@ -75,7 +75,6 @@ namespace :compass do
 end
 
 namespace :release do
-
   desc 'Cleans up everything and configures for release.'
   task :build => [:clean, 'release:config'] do
     sh %{cabal build}
@@ -85,7 +84,6 @@ namespace :release do
   task :config do
     sh %{cabal configure}
   end
-
 end
 
 
