@@ -1,15 +1,9 @@
-<html>
-  <head>
-    <title>Bakers12 Tokenizer</title>
-    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
-    <link href="/stylesheets/print.css" media="print" rel="stylesheet" type="text/css" />
-    <!--[if lt IE 8]>
-        <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
-    <![endif]-->
-  </head>
-  <body>
-    <div id="content">
-      <h1>Bakers12 Tokenizer</h1>
+<apply template='wrap'>
+  <bind tag='pagetitle'>Bakers12 Tokenizer</bind>
+  <bind tag='pagepostscripts'>
+    <ratioarray/>
+    <freqarray/>
+  </bind>
       <div id='ratiograph'></div>
       <div id='freqgraph'></div>
       <table>
@@ -35,14 +29,4 @@
           </tokens>
         </tbody>
       </table>
-    </div>
-
-  <ratioarray/>
-  <freqarray/>
-
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script> 
-  <script>window.jQuery || document.write('<script src="/js/libs/jquery-1.6.3.min.js"><\/script>')</script> 
-  <script src="/js/libs/flot/jquery.flot.min.js"></script>
-  <script src="/js/script.js?v=2"></script> 
-  </body>
-</html>
+</apply>
