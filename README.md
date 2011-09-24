@@ -34,6 +34,23 @@ Other topics:
 
 ## Commands
 
+### freq
+
+This takes one or more files and calculates the frequencies for their types.
+
+    bakers12 freq [OPTIONS] [FILES/DIRS]
+
+### serve
+
+    bakers12 serve [--port=INT]
+
+This starts a [Snap](http://snapframework.com/) server for browsing information
+about the corpus.
+
+At the moment, the only this this server does is allow you to upload a file,
+which it tokenizes and displays the tokens and a graph of the running
+type-to-token ratio.
+
 ### tokenize
 
     bakers12 tokenize [FILES/DIRS]
@@ -47,17 +64,6 @@ out. The output is formatted as CSV, and it includes these fields:
 * the offset character of the token in the file;
 * the raw length of the token; and
 * the running type-to-token ratio.
-
-### serve
-
-    bakers12 serve [--port=INT]
-
-This starts a [Snap](http://snapframework.com/) server for browsing information
-about the corpus.
-
-At the moment, the only this this server does is allow you to upload a file,
-which it tokenizes and displays the tokens and a graph of the running
-type-to-token ratio.
 
 ### Future Commands
 
