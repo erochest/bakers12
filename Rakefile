@@ -35,7 +35,8 @@ task :clean do
 end
 
 desc 'Builds everything.'
-task :build => ['coffee:build'] do
+task :build => ['coffee:build',
+                'compass:build'] do
   sh %{cabal build}
 end
 
