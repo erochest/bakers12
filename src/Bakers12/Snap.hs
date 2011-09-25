@@ -39,43 +39,13 @@ change.
 
 -}
 
-{-
-module Main where
-
-#ifdef DEVELOPMENT
-import           Control.Exception (SomeException, try)
-
-import           Snap.Extension.Loader.Devel
-import           Snap.Http.Server (quickHttpServe)
-#else
-import           Snap.Extension.Server
-#endif
-
-import           Application
-import           Site
-
-main :: IO ()
-#ifdef DEVELOPMENT
-main = do
-    -- All source directories will be watched for updates
-    -- automatically.  If any extra directories should be watched for
-    -- updates, include them here.
-    (snap, cleanup) <- $(let watchDirs = ["resources/templates"]
-                         in loadSnapTH 'applicationInitializer 'site watchDirs)
-    try $ quickHttpServe snap :: IO (Either SomeException ())
-    cleanup
-#else
-main = quickHttpServe applicationInitializer site
-#endif
--}
-
 module Bakers12.Snap (serveSnap) where
 
 #ifdef DEVELOPMENT
 import           Control.Exception (SomeException, try)
 
 import           Snap.Extension.Loader.Devel
-import           Snap.Http.Server (simpleHttpServe)
+import           Snap.Http.Server (quickHttpServe)
 #else
 import           Snap.Extension.Server
 #endif
@@ -97,15 +67,12 @@ serveSnap port = do
     (snap, cleanup) <- $(let watchDirs = ["resources/templates"]
                          in loadSnapTH 'applicationInitializer 'site watchDirs)
     forkIO launch
-    try $ simpleHttpServe config snap :: IO (Either SomeException ())
+    try $ quickHttpServe snap :: IO (Either SomeException ())
     cleanup
-    where config :: Config m a
-          config = setPort port mempty
-
-          launch :: IO ()
+    where launch :: IO ()
           launch = do
             threadDelay 1000
-            openBrowserOn . ("http://localhost:" ++) $ show port
+            openBrowserOn "http://localhost:8000"
             return ()
 #else
 serveSnap port = do
