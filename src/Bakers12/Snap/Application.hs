@@ -8,10 +8,12 @@ information it requires.
 module Bakers12.Snap.Application
   ( Application
   , applicationInitializer
+  , devApplicationInitializer
   ) where
 
 import           Snap.Extension
 import           Snap.Extension.Heist.Impl
+import           System.FilePath ((</>))
 
 
 ------------------------------------------------------------------------------
@@ -43,8 +45,11 @@ instance HasHeistState Application ApplicationState where
 -- generate the 'ApplicationState' needed for our application and will
 -- automatically generate reload\/cleanup actions for us which we don't need
 -- to worry about.
-applicationInitializer :: Initializer ApplicationState
-applicationInitializer = do
-    heist <- heistInitializer "resources/templates" id
-    return $ ApplicationState heist
+applicationInitializer :: FilePath -> Initializer ApplicationState
+applicationInitializer resourceDir = do
+        heist <- heistInitializer (resourceDir </> "templates") id
+        return $ ApplicationState heist
+
+devApplicationInitializer :: Initializer ApplicationState
+devApplicationInitializer = applicationInitializer "./resources"
 

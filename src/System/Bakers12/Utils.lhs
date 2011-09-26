@@ -10,13 +10,16 @@ module System.Bakers12.Utils
     ( normalizeFilePaths
     , getRecursiveContents
     , openBrowserOn
+    , getResourceDir
     ) where
 
-import           Control.Monad (forM, liftM2)
+import           Paths_bakers12 (getDataFileName)
+import           Control.Monad (forM, liftM, liftM2, filterM, sequence, (=<<))
 import qualified Data.List as L
-import           System.Directory (doesDirectoryExist, doesFileExist, getDirectoryContents)
+import           Data.Maybe (listToMaybe)
+import           System.Directory (doesDirectoryExist, doesFileExist, getDirectoryContents, getCurrentDirectory)
 import           System.Exit (ExitCode(..))
-import           System.FilePath ((</>))
+import           System.FilePath ((</>), dropFileName)
 import           System.Info (os)
 import           System.Process (readProcessWithExitCode)
 import           Text.Printf (printf)
@@ -89,5 +92,21 @@ openBrowserOn u = trybrowsers browsers u
                                  , "google-chrome"
                                  , "firefox"
                                  ]
+\end{code}
+
+This looks in several directories and returns the first that contains a file
+named 'resource-dir-marker'. It assumes that the rest of the resources lie
+under that directory.
+
+\begin{code}
+getResourceDir :: IO (Maybe FilePath)
+getResourceDir = do
+    cwd <- getCurrentDirectory
+    let dirPaths = [ return $ cwd </> "resources/resource-dir-marker"
+                   , getDataFileName "resources/resource-dir-marker"
+                   ]
+    liftM (listToMaybe . map dropFileName) .
+        filterM doesFileExist =<<
+        sequence dirPaths
 \end{code}
 

@@ -9,6 +9,7 @@ This is where all the routes and handlers are defined for your site. The
 
 module Bakers12.Snap.Site
   ( site
+  , devSite
   ) where
 
 import           Control.Applicative
@@ -28,6 +29,8 @@ import           Text.Templating.Heist
 import qualified Text.XmlHtml as X
 
 import           Bakers12.Snap.Application
+import           System.Bakers12.Utils (getResourceDir)
+import           System.FilePath ((</>))
 import           Text.Bakers12.Tokenizer (Token(..))
 import           Text.Bakers12.Tokenizer.Text (fullTokenizeFile)
 import           Text.Bakers12.Stats (summarize)
@@ -137,8 +140,13 @@ toArray items = '[' : ar ++ "]"
 
 ------------------------------------------------------------------------------
 -- | The main entry point handler.
-site :: Application ()
-site = route [ ("/",            index)
-             , ("/tokenize/",   tokenize)
-             ]
-       <|> serveDirectory "resources/static"
+site :: FilePath -> Application ()
+site resourceDir =
+    route [ ("/",            index)
+          , ("/tokenize/",   tokenize)
+          ]
+    <|> (serveDirectory $ resourceDir </> "static")
+
+devSite :: Application ()
+devSite = site "./resources"
+

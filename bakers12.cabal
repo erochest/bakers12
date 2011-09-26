@@ -30,6 +30,21 @@ Extra-source-files:
   , resources/static/screen.css
   , resources/templates/echo.tpl
   , resources/templates/index.tpl
+data-files:
+  resources/resource-dir-marker,
+  resources/static/*.html,
+  resources/static/*.png,
+  resources/static/*.xml,
+  resources/static/*.ico,
+  resources/static/*.txt,
+  resources/static/images/*.png,
+  resources/static/js/libs/flot/*.min.js,
+  resources/static/js/libs/flot/*.flot.min.js,
+  resources/static/js/libs/jquery-1.6.3.min.js,
+  resources/static/js/libs/modernizr-2.0.6.min.js,
+  resources/static/js/*.js,
+  resources/static/stylesheets/*.css,
+  resources/templates/*.tpl
 
 Flag development
   Description:	Whether to build in development mode.
@@ -94,10 +109,11 @@ Executable bakers12
     bakers12
 
   extensions: DeriveDataTypeable TypeSynonymInstances MultiParamTypeClasses
-  
+
   -- Modules not exported by this package.
   Other-modules:
-    System.Bakers12.Utils
+    System.Bakers12.Utils,
+    Paths_bakers12
   
   -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
   -- Build-tools:	   

@@ -46,6 +46,8 @@ import           Control.Exception (SomeException, try)
 
 import           Snap.Extension.Loader.Devel
 import           Snap.Http.Server (quickHttpServe)
+import           System.Bakers12.Utils (getResourceDir)
+import           System.FilePath ((</>))
 #else
 import           Snap.Extension.Server
 #endif
@@ -54,7 +56,7 @@ import           Control.Concurrent (forkIO, threadDelay)
 import           Data.Monoid (mempty)
 import           Bakers12.Snap.Application
 import           Bakers12.Snap.Site
-import           System.Bakers12.Utils (openBrowserOn)
+import           System.Bakers12.Utils (openBrowserOn, getResourceDir)
 
 
 serveSnap :: Int -> IO ()
@@ -64,8 +66,8 @@ serveSnap port = do
     -- automatically.  If any extra directories should be watched for
     -- updates, include them here.
     putStrLn "DEV MODE"
-    (snap, cleanup) <- $(let watchDirs = ["resources/templates"]
-                         in loadSnapTH 'applicationInitializer 'site watchDirs)
+    (snap, cleanup) <- $(let watchDirs = ["./resources/templates"]
+                         in loadSnapTH 'devApplicationInitializer 'devSite watchDirs)
     forkIO launch
     try $ quickHttpServe snap :: IO (Either SomeException ())
     cleanup
@@ -76,8 +78,12 @@ serveSnap port = do
             return ()
 #else
 serveSnap port = do
-    forkIO launch
-    httpServe config applicationInitializer site
+    maybeResourceDir <- getResourceDir
+    case maybeResourceDir of
+        Nothing -> putStrLn "No resource directory found. This won't end well."
+        Just resourceDir -> do
+            forkIO launch
+            httpServe config (applicationInitializer resourceDir) (site resourceDir)
     where config :: ConfigExtend s
           config = setPort port mempty
 
