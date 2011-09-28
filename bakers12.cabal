@@ -27,24 +27,24 @@ Extra-source-files:
   , tests/TestBakers12.hs
   , log/access.log
   , log/error.log
-  , resources/static/screen.css
-  , resources/templates/echo.tpl
-  , resources/templates/index.tpl
+  , bakers12/static/screen.css
+  , bakers12/templates/echo.tpl
+  , bakers12/templates/index.tpl
 data-files:
-  resources/resource-dir-marker,
-  resources/static/*.html,
-  resources/static/*.png,
-  resources/static/*.xml,
-  resources/static/*.ico,
-  resources/static/*.txt,
-  resources/static/images/*.png,
-  resources/static/js/libs/flot/*.min.js,
-  resources/static/js/libs/flot/*.flot.min.js,
-  resources/static/js/libs/jquery-1.6.3.min.js,
-  resources/static/js/libs/modernizr-2.0.6.min.js,
-  resources/static/js/*.js,
-  resources/static/stylesheets/*.css,
-  resources/templates/*.tpl
+  bakers12/resource-dir-marker,
+  bakers12/static/*.html,
+  bakers12/static/*.png,
+  bakers12/static/*.xml,
+  bakers12/static/*.ico,
+  bakers12/static/*.txt,
+  bakers12/static/images/*.png,
+  bakers12/static/js/libs/flot/*.min.js,
+  bakers12/static/js/libs/flot/*.flot.min.js,
+  bakers12/static/js/libs/jquery-1.6.3.min.js,
+  bakers12/static/js/libs/modernizr-2.0.6.min.js,
+  bakers12/static/js/*.js,
+  bakers12/static/stylesheets/*.css,
+  bakers12/templates/*.tpl
 
 Flag development
   Description:	Whether to build in development mode.
