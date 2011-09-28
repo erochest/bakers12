@@ -54,6 +54,7 @@ import           Snap.Extension.Server
 
 import           Control.Concurrent (forkIO, threadDelay)
 import           Data.Monoid (mempty)
+import           System.Directory (createDirectoryIfMissing)
 import           Bakers12.Snap.Application
 import           Bakers12.Snap.Site
 import           System.Bakers12.Utils (openBrowserOn, getResourceDir)
@@ -78,6 +79,8 @@ serveSnap port = do
             return ()
 #else
 serveSnap port = do
+    createDirectoryIfMissing True "tmp"
+    createDirectoryIfMissing True "log"
     maybeResourceDir <- getResourceDir
     case maybeResourceDir of
         Nothing -> putStrLn "No resource directory found. This won't end well."
