@@ -102,8 +102,8 @@ under that directory.
 getResourceDir :: IO (Maybe FilePath)
 getResourceDir = do
     cwd <- getCurrentDirectory
-    let dirPaths = [ return $ cwd </> "resources/resource-dir-marker"
-                   , getDataFileName "resources/resource-dir-marker"
+    let dirPaths = [ return $ cwd </> "bakers12/resource-dir-marker"
+                   , getDataFileName "bakers12/resource-dir-marker"
                    ]
     liftM (listToMaybe . map dropFileName) .
         filterM doesFileExist =<<

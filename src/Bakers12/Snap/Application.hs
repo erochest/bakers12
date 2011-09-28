@@ -51,5 +51,5 @@ applicationInitializer resourceDir = do
         return $ ApplicationState heist
 
 devApplicationInitializer :: Initializer ApplicationState
-devApplicationInitializer = applicationInitializer "./resources"
+devApplicationInitializer = applicationInitializer "./bakers12"
 

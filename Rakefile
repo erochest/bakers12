@@ -1,6 +1,6 @@
 
 COFFEE = [
-  'resources/static/js/script.coffee',
+  'bakers12/static/js/script.coffee',
 ]
 
 task :default => :usage
@@ -66,12 +66,12 @@ end
 namespace :compass do
   desc 'This watches the SASS files and recompiles them automatically.'
   task :watch do
-    sh %(compass watch resources/static)
+    sh %(compass watch bakers12/static)
   end
 
   desc 'This compiles all the SASS files.'
   task :build do
-    sh %(compass compile resources/static)
+    sh %(compass compile bakers12/static)
   end
 end
 

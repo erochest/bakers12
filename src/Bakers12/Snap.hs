@@ -66,7 +66,7 @@ serveSnap port = do
     -- automatically.  If any extra directories should be watched for
     -- updates, include them here.
     putStrLn "DEV MODE"
-    (snap, cleanup) <- $(let watchDirs = ["./resources/templates"]
+    (snap, cleanup) <- $(let watchDirs = ["./bakers12/templates"]
                          in loadSnapTH 'devApplicationInitializer 'devSite watchDirs)
     forkIO launch
     try $ quickHttpServe snap :: IO (Either SomeException ())

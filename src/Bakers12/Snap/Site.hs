@@ -148,5 +148,5 @@ site resourceDir =
     <|> (serveDirectory $ resourceDir </> "static")
 
 devSite :: Application ()
-devSite = site "./resources"
+devSite = site "./bakers12"
 
