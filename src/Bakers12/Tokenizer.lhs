@@ -7,10 +7,12 @@ module Bakers12.Tokenizer
     ) where
 
 import           Control.Monad (liftM)
+import qualified Data.Char as C
 import qualified Data.List as L
 import qualified Data.Text as T
 import           Text.Bakers12.Tokenizer (Token(..))
 import           Text.Bakers12.Tokenizer.Text (fullTokenizeFile)
+import qualified Text.Bakers12.Tokenizer.Xml as X
 import           Text.Bakers12.Stats (addTypeTokenRatio)
 \end{code}
 
@@ -29,20 +31,36 @@ The type transformation pipeline for this is:
             -> IO ()                        -- print it out
 
 \begin{code}
-tokenize :: [FilePath] -> IO ()
-tokenize inputs = do
-    (putStrLn =<<) . liftM processTokens . mapM tokenize $ inputs
+xmlExts :: [String]
+xmlExt = [ ".xml"
+         ]
+
+tokenize :: String -> [FilePath] -> IO ()
+tokenize idAttr inputs = do
+    (putStrLn =<<) . liftM processTokens . mapM (tokenize idAttr) $ inputs
 
     where
+        idAttr' :: String
+        idAttr' = case idAttr of
+                    [] => "id"
+                    _  => idAttr
+
         processTokens :: [[Token T.Text]] -> String
         processTokens = L.intercalate nl
                       . map showTokenInfo
                       . addTypeTokenRatio
                       . concat
+
         nl :: String
         nl = "\n"
-        tokenize :: FilePath -> IO [Token T.Text]
-        tokenize path = fullTokenizeFile path path
+
+        isXml :: FilePath -> Bool
+        isXml path = ext `elem` xmlExts
+            where ext = map C.toLower . takeExtension $ path
+
+        tokenize :: String -> FilePath -> IO [Token T.Text]
+        tokenize idAttr path | isXml path = X.fullTokenizeFile idAttr path path
+                             | otherwise  = fullTokenizeFile path path
 \end{code}
 
 This takes a token and a running type-to-token ratio and turns it into a CSV

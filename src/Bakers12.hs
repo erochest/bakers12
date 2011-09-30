@@ -12,7 +12,7 @@ main :: IO ()
 main = do
     mode <- cmdArgs bakers12Modes
     case mode of
-        Tokenize inputs -> normalizeFilePaths inputs >>= tokenize
-        Freq inputs     -> normalizeFilePaths inputs >>= frequencies
-        Serve httpPort  -> serveSnap httpPort
+        Tokenize inputs idattr -> normalizeFilePaths inputs >>= tokenize idattr
+        Freq inputs            -> normalizeFilePaths inputs >>= frequencies
+        Serve httpPort         -> serveSnap httpPort
 

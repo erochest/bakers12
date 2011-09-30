@@ -23,6 +23,7 @@ constructor for each mode.
 data Modes
     = Tokenize
         { files :: [FilePath]
+        , idattr :: String
         }
     | Freq
         { files :: [FilePath]
@@ -40,6 +41,9 @@ bakers12Modes = modes
     [ Tokenize
         { files = def &= args
                       &= typ "FILES/DIRS"
+        , idattr = def &= typ "ID-ATTRIBUTE"
+                       &= help "The name of the attribute to look for for IDs when tokenizing XML files (default is 'id')."
+                       &= name "i"
         } &= details ["This takes one or more files and tokenizes them."]
     , Freq
         { files = def &= args
