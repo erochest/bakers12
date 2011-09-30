@@ -45,11 +45,11 @@ otherwise, attempting to tokenize a large list of files will cause an error
 because too many files will be open.
 
 \begin{code}
-fullTokenizeFile :: FilePath -> IO [Token T.Text]
-fullTokenizeFile filename =
+fullTokenizeFile :: String -> FilePath -> IO [Token T.Text]
+fullTokenizeFile source filename =
     withFile filename ReadMode $ \h -> do
         text <- TIO.hGetContents h
-        T.length text `seq` return (fullTokenize filename text)
+        T.length text `seq` return (fullTokenize source text)
 
 fastTokenizeFile :: FilePath -> IO [T.Text]
 fastTokenizeFile filename =

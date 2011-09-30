@@ -58,7 +58,14 @@ tokenize = do
         -- TODO: handle errors
         processFiles :: [(PartInfo, Either PolicyViolationException FilePath)] -> Application ([(Token T.Text, Double)], M.Map (Token T.Text) Int)
         processFiles parts =
-            liftIO . liftM processTokens . mapM fullTokenizeFile . rights . map snd $ parts
+            liftIO . liftM processTokens . mapM (uncurry processPart) $ parts
+
+        processPart :: PartInfo -> Either PolicyViolationException FilePath -> IO [Token T.Text]
+        processPart _ (Left _) = return []
+        processPart (PartInfo _ (Just source) _) (Right path) =
+            fullTokenizeFile (show source) path
+        processPart (PartInfo _ Nothing _) (Right path) =
+            fullTokenizeFile path path
 
         processTokens :: [[Token T.Text]]
                       -> ([(Token T.Text, Double)], M.Map (Token T.Text) Int)

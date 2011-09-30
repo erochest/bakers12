@@ -49,11 +49,11 @@ instance (Tokenizable B.ByteString) where
 
     toLower = B.map C.toLower
 
-fullTokenizeFile :: FilePath -> IO [Token B.ByteString]
-fullTokenizeFile filename =
+fullTokenizeFile :: String -> FilePath -> IO [Token B.ByteString]
+fullTokenizeFile source filename =
     withFile filename ReadMode $ \h -> do
         text <- B.hGetContents h
-        B.length text `seq` return (fullTokenize filename text)
+        B.length text `seq` return (fullTokenize source text)
 
 fastTokenizeFile :: FilePath -> IO [B.ByteString]
 fastTokenizeFile filename =
@@ -84,11 +84,11 @@ instance (Tokenizable L.ByteString) where
 
     toLower = L.map C.toLower
 
-fullLazyTokenizeFile :: FilePath -> IO [Token L.ByteString]
-fullLazyTokenizeFile filename =
+fullLazyTokenizeFile :: String -> FilePath -> IO [Token L.ByteString]
+fullLazyTokenizeFile source filename =
     withFile filename ReadMode $ \h -> do
         text <- L.hGetContents h
-        L.length text `seq` return (fullTokenize filename text)
+        L.length text `seq` return (fullTokenize source text)
 
 fastLazyTokenizeFile :: FilePath -> IO [L.ByteString]
 fastLazyTokenizeFile filename =

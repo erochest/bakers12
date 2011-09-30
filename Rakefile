@@ -36,9 +36,8 @@ end
 
 desc 'Builds everything.'
 task :build => ['coffee:build',
-                'compass:build'] do
-  sh %{cabal build}
-end
+                'compass:build',
+                'hs:build']
 
 desc 'Tests.'
 task :test => :build do
@@ -72,6 +71,13 @@ namespace :compass do
   desc 'This compiles all the SASS files.'
   task :build do
     sh %(compass compile bakers12/static)
+  end
+end
+
+namespace :hs do
+  desc 'This builds the Haskell part of the project.'
+  task :build do
+    sh %{cabal build}
   end
 end
 

@@ -31,7 +31,7 @@ The type transformation pipeline for this is:
 \begin{code}
 tokenize :: [FilePath] -> IO ()
 tokenize inputs = do
-    (putStrLn =<<) . liftM processTokens . mapM fullTokenizeFile $ inputs
+    (putStrLn =<<) . liftM processTokens . mapM tokenize $ inputs
 
     where
         processTokens :: [[Token T.Text]] -> String
@@ -41,6 +41,8 @@ tokenize inputs = do
                       . concat
         nl :: String
         nl = "\n"
+        tokenize :: FilePath -> IO [Token T.Text]
+        tokenize path = fullTokenizeFile path path
 \end{code}
 
 This takes a token and a running type-to-token ratio and turns it into a CSV
