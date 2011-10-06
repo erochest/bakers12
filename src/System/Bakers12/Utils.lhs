@@ -11,15 +11,17 @@ module System.Bakers12.Utils
     , getRecursiveContents
     , openBrowserOn
     , getResourceDir
+    , isXml
     ) where
 
 import           Paths_bakers12 (getDataFileName)
 import           Control.Monad (forM, liftM, liftM2, filterM, sequence, (=<<))
+import qualified Data.Char as C
 import qualified Data.List as L
 import           Data.Maybe (listToMaybe)
 import           System.Directory (doesDirectoryExist, doesFileExist, getDirectoryContents, getCurrentDirectory)
 import           System.Exit (ExitCode(..))
-import           System.FilePath ((</>), dropFileName)
+import           System.FilePath ((</>), dropFileName, takeExtension)
 import           System.Info (os)
 import           System.Process (readProcessWithExitCode)
 import           Text.Printf (printf)
@@ -108,5 +110,19 @@ getResourceDir = do
     liftM (listToMaybe . map dropFileName) .
         filterM doesFileExist =<<
         sequence dirPaths
+\end{code}
+
+These tests for whether a FilePath has an XML extension, for a pretty limited
+range of XML.
+
+\begin{code}
+xmlExts :: [String]
+xmlExts = [ ".xml"
+          ]
+
+
+isXml :: FilePath -> Bool
+isXml path = ext `elem` xmlExts
+    where ext = map C.toLower . takeExtension $ path
 \end{code}
 

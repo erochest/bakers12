@@ -7,10 +7,9 @@ module Bakers12.Tokenizer
     ) where
 
 import           Control.Monad (liftM)
-import qualified Data.Char as C
 import qualified Data.List as L
 import qualified Data.Text as T
-import           System.FilePath (takeExtension)
+import           System.Bakers12.Utils (isXml)
 import           Text.Bakers12.Tokenizer (Token(..))
 import           Text.Bakers12.Tokenizer.Text (fullTokenizeFile)
 import qualified Text.Bakers12.Tokenizer.Xml as X
@@ -32,10 +31,6 @@ The type transformation pipeline for this is:
             -> IO ()                        -- print it out
 
 \begin{code}
-xmlExts :: [String]
-xmlExts = [ ".xml"
-          ]
-
 tokenize :: String -> [FilePath] -> IO ()
 tokenize idAttr inputs = do
     (putStrLn =<<) . liftM processTokens . mapM (tokenize idAttr) $ inputs
@@ -54,10 +49,6 @@ tokenize idAttr inputs = do
 
         nl :: String
         nl = "\n"
-
-        isXml :: FilePath -> Bool
-        isXml path = ext `elem` xmlExts
-            where ext = map C.toLower . takeExtension $ path
 
         tokenize :: String -> FilePath -> IO [Token T.Text]
         tokenize idAttr path | isXml path = X.fullTokenizeFile idAttr path path
