@@ -10,6 +10,7 @@ import           Control.Monad (liftM)
 import qualified Data.Char as C
 import qualified Data.List as L
 import qualified Data.Text as T
+import           System.FilePath (takeExtension)
 import           Text.Bakers12.Tokenizer (Token(..))
 import           Text.Bakers12.Tokenizer.Text (fullTokenizeFile)
 import qualified Text.Bakers12.Tokenizer.Xml as X
@@ -32,8 +33,8 @@ The type transformation pipeline for this is:
 
 \begin{code}
 xmlExts :: [String]
-xmlExt = [ ".xml"
-         ]
+xmlExts = [ ".xml"
+          ]
 
 tokenize :: String -> [FilePath] -> IO ()
 tokenize idAttr inputs = do
@@ -42,8 +43,8 @@ tokenize idAttr inputs = do
     where
         idAttr' :: String
         idAttr' = case idAttr of
-                    [] => "id"
-                    _  => idAttr
+                    [] -> "id"
+                    _  -> idAttr
 
         processTokens :: [[Token T.Text]] -> String
         processTokens = L.intercalate nl

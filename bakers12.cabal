@@ -107,6 +107,7 @@ Executable bakers12
     xmlhtml == 0.1.*,
     transformers >= 0.2.2.0 && < 1,
     process >= 1.0.1.5 && < 2,
+    hxt >= 9.1.4 && < 10,
     bakers12
 
   extensions: DeriveDataTypeable TypeSynonymInstances MultiParamTypeClasses

@@ -9,10 +9,13 @@ module Bakers12.Frequencies
     ) where
 
 import           Control.Monad (liftM)
+import qualified Data.Char as C
 import qualified Data.List as L
 import qualified Data.Map as M
 import qualified Data.Text as T
+import           System.FilePath (takeExtension)
 import           Text.Bakers12.Tokenizer.Text (Token(..), fastTokenizeFile)
+import qualified Text.Bakers12.Tokenizer.Xml as X
 import qualified Text.Bakers12.Stats as S
 \end{code}
 
@@ -20,9 +23,13 @@ This tokenizes the file and writes it types and their frequencies to the screen
 as CSV.
 
 \begin{code}
+xmlExts :: [String]
+xmlExts = [ ".xml"
+          ]
+
 frequencies :: [FilePath] -> IO ()
 frequencies inputs = do
-    (putStrLn =<<) . liftM processFreqs . mapM fastTokenizeFile $ inputs
+    (putStrLn =<<) . liftM processFreqs . mapM tokenize $ inputs
 
     where
         processFreqs :: [[T.Text]] -> String
@@ -33,6 +40,14 @@ frequencies inputs = do
                      . concat
         nl :: String
         nl = "\n"
+
+        isXml :: FilePath -> Bool
+        isXml path = ext `elem` xmlExts
+            where ext = map C.toLower . takeExtension $ path
+
+        tokenize :: FilePath -> IO [T.Text]
+        tokenize path | isXml path = X.fastTokenizeFile path
+                      | otherwise  = fastTokenizeFile path
 \end{code}
 
 This takes the pairs of type -> frequency and renders it as a String.

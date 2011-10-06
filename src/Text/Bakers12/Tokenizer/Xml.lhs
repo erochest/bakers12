@@ -21,14 +21,21 @@ This performs fast text tokenization. It simply pulls out the text from the XML
 file and tokenizes it.
 
 \begin{code}
-fastTokenizeFile :: Tokenizable a => String -> FilePath -> IO [a]
-fastTokenizeFile idAttr inputFile = runX (fastTokenizeFile' idAttr inputFile)
+fastTokenizeFile :: Tokenizable a => FilePath -> IO [a]
+fastTokenizeFile inputFile = runX (fastTokenizeFile' inputFile)
 
-fastTokenizeFile' :: Tokenizable a => String -> FilePath -> IOSArrow b a
-fastTokenizeFile' idAttr inputFile =
+fastTokenizeFile' :: Tokenizable a => FilePath -> IOSArrow b a
+fastTokenizeFile' inputFile =
     configSysVars [withValidate no] >>>
     readDocument [] inputFile >>>
-    deep (hasAttr idAttr)
+    deep isText >>>
+    getText >>>
+    arrL (fastTokenize . fromString)
 
+\end{code}
+
+\begin{code}
+fullTokenizeFile :: Tokenizable a => String -> String -> FilePath -> IO [Token a]
+fullTokenizeFile idAttr source inputFile = return []
 \end{code}
 
