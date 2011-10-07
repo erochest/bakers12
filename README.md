@@ -12,6 +12,7 @@ is to experiment with NLP in Haskell.
 1. Snap server (*done*);
 1. Frequency report (*done*);
 1. HTML 5, CoffeeScript, Compass/SASS (*done*);
+1. XML tokenizer (*done, mostly*);
 1. Persistence in Level DB or SQLite in RDF;
 1. Corpus management;
 1. Corpus processing;
