@@ -29,10 +29,11 @@ import           Text.Templating.Heist
 import qualified Text.XmlHtml as X
 
 import           Bakers12.Snap.Application
-import           System.Bakers12.Utils (getResourceDir)
+import           System.Bakers12.Utils (getResourceDir, isXml, trimBy)
 import           System.FilePath ((</>))
 import           Text.Bakers12.Tokenizer (Token(..))
 import           Text.Bakers12.Tokenizer.Text (fullTokenizeFile)
+import qualified Text.Bakers12.Tokenizer.Xml as Xml
 import           Text.Bakers12.Stats (summarize)
 
 
@@ -61,11 +62,12 @@ tokenize = do
             liftIO . liftM processTokens . mapM (uncurry processPart) $ parts
 
         processPart :: PartInfo -> Either PolicyViolationException FilePath -> IO [Token T.Text]
-        processPart _ (Left _) = return []
-        processPart (PartInfo _ (Just source) _) (Right path) =
-            fullTokenizeFile (show source) path
-        processPart (PartInfo _ Nothing _) (Right path) =
-            fullTokenizeFile path path
+        processPart _                            (Left _) = return []
+        processPart (PartInfo _ (Just source) _) (Right path)
+            | isXml sourceStr = Xml.fullTokenizeFile "id" sourceStr path
+            | otherwise       = fullTokenizeFile sourceStr path
+            where sourceStr = trimBy (== '"') $ show source
+        processPart (PartInfo _ Nothing _) (Right path) = fullTokenizeFile path path
 
         processTokens :: [[Token T.Text]]
                       -> ([(Token T.Text, Double)], M.Map (Token T.Text) Int)
