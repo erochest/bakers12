@@ -12,6 +12,7 @@ module System.Bakers12.Utils
     , openBrowserOn
     , getResourceDir
     , isXml
+    , trimBy
     ) where
 
 import           Paths_bakers12 (getDataFileName)
@@ -124,5 +125,15 @@ xmlExts = [ ".xml"
 isXml :: FilePath -> Bool
 isXml path = ext `elem` xmlExts
     where ext = map C.toLower . takeExtension $ path
+\end{code}
+
+This trims any characters from the start of the list that match a predicate.
+
+\begin{code}
+trimBy :: (Char -> Bool) -> String -> String
+trimBy pred = rtrim . ltrim
+    where
+        ltrim = L.dropWhile pred
+        rtrim = L.reverse . ltrim . L.reverse
 \end{code}
 
