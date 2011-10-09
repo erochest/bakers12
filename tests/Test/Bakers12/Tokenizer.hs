@@ -4,7 +4,6 @@ module Test.Bakers12.Tokenizer (tokenizerTests) where
 
 import qualified Data.Char as C
 import qualified Data.List as L
--- import qualified Data.Text as T
 import           Test.HUnit (Assertion, assertBool)
 -- import           Test.QuickCheck
 import           Test.Framework (Test, testGroup)
@@ -12,6 +11,7 @@ import           Test.Framework.Providers.HUnit (testCase)
 import           Test.Framework.Providers.QuickCheck2 (testProperty)
 import           Text.Bakers12.Tokenizer
 import           Text.Bakers12.Tokenizer.String ()
+import qualified Text.Bakers12.Tokenizer.Xml as X
 
 
 -- Full Tokenizer Tests:
@@ -143,6 +143,33 @@ pMatchTokenizers input =
     where fullTokens = fullTokenize "<pMatchTokenizers>" input
           fastTokens = fastTokenize input
 
+-- XML:
+assertXmlTokenizerCorrect :: Assertion
+assertXmlTokenizerCorrect = do
+    tokens <- X.fullTokenize "input" "id" input
+    let actual = map makeTokenPair tokens
+    assertBool "XML Tokenizer" . L.and $ L.zipWith (==) expected actual
+    where
+        expected = [ ("input", "this")
+                   , ("input", "is")
+                   , ("input#a", "the")
+                   , ("input#a", "first")
+                   , ("input", "day")
+                   , ("input", "of")
+                   , ("input#b", "the")
+                   , ("input#b", "rest")
+                   , ("input#c", "of")
+                   , ("input#c", "my")
+                   , ("input", "life")
+                   ]
+
+        input =  "<doc><p>This is <span id='a'>the first</span> "
+              ++ "day of <span id='b'>the rest <span id='c'>of my</span> "
+              ++ "</span> life.</p></doc>"
+
+        makeTokenPair :: Token String -> (String, String)
+        makeTokenPair tkn = (tokenSource tkn, tokenText tkn)
+
 
 tokenizerTests :: [Test]
 tokenizerTests =
@@ -160,6 +187,8 @@ tokenizerTests =
                                , testCase "tokenized-contractions" assertFastTokenizedContractions
                                , testCase "tokenized-apostrophes" assertFastTokenizedApos
                                ]
+    , testGroup "XML Tokenizer" [ testCase "tokenized-xml" assertXmlTokenizerCorrect
+                                ]
     , testGroup "bothTokenizers" [ testProperty "tokenizers-match" pMatchTokenizers
                                  ]
     ]

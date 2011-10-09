@@ -9,13 +9,15 @@ These functions do no validation when reading the input.
 
 \begin{code}
 module Text.Bakers12.Tokenizer.Xml
-    ( fullTokenizeFile
+    ( fullTokenize
+    , fastTokenize
+    , fullTokenizeFile
     , fastTokenizeFile
     ) where
 
 import qualified Data.List as L
 import           Data.Maybe
-import           Text.Bakers12.Tokenizer
+import qualified Text.Bakers12.Tokenizer as T
 import           Text.XML.HXT.Core
 \end{code}
 
@@ -23,17 +25,26 @@ This performs fast text tokenization. It simply pulls out the text from the XML
 file and tokenizes it.
 
 \begin{code}
-fastTokenizeFile :: Tokenizable a => FilePath -> IO [a]
-fastTokenizeFile inputFile = runX (fastTokenizeFile' inputFile)
+fastTokenize :: T.Tokenizable a => a -> [a]
+fastTokenize = runLA ft . T.toString
+    where
+        ft :: T.Tokenizable a => LA String a
+        ft = xread >>> fastTokenize'
 
-fastTokenizeFile' :: Tokenizable a => FilePath -> IOSArrow b a
-fastTokenizeFile' inputFile =
-    configSysVars [withValidate no] >>>
-    readDocument [] inputFile >>>
+fastTokenizeFile :: T.Tokenizable a => FilePath -> IO [a]
+fastTokenizeFile inputFile = runX (ftf inputFile)
+    where
+        ftf :: T.Tokenizable a => FilePath -> IOSArrow b a
+        ftf inputFile =
+            configSysVars [withValidate no] >>>
+            readDocument [] inputFile >>>
+            fromLA fastTokenize'
+
+fastTokenize' :: T.Tokenizable b => LA XmlTree b
+fastTokenize' =
     deep isText >>>
     getText >>>
-    arrL (fastTokenize . fromString)
-
+    arrL (T.fastTokenize . T.fromString)
 \end{code}
 
 This performs full tokenization. Offsets are computed relative to the current
@@ -99,15 +110,31 @@ pushText = changeUserState pushTextBuffer
 Now we can write the tokenizer.
 
 \begin{code}
-fullTokenizeFile :: Tokenizable a => String -> String -> FilePath -> IO [Token a]
+fullTokenize :: T.Tokenizable a => String -> String -> a -> IO [T.Token a]
+fullTokenize source idAttr input = do
+    text <- runX ft
+    return . L.concatMap (uncurry (tokenize' source)) $ text
+    where
+        input' = T.toString input
+
+        ft :: IOSArrow a (Maybe String, String)
+        ft = withOtherUserState initIdState ft'
+
+        ft' :: IOStateArrow IdState a (Maybe String, String)
+        ft' =
+            configSysVars [withValidate no] >>>
+            readString [] input' >>>
+            fullTokenize' idAttr
+
+tokenize' :: T.Tokenizable a => String -> Maybe String -> String -> [T.Token a]
+tokenize' source Nothing        = T.fullTokenize source . T.fromString
+tokenize' source (Just idValue) =
+    T.fullTokenize (source ++ ('#':idValue)) . T.fromString
+
+fullTokenizeFile :: T.Tokenizable a => String -> String -> FilePath -> IO [T.Token a]
 fullTokenizeFile idAttr source inputFile = do
     text <- runX (fullTokenizeFile' idAttr inputFile)
-    return . L.concatMap (uncurry tokenize') $ text
-
-    where
-        tokenize' :: Tokenizable a => Maybe String -> String -> [Token a]
-        tokenize' Nothing        = fullTokenize source . fromString
-        tokenize' (Just idValue) = fullTokenize (source ++ ('#':idValue)) . fromString
+    return . L.concatMap (uncurry (tokenize' source)) $ text
 
 -- | This is the arrow function. It just parses the file and passes everything
 -- off to getElementText.
@@ -118,9 +145,13 @@ fullTokenizeFile' idAttr inputFile = withOtherUserState initIdState ftf'
         ftf' =
             configSysVars [withValidate no] >>>
             readDocument [] inputFile >>>
-            processChildren (getElementText idAttr) >>>
-            getUserState >>>
-            arrL (L.reverse . textBuffer)
+            fullTokenize' idAttr
+
+fullTokenize' :: String -> IOStateArrow IdState XmlTree (Maybe String, String)
+fullTokenize' idAttr =
+    processChildren (getElementText idAttr) >>>
+    getUserState >>>
+    arrL (L.reverse . textBuffer)
 
 getElementText :: String -> IOStateArrow IdState XmlTree XmlTree
 getElementText idAttr =
