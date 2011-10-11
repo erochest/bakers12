@@ -16,3 +16,5 @@ flot/
 American National Corpus v1/
 anc/
 texts/
+data/
+*.log
