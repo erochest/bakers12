@@ -53,6 +53,11 @@ text = getChildren >>> getText
 
 showToken :: String -> String -> String -> (Int, Int) -> String
 showToken token base idValue (offset, length) =
-    '"':token' ++ ('"': (',': base ++ idValue) ++ (',':show offset) ++ (',':show length))
-    where token' = if token == ['"'] then ['"', '"'] else token
+    token' ++ (',': base ++ idValue) ++ (',':show offset) ++ (',':show length)
+    where token' = escapeToken token
+
+escapeToken :: String -> String
+escapeToken ['"'] = ['"', '"', '"', '"']
+escapeToken [','] = ['"', ',', '"']
+escapeToken token = token
 
