@@ -42,9 +42,10 @@ pOffsetIncreasing input =
 
 assertFullTokensEqual :: String -> [String] -> [[String]] -> Assertion
 assertFullTokensEqual msg expected actual =
-    assertBool msg . L.and $ L.zipWith (==) expTokens actual
+    assertBool msg' . L.and $ L.zipWith (==) expTokens actual
     where expFull   = map (fullTokenize "<assertFullTokensEqual>") expected
           expTokens = map (map tokenText) expFull
+          msg' = msg ++ show expTokens
 
 -- unit     : tokenized correctly
 assertFullTokenizedCorrectly :: Assertion
@@ -55,9 +56,9 @@ assertFullTokenizedCorrectly =
                    , "I said, \"Hi there.\""
                    , "Oh-la-la-la."
                    ]
-        actual   = [ ["these", "are", "the", "days", "that", "try", "men's", "souls"]
-                   , ["i", "said", "hi", "there"]
-                   , ["oh", "la", "la", "la"]
+        actual   = [ ["these", "are", "the", "days", "that", "try", "men's", "souls", "."]
+                   , ["i", "said", ",", "\"", "hi", "there", ".", "\""]
+                   , ["oh", "-", "la", "-", "la", "-", "la", "."]
                    ]
 
 -- unit     : tokenized numbers
@@ -66,7 +67,7 @@ assertFullTokenizedNumbers =
     assertFullTokensEqual "assertFullTokenizedNumbers" expected actual
     where
         expected = [ "1 2 3 4 5 3.1415 1,200,000 -33" ]
-        actual   = [ ["1", "2", "3", "4", "5", "3", "1415", "1", "200", "000", "33" ] ]
+        actual   = [ ["1", "2", "3", "4", "5", "3", ".", "1415", "1", ",", "200", ",", "000", "-", "33" ] ]
 
 -- unit     : tokenized contractions
 assertFullTokenizedContractions :: Assertion
@@ -82,7 +83,7 @@ assertFullTokenizedApos =
     assertFullTokensEqual "assertFullTokenizedApos" expected actual
     where
         expected = [ "'tis 'will young'uns eat'?" ]
-        actual   = [ ["tis", "will", "young'uns", "eat"] ]
+        actual   = [ ["'", "tis", "'", "will", "young", "'uns", "eat", "'", "?"] ]
 
 -- Fast Tokenizer Tests:
 -- property : toLower
@@ -95,8 +96,9 @@ pFastNormalized input =
 -- unit     : tokenized correctly
 assertFastTokensEqual :: String -> [String] -> [[String]] -> Assertion
 assertFastTokensEqual msg expected actual =
-    assertBool msg . L.and $ L.zipWith (==) expTokens actual
+    assertBool msg' . L.and $ L.zipWith (==) expTokens actual
     where expTokens = map fastTokenize expected
+          msg' = msg ++ show expTokens
 
 assertFastTokenizedCorrectly :: Assertion
 assertFastTokenizedCorrectly =
@@ -106,9 +108,9 @@ assertFastTokenizedCorrectly =
                    , "I said, \"Hi there.\""
                    , "Oh-la-la-la."
                    ]
-        actual   = [ ["these", "are", "the", "days", "that", "try", "men's", "souls"]
-                   , ["i", "said", "hi", "there"]
-                   , ["oh", "la", "la", "la"]
+        actual   = [ ["these", "are", "the", "days", "that", "try", "men's", "souls", "."]
+                   , ["i", "said", ",", "\"", "hi", "there", ".", "\""]
+                   , ["oh", "-", "la", "-", "la", "-", "la", "."]
                    ]
 
 -- unit     : tokenized numbers
@@ -117,7 +119,7 @@ assertFastTokenizedNumbers =
     assertFastTokensEqual "assertFastTokenizedNumbers" expected actual
     where
         expected = [ "1 2 3 4 5 3.1415 1,200,000 -33" ]
-        actual   = [ ["1", "2", "3", "4", "5", "3", "1415", "1", "200", "000", "33" ] ]
+        actual   = [ ["1", "2", "3", "4", "5", "3", ".", "1415", "1", ",", "200", ",", "000", "-", "33" ] ]
 
 -- unit     : tokenized contractions
 assertFastTokenizedContractions :: Assertion
@@ -133,7 +135,7 @@ assertFastTokenizedApos =
     assertFastTokensEqual "assertFastTokenizedApos" expected actual
     where
         expected = [ "'tis 'will young'uns eat'?" ]
-        actual   = [ ["tis", "will", "young'uns", "eat"] ]
+        actual   = [ ["'", "tis", "will", "young'uns", "eat", "?"] ]
 
 -- Both:
 -- property : normalized output is the same for both

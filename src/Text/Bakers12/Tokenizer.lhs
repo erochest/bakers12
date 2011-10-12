@@ -23,6 +23,7 @@ module Text.Bakers12.Tokenizer
 import           Control.Monad.State
 import qualified Data.Char as C
 import qualified Data.List as L
+import qualified Data.Maybe as M
 import           Prelude hiding (dropWhile, length, null, span)
 import           Text.Bakers12.Tokenizer.Types
 
@@ -45,6 +46,15 @@ working on.
 -- | This encloses the position of the tokenizer in the input stream, the
 -- input's name, and the input.
 data TokenState a = TokenState Int String a
+\end{code}
+
+These define what is and what isn't a token character.
+
+\begin{code}
+isTokenChar :: Char -> Bool
+isTokenChar c | C.isAlphaNum c    = True
+              | C.isPunctuation c = True
+              | otherwise         = False
 \end{code}
 
 fullTokenize takes an input Tokenizable instance and tokenizes it into a list
@@ -71,7 +81,7 @@ tokenize' = do
 parseGarbage :: Tokenizable a => TokenState a -> TokenState a
 parseGarbage tokenState@(TokenState cursor source input) =
     case uncons input of
-        Just (c, _) | C.isAlphaNum c ->
+        Just (c, _) | isTokenChar c ->
             tokenState
         Just (_, input') ->
             parseGarbage $ TokenState (1 + cursor) source input'
@@ -87,6 +97,9 @@ parseToken (TokenState cursor source input) =
         token :: Tokenizable a => String -> Int -> a -> (Maybe (Token a), TokenState a)
         token text tlen inp =
             case uncons inp of
+                Just (c, rest) | C.isPunctuation c && tlen == 0 ->
+                    let (tkn, nextcur) = mkToken source [c] "" cursor
+                    in  (Just tkn, TokenState nextcur source rest)
                 Just (c, rest) | C.isAlphaNum c ->
                     token (c:text) (tlen+1) rest
                 Just ('\'', _) ->
@@ -107,7 +120,7 @@ parseToken (TokenState cursor source input) =
         mkToken sourceName rawStart cont offset =
             let revraw  = reverse rawStart
                 cont'   = L.dropWhile ('\'' ==) cont
-                raw     = fromString $ if L.null cont' then revraw else revraw ++ cont
+                raw     = fromString $ revraw ++ cont
                 norm    = fromString . map C.toLower $ if L.null cont'
                                                        then revraw
                                                        else revraw ++ ('\'' : cont')
@@ -127,7 +140,7 @@ contraction cont inp =
     case uncons inp of
         Just ('\'', inp') ->
             contraction ('\'':cont) inp'
-        Just (c, inp') | C.isAlphaNum c ->
+        Just (c, inp') | isTokenChar c ->
             contraction (c:cont) inp'
         Just (_, inp') ->
             (reverse cont, inp')
@@ -153,24 +166,34 @@ fastTokenize input =
 fastGarbage :: Tokenizable a => a -> a
 fastGarbage input =
     case uncons input of
-        Just (c, _) | C.isAlphaNum c -> input
+        Just (c, _) | isTokenChar c -> input
         Just (_, input')             -> fastGarbage input'
         Nothing                      -> input
 
 fastToken :: Tokenizable a => a -> (Maybe a, a)
 fastToken input =
     case (body, apos, cont) of
-        (Just b,  Just _, Just c ) -> (Just . fromString . map C.toLower $ b ++ ('\'':c), input3)
-        (Just b,  _,      Nothing) -> (Just . fromString . map C.toLower $ b, input1)
-        (Nothing, _,      _      ) -> (Nothing, input)
+        (Just bc,  _     , _     ) | isSinglePunct bc -> (justString bc, input1)
+        (Just b,   Just _, Just c) -> (justString . map C.toLower $ b ++ ('\'':c), input3)
+        (Just b,   _,      _     ) -> (justString . map C.toLower $ b, input1)
+        (Nothing,  _,      _     ) -> (Nothing, input)
 
     where (body, input1) = fastParseWord input []
           (apos, input2) = fastParseApos input1 []
           (cont, input3) = fastParseWord input2 []
 
+          justString :: Tokenizable a => String -> Maybe a
+          justString = Just . fromString
+
+          isSinglePunct :: String -> Bool
+          isSinglePunct [c] | C.isPunctuation c = True
+          isSinglePunct _                       = False
+
 fastParseWord :: Tokenizable a => a -> String -> (Maybe String, a)
 fastParseWord inp accum =
     case uncons inp of
+        Just (c, inp') | C.isPunctuation c && L.null accum ->
+            (Just [c], inp')
         Just (c, inp') | C.isAlphaNum c ->
             fastParseWord inp' (c:accum)
         Just _ ->
