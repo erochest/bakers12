@@ -74,6 +74,9 @@ namespace :compass do
   end
 end
 
+multitask :watch => ['coffee:watch',
+                     'compass:watch']
+
 namespace :hs do
   desc 'This builds the Haskell part of the project.'
   task :build do
