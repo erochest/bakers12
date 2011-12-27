@@ -1,30 +1,27 @@
 
-
-Text.Bakers12.Tokenizer.Types
-
-These are the types for the Baker's 12 tokenizer. The primary type is
-Tokenizable, which includes the functions tokenize and functions to access the
-data in the input (e.g., uncons).
-
-\begin{code}
+{-| Text.Bakers12.Tokenizer.Types
+ - 
+ - These are the types for the Baker's 12 tokenizer. The primary type is
+ - Tokenizable, which includes the functions tokenize and functions to access
+ - the data in the input (e.g., uncons).
+ -}
 
 module Text.Bakers12.Tokenizer.Types
     ( Token(..)
     , Tokenizable(..)
     ) where
 
-\end{code}
+{-| Token
+ - 
+ - The Token data structure contains the raw token as input, the normalized
+ - token (case folded), the source of the token (filename, maybe), and the
+ - token's position in the input stream.
+ - 
+ - The offset and length are both evaluated strictly; otherwise, if these
+ - values aren't used, then their thunks accumlate and fill all available
+ - space.
+ -}
 
-Token
-
-The Token data structure contains the raw token as input, the normalized token
-(case folded), the source of the token (filename, maybe), and the token's
-position in the input stream.
-
-The offset and length are both evaluated strictly; otherwise, if these values
-aren't used, then their thunks accumlate and fill all available space.
-
-\begin{code}
 data Ord a => Token a = Token
     { tokenRaw     :: a          -- The raw token as it appeared in the input text.
     , tokenText    :: a          -- The normalized token.
@@ -33,25 +30,24 @@ data Ord a => Token a = Token
     , tokenLength  :: !Int       -- The length of the token in the input text.
     }
     deriving (Show)
-\end{code}
 
-Tokens instantiate Ord by passing it off to tokenText.
+{-| Tokens instantiate Ord by passing it off to tokenText.
+ -}
 
-\begin{code}
 instance Ord a => Eq (Token a) where
     (==) a b = (tokenText a) == (tokenText b)
 
 instance Ord a => Ord (Token a) where
     compare a b = compare (tokenText a) (tokenText b)
-\end{code}
 
-Tokenizable
+{-| Tokenizable
+ - 
+ - The Tokenizable type class exposes the function tokenize. It also defines
+ - the interface that Tokenizable interfaced data types must define. Interfaces
+ - can simply define those functions, and the tokenize functions should work
+ - for free.
+ -}
 
-The Tokenizable type class exposes the function tokenize. It also defines the
-interface that Tokenizable interfaced data types must define. Interfaces can
-simply define those functions, and the tokenize functions should work for free.
-
-\begin{code}
 class Ord a => Tokenizable a where
 
     -- | This returns True if the input is empty.
@@ -78,6 +74,4 @@ class Ord a => Tokenizable a where
 
     -- | This lower cases it.
     toLower :: a -> a
-
-\end{code}
 

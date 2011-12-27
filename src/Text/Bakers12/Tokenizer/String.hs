@@ -1,12 +1,9 @@
-\begin{code}
 {-# LANGUAGE TypeSynonymInstances #-}
-\end{code}
 
-Text.Bakers12.Tokenizer.String
-
-This defines an interface for Strings for the tokenizer.
-
-\begin{code}
+{-| Text.Bakers12.Tokenizer.String
+ - 
+ - This defines an interface for Strings for the tokenizer.
+ -}
 
 module Text.Bakers12.Tokenizer.String
     ( Token(..)
@@ -40,13 +37,11 @@ instance (Tokenizable String) where
 
     toLower = map C.toLower
 
-\end{code}
+{-| These tokenize a single file. They read the content strictly, because
+ - otherwise, attempting to tokenize a large list of files will cause an error
+ - because too many files will be open.
+ -}
 
-These tokenize a single file. They read the content strictly, because
-otherwise, attempting to tokenize a large list of files will cause an error
-because too many files will be open.
-
-\begin{code}
 fullTokenizeFile :: String -> FilePath -> IO [Token String]
 fullTokenizeFile source filename =
     withFile filename ReadMode $ \h -> do
@@ -58,5 +53,4 @@ fastTokenizeFile filename =
     withFile filename ReadMode $ \h -> do
         text <- hGetContents h
         L.length text `seq` return (fastTokenize text)
-\end{code}
 

@@ -1,13 +1,10 @@
-\begin{code}
 {-# LANGUAGE TypeSynonymInstances #-}
-\end{code}
 
-Text.Bakers12.Tokenizer.ByteString
-
-This defines an interface for lazy and strict Char8 ByteStrings for the
-tokenizer.
-
-\begin{code}
+{-| Text.Bakers12.Tokenizer.ByteString
+ - 
+ - This defines an interface for lazy and strict Char8 ByteStrings for the
+ - tokenizer.
+ -}
 
 module Text.Bakers12.Tokenizer.ByteString
     ( Token(..)
@@ -24,12 +21,9 @@ import qualified Data.ByteString.Lazy.Char8 as L
 import           System.IO
 import           Text.Bakers12.Tokenizer
 
-\end{code}
-
-First, we instantiate the strict ByteString type as Tokenizable. And define
-functions to read tokens from files using strict ByteStrings.
-
-\begin{code}
+{-| First, we instantiate the strict ByteString type as Tokenizable. And define
+ - functions to read tokens from files using strict ByteStrings.
+ -}
 
 instance (Tokenizable B.ByteString) where
 
@@ -60,11 +54,9 @@ fastTokenizeFile filename =
     withFile filename ReadMode $ \h -> do
         text <- B.hGetContents h
         B.length text `seq` return (fastTokenize text)
-\end{code}
 
-Now, we instantiate a lazy ByteString type as Tokenizable.
-
-\begin{code}
+{-| Now, we instantiate a lazy ByteString type as Tokenizable.
+ -}
 
 instance (Tokenizable L.ByteString) where
 
@@ -95,5 +87,4 @@ fastLazyTokenizeFile filename =
     withFile filename ReadMode $ \h -> do
         text <- L.hGetContents h
         L.length text `seq` return (fastTokenize text)
-\end{code}
 

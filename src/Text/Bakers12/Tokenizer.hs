@@ -1,17 +1,15 @@
 
-
-Text.Bakers12.Tokenizer
-
-The Text.Bakers12.Tokenizer module defines a simple English tokenizer. It
-breaks on whitespace, strips out punctuation (except inter-character
-apostrophes and dashes). It maintains the token's position in the original
-input stream (for later highlighting or other processing) and both its raw and
-normalized forms.
-
-(This hides several functions in Prelude, so you'll want to use a qualified
-import.)
-
-\begin{code}
+{-| Text.Bakers12.Tokenizer
+ - 
+ - The Text.Bakers12.Tokenizer module defines a simple English tokenizer. It
+ - breaks on whitespace, strips out punctuation (except inter-character
+ - apostrophes and dashes). It maintains the token's position in the original
+ - input stream (for later highlighting or other processing) and both its raw
+ - and normalized forms.
+ - 
+ - (This hides several functions in Prelude, so you'll want to use a qualified
+ - import.)
+ -}
 
 module Text.Bakers12.Tokenizer
     ( Token(..)
@@ -27,40 +25,35 @@ import qualified Data.Maybe as M
 import           Prelude hiding (dropWhile, length, null, span)
 import           Text.Bakers12.Tokenizer.Types
 
-\end{code}
+{-| Tokenizer
+ - 
+ - This is the State monad for the tokenizer. It tracks the parser's location
+ - in the input.
+ -}
 
-Tokenizer
-
-This is the State monad for the tokenizer. It tracks the parser's location in
-the input.
-
-\begin{code}
 type Tokenizer a = State (TokenState a) [Token a]
-\end{code}
 
-TokenState tracks the tokenizer's state as it walks through the input. It keeps
-track of the current index and maybe the starting index of the token it's
-working on.
+{-| TokenState tracks the tokenizer's state as it walks through the input. It
+ - keeps track of the current index and maybe the starting index of the token
+ - it's working on.
+ -}
 
-\begin{code}
 -- | This encloses the position of the tokenizer in the input stream, the
 -- input's name, and the input.
 data TokenState a = TokenState Int String a
-\end{code}
 
-These define what is and what isn't a token character.
+{-| These define what is and what isn't a token character.
+ -}
 
-\begin{code}
 isTokenChar :: Char -> Bool
 isTokenChar c | C.isAlphaNum c    = True
               | C.isPunctuation c = True
               | otherwise         = False
-\end{code}
 
-fullTokenize takes an input Tokenizable instance and tokenizes it into a list
-of tokens. It pulls it into a Tokenizer monad.
+{-| fullTokenize takes an input Tokenizable instance and tokenizes it into a
+ - list of tokens. It pulls it into a Tokenizer monad.
+ -}
 
-\begin{code}
 fullTokenize :: Tokenizable a
              => String          -- The input source identifier.
              -> a               -- The input.
@@ -147,13 +140,10 @@ contraction cont inp =
         Nothing ->
             (reverse cont, inp)
 
-\end{code}
-
-This is the fast tokenizer. It just pulls the normalized tokens off the input
-into a list. Since it doesn't need to track the offset or anything, it doesn't
-need to run in a State.
-
-\begin{code}
+{-| This is the fast tokenizer. It just pulls the normalized tokens off the
+ - input into a list. Since it doesn't need to track the offset or anything, it
+ - doesn't need to run in a State.
+ -}
 
 fastTokenize :: Tokenizable a => a -> [a]
 fastTokenize input =
@@ -213,6 +203,4 @@ fastParseApos inp accum =
             then (Nothing, inp)
             else (Just accum, inp)
         Nothing -> (Nothing, inp)
-
-\end{code}
 

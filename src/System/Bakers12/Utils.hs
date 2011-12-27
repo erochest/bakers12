@@ -1,10 +1,9 @@
 
-System.Bakers12.Utils
-
-This is a collection of system utility functions that I've written for this
-system.
-
-\begin{code}
+{-| System.Bakers12.Utils
+ -
+ - This is a collection of system utility functions that I've written for this
+ - system.
+ -}
 
 module System.Bakers12.Utils
     ( normalizeFilePaths
@@ -27,12 +26,11 @@ import           System.Info (os)
 import           System.Process (readProcessWithExitCode)
 import           Text.Printf (printf)
 
-\end{code}
 
-normalizeFilePaths normalizes a list of file paths by removing ones that don't
-exist and expanding directories into all of the files in their subdirectories.
-
-\begin{code}
+{-| normalizeFilePaths normalizes a list of file paths by removing ones that
+ - don't exist and expanding directories into all of the files in their
+ - subdirectories.
+ -}
 
 normalizeFilePaths :: [FilePath] -> IO [FilePath]
 normalizeFilePaths [] = return []
@@ -49,12 +47,9 @@ normalizeFilePaths (f:fs) = do
               then getRecursiveContents f
               else return []
 
-\end{code}
-
-This is from page 214 of *Real World Haskell* by Bryan O'Sullivan
-(http://www.realworldhaskell.org/).
-
-\begin{code}
+{-| This is from page 214 of *Real World Haskell* by Bryan O'Sullivan
+ - (http://www.realworldhaskell.org/).
+ -}
 
 getRecursiveContents :: FilePath -> IO [FilePath]
 getRecursiveContents topdir = do
@@ -68,13 +63,10 @@ getRecursiveContents topdir = do
             else return [path]
     return (concat paths)
 
-\end{code}
+{-| This is borrowed with a slight change from
+ - http://hackage.haskell.org/packages/archive/hledger/latest/doc/html/src/Hledger-Cli-Utils.html#openBrowserOn.
+ -}
 
-
-This is borrowed with a slight change from
-http://hackage.haskell.org/packages/archive/hledger/latest/doc/html/src/Hledger-Cli-Utils.html#openBrowserOn.
-
-\begin{code}
 -- | Attempt to open a web browser on the given url, all platforms.
 openBrowserOn :: String -> IO ExitCode
 openBrowserOn u = trybrowsers browsers u
@@ -95,13 +87,12 @@ openBrowserOn u = trybrowsers browsers u
                                  , "google-chrome"
                                  , "firefox"
                                  ]
-\end{code}
 
-This looks in several directories and returns the first that contains a file
-named 'resource-dir-marker'. It assumes that the rest of the resources lie
-under that directory.
+{-| This looks in several directories and returns the first that contains a
+ - file named 'resource-dir-marker'. It assumes that the rest of the resources
+ - lie under that directory.
+ -}
 
-\begin{code}
 getResourceDir :: IO (Maybe FilePath)
 getResourceDir = do
     cwd <- getCurrentDirectory
@@ -111,29 +102,26 @@ getResourceDir = do
     liftM (listToMaybe . map dropFileName) .
         filterM doesFileExist =<<
         sequence dirPaths
-\end{code}
 
-These tests for whether a FilePath has an XML extension, for a pretty limited
-range of XML.
+{-| These tests for whether a FilePath has an XML extension, for a pretty
+ - limited range of XML.
+ -}
 
-\begin{code}
 xmlExts :: [String]
 xmlExts = [ ".xml"
           ]
 
-
 isXml :: FilePath -> Bool
 isXml path = ext `elem` xmlExts
     where ext = map C.toLower . takeExtension $ path
-\end{code}
 
-This trims any characters from the start of the list that match a predicate.
+{-| This trims any characters from the start of the list that match a
+ - predicate.
+ -}
 
-\begin{code}
 trimBy :: (Char -> Bool) -> String -> String
 trimBy pred = rtrim . ltrim
     where
         ltrim = L.dropWhile pred
         rtrim = L.reverse . ltrim . L.reverse
-\end{code}
 

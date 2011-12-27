@@ -1,12 +1,9 @@
-\begin{code}
 {-# LANGUAGE TypeSynonymInstances #-}
-\end{code}
 
-Text.Bakers12.Tokenizer.Text
-
-This defines an interface for Data.Text for the tokenizer.
-
-\begin{code}
+{-| Text.Bakers12.Tokenizer.Text
+ - 
+ - This defines an interface for Data.Text for the tokenizer.
+ -}
 
 module Text.Bakers12.Tokenizer.Text
     ( Token(..)
@@ -38,13 +35,11 @@ instance (Tokenizable T.Text) where
 
     toLower = T.toLower
 
-\end{code}
+{-| These tokenize a single file. They read the content strictly, because
+ - otherwise, attempting to tokenize a large list of files will cause an error
+ - because too many files will be open.
+ -}
 
-These tokenize a single file. They read the content strictly, because
-otherwise, attempting to tokenize a large list of files will cause an error
-because too many files will be open.
-
-\begin{code}
 fullTokenizeFile :: String -> FilePath -> IO [Token T.Text]
 fullTokenizeFile source filename =
     withFile filename ReadMode $ \h -> do
@@ -56,5 +51,4 @@ fastTokenizeFile filename =
     withFile filename ReadMode $ \h -> do
         text <- TIO.hGetContents h
         T.length text `seq` return (fastTokenize text)
-\end{code}
 

@@ -1,13 +1,13 @@
 
-Text.Bakers12.Tokenizer.Xml
+{-| Text.Bakers12.Tokenizer.Xml
+ - 
+ - This parses an XML file and tokenizes the text in it. If it finds an ID
+ - attribute for the containing element, it tracks and adds that to the source
+ - (sourcd#id).
+ - 
+ - These functions do no validation when reading the input.
+ -}
 
-This parses an XML file and tokenizes the text in it. If it finds an ID
-attribute for the containing element, it tracks and adds that to the source
-(sourcd#id).
-
-These functions do no validation when reading the input.
-
-\begin{code}
 module Text.Bakers12.Tokenizer.Xml
     ( fullTokenize
     , fastTokenize
@@ -19,12 +19,11 @@ import qualified Data.List as L
 import           Data.Maybe
 import qualified Text.Bakers12.Tokenizer as T
 import           Text.XML.HXT.Core
-\end{code}
 
-This performs fast text tokenization. It simply pulls out the text from the XML
-file and tokenizes it.
+{-| This performs fast text tokenization. It simply pulls out the text from the
+ - XML file and tokenizes it.
+ -}
 
-\begin{code}
 fastTokenize :: T.Tokenizable a => a -> [a]
 fastTokenize = runLA ft . T.toString
     where
@@ -45,20 +44,20 @@ fastTokenize' =
     deep isText >>>
     getText >>>
     arrL (T.fastTokenize . T.fromString)
-\end{code}
 
-This performs full tokenization. Offsets are computed relative to the current
-text data. The source is amended with the value of @id, if one of data's
-parents has such. I'll break this down and explain it in more detail as we go.
+{-| This performs full tokenization. Offsets are computed relative to the
+ - current text data. The source is amended with the value of @id, if one of
+ - data's parents has such. I'll break this down and explain it in more detail
+ - as we go.
+ - 
+ - First, we define a datatype, IdState. This tracks the stack of IDs that
+ - we're currently in, and it contains a text buffer for holding the text data
+ - seen, with the IDs (if any) that apply.
+ - 
+ - Following this data are some functions for working with IdStates outside of
+ - arrows.
+ -}
 
-First, we define a datatype, IdState. This tracks the stack of IDs that we're
-currently in, and it contains a text buffer for holding the text data seen,
-with the IDs (if any) that apply.
-
-Following this data are some functions for working with IdStates outside of
-arrows.
-
-\begin{code}
 data IdState = IdState { idStack    :: [String]
                        , textBuffer :: [(Maybe String, String)]
                        }
@@ -84,12 +83,11 @@ pushTextBuffer :: String -> IdState -> IdState
 pushTextBuffer text state@(IdState ids tb) =
     state { textBuffer=((ids', text):tb) }
     where ids' = listToMaybe ids
-\end{code}
 
-These functions make it eaiser to work with IdStates in the context of an
-IOStateArrow.
+{-| These functions make it eaiser to work with IdStates in the context of an
+ - IOStateArrow.
+ -}
 
-\begin{code}
 -- | Push a possible ID onto the ID stack of the current state.
 pushId :: IOStateArrow IdState (Maybe String) (Maybe String)
 pushId = changeUserState (pushIdStack . fromJust) `whenP` isJust
@@ -105,11 +103,10 @@ peekId = getUserState >>> arr (listToMaybe . idStack)
 -- | This pushes text onto the textBuffer of the current state.
 pushText :: IOStateArrow IdState String String
 pushText = changeUserState pushTextBuffer
-\end{code}
 
-Now we can write the tokenizer.
+{-| Now we can write the tokenizer.
+ -}
 
-\begin{code}
 fullTokenize :: T.Tokenizable a => String -> String -> a -> IO [T.Token a]
 fullTokenize source idAttr input = do
     text <- runX ft
@@ -173,6 +170,4 @@ getOutputText =
     where
         getOutputText' :: IOStateArrow IdState XmlTree String
         getOutputText' = getText >>> pushText
-
-\end{code}
 
