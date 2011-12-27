@@ -6,6 +6,7 @@ dist/
 *.hc
 *.o
 *.orig
+*.log
 .DS_Store
 .bundle/
 .sass-cache/
@@ -17,4 +18,5 @@ American National Corpus v1/
 anc/
 texts/
 data/
-*.log
+utils/
+bin/bakers12
