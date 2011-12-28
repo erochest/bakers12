@@ -8,7 +8,9 @@ import qualified Data.Char as C
 import qualified Data.List as L
 import qualified Data.Text as T
 import           Test.Framework (Test, testGroup)
+import           Test.Framework.Providers.HUnit (testCase)
 import           Test.Framework.Providers.QuickCheck2 (testProperty)
+import           Test.HUnit (Assertion, assertBool)
 import           Test.QuickCheck
 import           Text.Bakers12.Tokenizer
 
@@ -85,18 +87,70 @@ prop_symbolLength input =
           , tokenType token `elem` [PunctuationToken, SymbolToken, MarkToken]
           ]
 
+-- This is a helper function to handle the boilerplate for the unit tests.
+assertTokensEqual :: String -> [[String]] -> [String] -> Assertion
+assertTokensEqual msg expected actual =
+    assertBool msg' . L.and $ L.zipWith (==) expected' actual'
+    where
+        msg' = msg ++ show actual'
+        expected' = map (map T.pack) expected
+        actual' = map (map tokenText . getTokens . tokenize . T.pack) actual
+
+        getTokens (Right tokens) = tokens
+        getTokens (Left _)       = []
+
+assertAlpha :: Assertion
+assertAlpha =
+    assertTokensEqual "assertAlpha" expected actual
+    where expected = [ [ "these", " ", "are", " ", "the", " ", "days", " "
+                       , "that", " ", "try" , " ", "men", "'", "s", " "
+                       , "souls", "."
+                       ]
+                     , [ "i", " ", "said", ",", " ", "\"", "hi", " ", "there"
+                       , ".", "\""
+                       ]
+                     , [ "oh", "-", "la", "-", "la", "-", "la", "."
+                       ]
+                     ]
+          actual   = [ "These are the days that try men's souls."
+                     , "I said, \"Hi there.\""
+                     , "Oh-la-la-la."
+                     ]
+
+assertNumber :: Assertion
+assertNumber = assertBool "assertNumber" False
+
+assertPunctuation :: Assertion
+assertPunctuation = assertBool "assertNumber" False
+
+assertSymbol :: Assertion
+assertSymbol = assertBool "assertSymbol" False
+
+assertMark :: Assertion
+assertMark = assertBool "assertMark" False
+
+assertRange :: Assertion
+assertRange = assertBool "assertRange" False
+
 -- All the active properties and tests.
 tokenizerTests :: [Test]
 tokenizerTests =
-    [ testGroup "tokenizer" [ testProperty "normalized" prop_normalized
-                            , testProperty "tokenLength" prop_tokenLength
-                            , testProperty "totalLength" prop_totalLength
-                            , testProperty "isAlpha" prop_isAlpha
-                            , testProperty "isNumber" prop_isNumber
-                            , testProperty "isPunctuation" prop_isPunctuation
-                            , testProperty "isSymbol" prop_isSymbol
-                            , testProperty "isMark" prop_isMark
-                            , testProperty "symbolLength" prop_symbolLength
-                            ]
+    [ testGroup "properties" [ testProperty "normalized" prop_normalized
+                             , testProperty "tokenLength" prop_tokenLength
+                             , testProperty "totalLength" prop_totalLength
+                             , testProperty "isAlpha" prop_isAlpha
+                             , testProperty "isNumber" prop_isNumber
+                             , testProperty "isPunctuation" prop_isPunctuation
+                             , testProperty "isSymbol" prop_isSymbol
+                             , testProperty "isMark" prop_isMark
+                             , testProperty "symbolLength" prop_symbolLength
+                             ]
+    , testGroup "unittests"  [ testCase "alpha" assertAlpha
+                             , testCase "number" assertNumber
+                             , testCase "punctuation" assertPunctuation
+                             , testCase "symbol" assertSymbol
+                             , testCase "mark" assertMark
+                             , testCase "range" assertRange
+                             ]
     ]
 
