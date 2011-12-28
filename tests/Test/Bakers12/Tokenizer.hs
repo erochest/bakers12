@@ -118,7 +118,15 @@ assertAlpha =
                      ]
 
 assertNumber :: Assertion
-assertNumber = assertBool "assertNumber" False
+assertNumber =
+    assertTokensEqual "assertNumber" expected actual
+    where expected = [ [ "1", " ", "2", " ", "3", " ", "4", " ", "5", " "
+                       , "3", ".", "1415", " ", "1", ",", "200", ",", "000"
+                       , " ", "-", "33"
+                       ]
+                     ]
+          actual   = [ "1 2 3 4 5 3.1415 1,200,000 -33"
+                     ]
 
 assertPunctuation :: Assertion
 assertPunctuation = assertBool "assertNumber" False
