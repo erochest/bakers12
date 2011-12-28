@@ -32,7 +32,7 @@ tokenize' input =
 -- tokenText must be normalized with no upper-case characters.
 prop_normalized :: T.Text -> Bool
 prop_normalized = L.all textIsLower . tokenize'
-    where charIsLower c = (not $ C.isAlpha c) || (C.isLower c)
+    where charIsLower c = (not $ C.isAlpha c) || (C.isLower c) || (C.toUpper c == c)
           textIsLower = T.all charIsLower . tokenText
 
 -- The length of the tokens must equal the length of the raw text.

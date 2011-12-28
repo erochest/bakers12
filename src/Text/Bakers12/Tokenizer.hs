@@ -53,6 +53,7 @@ data TokenType =
     | PunctuationToken              -- ^ One Unicode punctuation character.
     | SymbolToken                   -- ^ One Unicode symbol character.
     | MarkToken                     -- ^ One Unicode mark character.
+    | UnknownToken                  -- ^ None of the categories above.
     deriving (Eq, Show)
 
 -- | This reads text from an instance of Data.Text.Text and returns a list of
@@ -73,7 +74,8 @@ tokenizeStream cont@(E.Continue k) = do
     case maybeC of
         Just c  -> do
             token <- tokenize' c
-            lift $ E.runIteratee $ k $ E.Chunks [token]
+            next  <- lift $ E.runIteratee $ k $ E.Chunks [token]
+            tokenizeStream next
         Nothing -> return cont
 tokenizeStream step = return step
 
@@ -91,14 +93,23 @@ textToString step = return step
 -- | This takes a character and dispatches the handle the tokenizing the rest
 -- of the token from it.
 tokenize' :: Monad m => Char -> E.Iteratee Char m Token
-tokenize' start | C.isAlpha start = do
-    rest <- EL.takeWhile C.isAlpha
-    makeToken (start:rest) AlphaToken
+tokenize' c | C.isAlpha c       = tokenFromTaken AlphaToken c C.isAlpha
+tokenize' c | C.isNumber c      = tokenFromTaken NumberToken c C.isNumber
+tokenize' c | C.isPunctuation c = makeToken PunctuationToken [c]
+tokenize' c | C.isSymbol c      = makeToken SymbolToken [c]
+tokenize' c | C.isMark c        = makeToken MarkToken [c]
+tokenize' c | otherwise         = makeToken UnknownToken [c]
+
+-- | This runs takeWhile with the predicate, conses the initial element to the
+-- front, and creates a Token of the given type.
+tokenFromTaken :: Monad m => TokenType -> Char -> (Char -> Bool) -> E.Iteratee Char m Token
+tokenFromTaken tType initial predicate =
+    EL.takeWhile predicate >>= makeToken tType . (initial:)
 
 -- | In the context of an Enumerator, this takes a [Char] list and returns a
 -- Token.
-makeToken :: Monad m => [Char] -> TokenType -> E.Iteratee i m Token
-makeToken rawString tType = return $ Token normalized raw rawLength offset tType
+makeToken :: Monad m => TokenType -> [Char] -> E.Iteratee i m Token
+makeToken tType rawString = return $ Token normalized raw rawLength offset tType
     where
         raw        = T.pack rawString
         normalized = normalizeToken raw
