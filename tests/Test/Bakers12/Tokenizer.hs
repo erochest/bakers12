@@ -20,7 +20,7 @@ instance Arbitrary T.Text where
               maxChr   :: Int
               maxChr   = (fromIntegral 2) ^ (fromIntegral 16)
 
-    shrink = T.tails
+    shrink = shrinkNothing
 
 -- This tokenizes some text and throws errors.
 tokenize' :: T.Text -> [Token]
