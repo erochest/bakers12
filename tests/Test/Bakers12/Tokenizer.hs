@@ -173,7 +173,6 @@ tokenizerTests =
                              , testCase "punctuation" assertPunctuation
                              , testCase "symbol" assertSymbol
                              , testCase "mark" assertMark
-                             , testCase "range" assertRange
                              ]
     ]
 
