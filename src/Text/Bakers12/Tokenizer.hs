@@ -112,12 +112,11 @@ tokenFromTaken tType initial predicate =
 -- | In the context of an Enumerator, this takes a [Char] list and returns a
 -- Token.
 makeToken :: Monad m => TokenType -> [Char] -> E.Iteratee i m Token
-makeToken tType rawString = return $ Token normalized raw rawLength offset tType
+makeToken tType rawString = return $ Token normalized raw rawLength tType
     where
         raw        = T.pack rawString
         normalized = normalizeToken raw
         rawLength  = T.length raw
-        offset     = 0
 
 -- | This takes a raw token Text and returns a normalized version. Currently,
 -- this just lower-cases everything.
