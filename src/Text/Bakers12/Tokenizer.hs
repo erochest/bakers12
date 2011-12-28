@@ -40,7 +40,6 @@ data Token = Token
     { tokenText   :: T.Text         -- ^ The normalized token text.
     , tokenRaw    :: T.Text         -- ^ The raw token text.
     , tokenLength :: Int            -- ^ The length of the raw token.
-    , tokenOffset :: Integer        -- ^ The offset of the token in the stream.
     , tokenType   :: TokenType      -- ^ The type of data contained in the
                                     -- token.
     }
@@ -102,7 +101,11 @@ tokenize' c | otherwise         = makeToken UnknownToken [c]
 
 -- | This runs takeWhile with the predicate, conses the initial element to the
 -- front, and creates a Token of the given type.
-tokenFromTaken :: Monad m => TokenType -> Char -> (Char -> Bool) -> E.Iteratee Char m Token
+tokenFromTaken :: Monad m
+               => TokenType
+               -> Char
+               -> (Char -> Bool)
+               -> E.Iteratee Char m Token
 tokenFromTaken tType initial predicate =
     EL.takeWhile predicate >>= makeToken tType . (initial:)
 

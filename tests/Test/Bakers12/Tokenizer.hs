@@ -45,14 +45,6 @@ prop_totalLength :: T.Text -> Bool
 prop_totalLength input = T.length input == total
     where total = L.sum . map tokenLength $ tokenize' input
 
--- The offset of the list of tokens is monotonically increasing.
-prop_offsetIncreasing :: T.Text -> Bool
-prop_offsetIncreasing = monotonic . map tokenOffset . tokenize'
-    where monotonic []                   = True
-          monotonic [_]                  = True
-          monotonic (a:b:xs) | a < b     = monotonic (b:xs)
-                             | otherwise = False
-
 -- This creates a predicate for a given token type.
 isType :: TokenType -> (Token -> Bool)
 isType tType = (==) tType . tokenType
@@ -99,7 +91,6 @@ tokenizerTests =
     [ testGroup "tokenizer" [ testProperty "normalized" prop_normalized
                             , testProperty "tokenLength" prop_tokenLength
                             , testProperty "totalLength" prop_totalLength
-                            , testProperty "offsetIncreasing" prop_offsetIncreasing
                             , testProperty "isAlpha" prop_isAlpha
                             , testProperty "isNumber" prop_isNumber
                             , testProperty "isPunctuation" prop_isPunctuation
