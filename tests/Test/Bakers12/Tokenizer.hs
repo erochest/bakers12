@@ -16,6 +16,8 @@ instance Arbitrary T.Text where
     arbitrary =
         fmap T.pack . listOf1 $ suchThat (choose chrRange) C.isPrint
         where chrRange = (C.chr 0, C.chr maxChr)
+
+              maxChr   :: Int
               maxChr   = (fromIntegral 2) ^ (fromIntegral 16)
 
     shrink = T.tails
