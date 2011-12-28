@@ -131,7 +131,7 @@ assertNumber =
 assertPunctuation :: Assertion
 assertPunctuation =
     assertTokensEqual "assertPunctuation" expected actual
-    where expected = [ [".", ",", "\"", "&", " ", " ", " ", "*", "^"
+    where expected = [ [ ".", ",", "\"", "&", " ", " ", " ", "*", "^"
                        ]
                      ]
           actual   = [ ".,\"&   *^"
@@ -140,17 +140,20 @@ assertPunctuation =
 assertSymbol :: Assertion
 assertSymbol =
     assertTokensEqual "assertSymbol" expected actual
-    where expected = [ ["|", "~", "\162", "\163", "\164"
+    where expected = [ [ "|", "~", "\162", "\163", "\164"
                        ]
                      ]
           actual   = [ "|~\162\163\164"
                      ]
 
 assertMark :: Assertion
-assertMark = assertBool "assertMark" False
-
-assertRange :: Assertion
-assertRange = assertBool "assertRange" False
+assertMark =
+    assertTokensEqual "assertMark" expected actual
+    where expected = [ [ "\768", "\769", "\770", "\771", "\772"
+                       ]
+                     ]
+          actual   = [ "\768\769\770\771\772"
+                     ]
 
 -- All the active properties and tests.
 tokenizerTests :: [Test]
