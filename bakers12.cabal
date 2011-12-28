@@ -62,7 +62,7 @@ Library
       base >=3 && <5
     , mtl >=2 && <3
     , text >=0.10 && <1
-    , enumerator >= 0.4 && <5
+    , enumerator >=0.4 && <5
 
   extensions: TypeSynonymInstances
 
