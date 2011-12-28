@@ -79,6 +79,12 @@ prop_isSymbol = prop_tokenTypeContent SymbolToken C.isSymbol
 prop_isMark :: T.Text -> Bool
 prop_isMark = prop_tokenTypeContent MarkToken C.isMark
 
+-- Separators are spaces or separators.
+prop_isSeparator :: T.Text -> Bool
+prop_isSeparator =
+    prop_tokenTypeContent SeparatorToken $ \c ->
+        C.isSpace c || C.isSeparator c
+
 -- Punctuation, symbol, and mark tokens are only one character long.
 prop_symbolLength :: T.Text -> Bool
 prop_symbolLength input =
@@ -128,10 +134,19 @@ assertNumber =
           actual   = [ "1 2 3 4 5 3.1415 1,200,000 -33"
                      ]
 
+assertSeparator :: Assertion
+assertSeparator =
+    assertTokensEqual "assertSeparator" expected actual
+    where expected = [ [ "\t\n\v\f\r \160\5760\6158\8192"
+                       ]
+                     ]
+          actual   = [ "\t\n\v\f\r \160\5760\6158\8192"
+                     ]
+
 assertPunctuation :: Assertion
 assertPunctuation =
     assertTokensEqual "assertPunctuation" expected actual
-    where expected = [ [ ".", ",", "\"", "&", " ", " ", " ", "*", "^"
+    where expected = [ [ ".", ",", "\"", "&", "   ", "*", "^"
                        ]
                      ]
           actual   = [ ".,\"&   *^"
@@ -163,6 +178,7 @@ tokenizerTests =
                              , testProperty "totalLength" prop_totalLength
                              , testProperty "isAlpha" prop_isAlpha
                              , testProperty "isNumber" prop_isNumber
+                             , testProperty "isSeparator" prop_isSeparator
                              , testProperty "isPunctuation" prop_isPunctuation
                              , testProperty "isSymbol" prop_isSymbol
                              , testProperty "isMark" prop_isMark
@@ -170,6 +186,7 @@ tokenizerTests =
                              ]
     , testGroup "unittests"  [ testCase "alpha" assertAlpha
                              , testCase "number" assertNumber
+                             , testCase "separator" assertSeparator
                              , testCase "punctuation" assertPunctuation
                              , testCase "symbol" assertSymbol
                              , testCase "mark" assertMark

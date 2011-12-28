@@ -49,6 +49,8 @@ data Token = Token
 data TokenType =
       AlphaToken                    -- ^ Unicode alphabetic characters.
     | NumberToken                   -- ^ Unicode numeric characters.
+    | SeparatorToken                -- ^ Unicode space or Unicode separator
+                                    -- character.
     | PunctuationToken              -- ^ One Unicode punctuation character.
     | SymbolToken                   -- ^ One Unicode symbol character.
     | MarkToken                     -- ^ One Unicode mark character.
@@ -94,10 +96,15 @@ textToString step = return step
 tokenize' :: Monad m => Char -> E.Iteratee Char m Token
 tokenize' c | C.isAlpha c       = tokenFromTaken AlphaToken c C.isAlpha
 tokenize' c | C.isNumber c      = tokenFromTaken NumberToken c C.isNumber
+tokenize' c | isSeparator c     = tokenFromTaken SeparatorToken c isSeparator
 tokenize' c | C.isPunctuation c = makeToken PunctuationToken [c]
 tokenize' c | C.isSymbol c      = makeToken SymbolToken [c]
 tokenize' c | C.isMark c        = makeToken MarkToken [c]
 tokenize' c | otherwise         = makeToken UnknownToken [c]
+
+-- | This is an augmented separator predicate that also tests for spaces.
+isSeparator :: Char -> Bool
+isSeparator c = C.isSpace c || C.isSeparator c
 
 -- | This runs takeWhile with the predicate, conses the initial element to the
 -- front, and creates a Token of the given type.
