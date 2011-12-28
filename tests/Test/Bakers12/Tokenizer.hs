@@ -129,7 +129,13 @@ assertNumber =
                      ]
 
 assertPunctuation :: Assertion
-assertPunctuation = assertBool "assertNumber" False
+assertPunctuation =
+    assertTokensEqual "assertPunctuation" expected actual
+    where expected = [ [".", ",", "\"", "&", " ", " ", " ", "*", "^"
+                       ]
+                     ]
+          actual   = [ ".,\"&   *^"
+                     ]
 
 assertSymbol :: Assertion
 assertSymbol = assertBool "assertSymbol" False
