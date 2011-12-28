@@ -18,7 +18,7 @@ instance Arbitrary T.Text where
         where chrRange = (C.chr 0, C.chr maxChr)
 
               maxChr   :: Int
-              maxChr   = (fromIntegral 2) ^ (fromIntegral 16)
+              maxChr   = 2^16
 
     shrink = shrinkNothing
 
