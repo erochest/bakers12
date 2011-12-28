@@ -138,7 +138,13 @@ assertPunctuation =
                      ]
 
 assertSymbol :: Assertion
-assertSymbol = assertBool "assertSymbol" False
+assertSymbol =
+    assertTokensEqual "assertSymbol" expected actual
+    where expected = [ ["|", "~", "\162", "\163", "\164"
+                       ]
+                     ]
+          actual   = [ "|~\162\163\164"
+                     ]
 
 assertMark :: Assertion
 assertMark = assertBool "assertMark" False
