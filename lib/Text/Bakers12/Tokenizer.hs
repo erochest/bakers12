@@ -22,6 +22,7 @@ module Text.Bakers12.Tokenizer
     , TokenType(..)
     , tokenize
     , tokenizeFile
+    , tokenizeFileStream
     , tokenizeStream
     ) where
 
@@ -32,6 +33,7 @@ import qualified Data.Enumerator as E
 import qualified Data.Enumerator.List as EL
 import qualified Data.Enumerator.Text as ET
 import qualified Data.Text as T
+import qualified Data.Text.Lazy as LT
 
 -- * Token Type
 
@@ -60,18 +62,22 @@ data TokenType =
 -- | This reads text from an instance of Data.Text.Text and returns a list of
 -- Token instances.
 tokenize :: T.Text -> Either SomeException [Token]
-tokenize input = E.runLists [T.unpack input] (tokenizeStream E.=$ EL.consume)
+tokenize input = E.runLists [[input]] (tokenizeStream E.=$ EL.consume)
 
 -- | This reads the input from a file and returns a list of Token instances.
 tokenizeFile :: FilePath -> IO (Either SomeException [Token])
 tokenizeFile inputFile =
-    E.run (ET.enumFile inputFile E.$= textToString E.$= tokenizeStream E.$$ EL.consume)
+    E.run (tokenizeFileStream inputFile E.$$ EL.consume)
+
+-- | This creates an Enumerator that reads from a file and produces Tokens.
+tokenizeFileStream :: FilePath -> E.Enumerator Token IO b
+tokenizeFileStream inputFile = ET.enumFile inputFile E.$= tokenizeStream
 
 -- | This is an Enumeratee that takes a stream of Char and transforms it into a
 -- stream of Token.
-tokenizeStream :: Monad m => E.Enumeratee Char Token m b
+tokenizeStream :: Monad m => E.Enumeratee T.Text Token m b
 tokenizeStream cont@(E.Continue k) = do
-    maybeC <- EL.head
+    maybeC <- ET.head
     case maybeC of
         Just c  -> do
             token <- tokenize' c
@@ -80,27 +86,16 @@ tokenizeStream cont@(E.Continue k) = do
         Nothing -> return cont
 tokenizeStream step = return step
 
--- | This converts an input stream of T.Text to Char.
-textToString :: Monad m => E.Enumeratee T.Text Char m b
-textToString cont@(E.Continue k) = do
-    maybeHead <- ET.head
-    case maybeHead of
-        Just c  -> do
-            next <- lift $ E.runIteratee $ k $ E.Chunks [c]
-            textToString next
-        Nothing -> return cont
-textToString step = return step
-
 -- | This takes a character and dispatches the handle the tokenizing the rest
 -- of the token from it.
-tokenize' :: Monad m => Char -> E.Iteratee Char m Token
+tokenize' :: Monad m => Char -> E.Iteratee T.Text m Token
 tokenize' c | C.isAlpha c       = tokenFromTaken AlphaToken c C.isAlpha
 tokenize' c | C.isNumber c      = tokenFromTaken NumberToken c C.isNumber
 tokenize' c | isSeparator c     = tokenFromTaken SeparatorToken c isSeparator
-tokenize' c | C.isPunctuation c = makeToken PunctuationToken [c]
-tokenize' c | C.isSymbol c      = makeToken SymbolToken [c]
-tokenize' c | C.isMark c        = makeToken MarkToken [c]
-tokenize' c | otherwise         = makeToken UnknownToken [c]
+tokenize' c | C.isPunctuation c = return . makeToken PunctuationToken $ T.singleton c
+tokenize' c | C.isSymbol c      = return . makeToken SymbolToken $ T.singleton c
+tokenize' c | C.isMark c        = return . makeToken MarkToken $ T.singleton c
+tokenize' c | otherwise         = return . makeToken UnknownToken $ T.singleton c
 
 -- | This is an augmented separator predicate that also tests for spaces.
 isSeparator :: Char -> Bool
@@ -108,20 +103,17 @@ isSeparator c = C.isSpace c || C.isSeparator c
 
 -- | This runs takeWhile with the predicate, conses the initial element to the
 -- front, and creates a Token of the given type.
-tokenFromTaken :: Monad m
-               => TokenType
-               -> Char
-               -> (Char -> Bool)
-               -> E.Iteratee Char m Token
+tokenFromTaken :: Monad m =>
+                  TokenType -> Char -> (Char -> Bool) -> E.Iteratee T.Text m Token
 tokenFromTaken tType initial predicate =
-    EL.takeWhile predicate >>= makeToken tType . (initial:)
+    ET.takeWhile predicate >>=
+    return . makeToken tType . LT.toStrict . LT.cons initial
 
 -- | In the context of an Enumerator, this takes a [Char] list and returns a
 -- Token.
-makeToken :: Monad m => TokenType -> [Char] -> E.Iteratee i m Token
-makeToken tType rawString = return $ Token normalized raw rawLength tType
+makeToken :: TokenType -> T.Text -> Token
+makeToken tType raw = Token normalized raw rawLength tType
     where
-        raw        = T.pack rawString
         normalized = normalizeToken raw
         rawLength  = T.length raw
 
