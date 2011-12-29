@@ -20,19 +20,12 @@ import           System.FilePath
 -- | This is an Enumeratee that removes missing files from a stream of file
 -- names.
 removeMissingFiles :: MonadIO m => E.Enumeratee FilePath FilePath m b
-removeMissingFiles cont@(E.Continue k) = do
-    maybeFP <- EL.head
-    case maybeFP of
-        Just filePath -> do
-            isFile <- liftIO $ doesFileExist filePath
-            isDir  <- liftIO $ doesDirectoryExist filePath
-            if isFile || isDir
-                then do
-                    next <- lift $ E.runIteratee $ k $ E.Chunks [filePath]
-                    removeMissingFiles next
-                else return cont
-        Nothing -> return cont
-removeMissingFiles step = return step
+removeMissingFiles = E.filterM (liftIO . exists)
+    where exists :: FilePath -> IO Bool
+          exists f = do
+            isFile <- doesFileExist f
+            isDir  <- doesDirectoryExist f
+            return (isFile || isDir)
 
 -- | This is an Enumeratee that expands directory names into all the files in
 -- that directory tree.

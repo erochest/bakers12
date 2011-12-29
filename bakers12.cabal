@@ -121,6 +121,7 @@ Test-Suite test-bakers12
   main-is:               TestBakers12.hs
   build-depends:
       base >=3 && <5
+    , mtl >=2 && <3
     , test-framework >=0.4 && <0.5
     , test-framework-hunit >=0.2.6 && <0.3
     , test-framework-quickcheck2 >=0.2.9 && <0.3
