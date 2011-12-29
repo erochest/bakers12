@@ -51,7 +51,7 @@ Flag development
   Default:	False
 
 Library
-  hs-source-dirs:  src
+  hs-source-dirs:  lib
 
   exposed-modules:
       Text.Bakers12.Tokenizer
