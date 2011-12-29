@@ -24,6 +24,7 @@ module Text.Bakers12.Tokenizer
     , tokenizeFile
     , tokenizeFileStream
     , tokenizeStream
+    , tokenizeE
     ) where
 
 import           Control.Exception (SomeException)
@@ -76,8 +77,23 @@ tokenizeFile inputFile =
 
 -- | This creates an Enumerator that reads from a file and produces Tokens.
 tokenizeFileStream :: FilePath -> E.Enumerator Token IO b
+-- :: FilePath -> Step Token IO b -> Iteratee Token IO b
+-- Step Token IO b :: Continue (Stream Token -> Iteratee Token IO b)
 tokenizeFileStream inputFile =
     ET.enumFile inputFile E.$= tokenizeStream inputFile 0
+
+-- | This is an Enumeratee that takes a FilePath and returns a Enumerator of
+-- Tokens.
+tokenizeE :: E.Enumeratee FilePath Token IO b
+-- :: Step Token IO b -> Iteratee FilePath IO (Step Token IO b)
+-- Step Token IO b :: Continue (Stream Token -> Iteratee Token IO b)
+tokenizeE cont@(E.Continue k) = do
+    maybeFP <- EL.head
+    case maybeFP of
+        Just filePath -> do
+            tokenizeFileStream filePath cont E.>>== tokenizeE
+        Nothing -> return cont
+tokenizeE step = return step
 
 -- | This is an Enumeratee that takes a stream of Char and transforms it into a
 -- stream of Token.

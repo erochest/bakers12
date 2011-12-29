@@ -31,20 +31,20 @@ Extra-source-files:
   , bakers12/templates/echo.tpl
   , bakers12/templates/index.tpl
 data-files:
-  bakers12/resource-dir-marker,
-  bakers12/static/*.html,
-  bakers12/static/*.png,
-  bakers12/static/*.xml,
-  bakers12/static/*.ico,
-  bakers12/static/*.txt,
-  bakers12/static/images/*.png,
-  bakers12/static/js/libs/flot/*.min.js,
-  bakers12/static/js/libs/flot/*.flot.min.js,
-  bakers12/static/js/libs/jquery-1.6.3.min.js,
-  bakers12/static/js/libs/modernizr-2.0.6.min.js,
-  bakers12/static/js/*.js,
-  bakers12/static/stylesheets/*.css,
-  bakers12/templates/*.tpl
+    bakers12/resource-dir-marker
+  , bakers12/static/*.html
+  , bakers12/static/*.png
+  , bakers12/static/*.xml
+  , bakers12/static/*.ico
+  , bakers12/static/*.txt
+  , bakers12/static/images/*.png
+  , bakers12/static/js/libs/flot/*.min.js
+  , bakers12/static/js/libs/flot/*.flot.min.js
+  , bakers12/static/js/libs/jquery-1.6.3.min.js
+  , bakers12/static/js/libs/modernizr-2.0.6.min.js
+  , bakers12/static/js/*.js
+  , bakers12/static/stylesheets/*.css
+  , bakers12/templates/*.tpl
 
 Flag development
   Description:	Whether to build in development mode.
@@ -54,13 +54,17 @@ Library
   hs-source-dirs:  lib
 
   exposed-modules:
-      Text.Bakers12.Tokenizer
+      System.Bakers12.Enumerators
+    , Text.Bakers12.Tokenizer
 
   other-modules:
 
   Build-depends:
       base >=3 && <5
     , mtl >=2 && <3
+    , transformers >=0.2 && <1
+    , filepath >=1.2 && <2
+    , directory >=1.1 && <2
     , text >=0.10 && <1
     , enumerator >=0.4 && <5
 
@@ -84,11 +88,20 @@ Executable bakers12
   
   Build-depends:
       base >=3 && <5
+    , mtl >=2 && <3
+    , cmdargs >=0.9 && <1
+    , enumerator >=0.4 && <5
+    , text >=0.10 && <1
+    , bakers12
 
-  extensions: TypeSynonymInstances
+  extensions:
+      TypeSynonymInstances
 
   Other-modules:
-    Paths_bakers12
+      Paths_bakers12
+    , Bakers12.Cli
+    , Bakers12.Modes
+    , Bakers12.Modes.Tokenizer
 
   if flag(development)
     cpp-options -DDEVELOPMENT
@@ -114,6 +127,7 @@ Test-Suite test-bakers12
     , HUnit >=1.2 && <2
     , QuickCheck >=2.4 && <3
     , text >=0.10 && <1
+    , enumerator >=0.4 && <5
     , bakers12
   ghc-options:		 -Wall -rtsopts
 
