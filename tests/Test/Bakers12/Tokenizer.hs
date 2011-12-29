@@ -25,27 +25,27 @@ instance Arbitrary T.Text where
     shrink = shrinkNothing
 
 -- This tokenizes some text and throws errors.
-tokenize' :: T.Text -> [Token]
-tokenize' input =
-    case tokenize input of
+tokenize' :: FilePath -> T.Text -> [Token]
+tokenize' source input =
+    case tokenize source input of
         Right tokens -> tokens
         Left  err    -> throw err
 
 -- tokenText must be normalized with no upper-case characters.
 prop_normalized :: T.Text -> Bool
-prop_normalized = L.all textIsLower . tokenize'
+prop_normalized = L.all textIsLower . tokenize' "<prop_normalized>"
     where charIsLower c = (not $ C.isAlpha c) || (C.isLower c) || (C.toUpper c == c)
           textIsLower = T.all charIsLower . tokenText
 
 -- The length of the tokens must equal the length of the raw text.
 prop_tokenLength :: T.Text -> Bool
-prop_tokenLength = L.all lengthIsEqualRawLength . tokenize'
+prop_tokenLength = L.all lengthIsEqualRawLength . tokenize' "<prop_tokenLength>"
     where lengthIsEqualRawLength t = tokenLength t == T.length (tokenRaw t)
 
 -- The total length of the tokens equals the length of the raw input.
 prop_totalLength :: T.Text -> Bool
 prop_totalLength input = T.length input == total
-    where total = L.sum . map tokenLength $ tokenize' input
+    where total = L.sum . map tokenLength $ tokenize' "<prop_totalLength>" input
 
 -- This creates a predicate for a given token type.
 isType :: TokenType -> (Token -> Bool)
@@ -55,7 +55,7 @@ isType tType = (==) tType . tokenType
 prop_tokenTypeContent :: TokenType -> (C.Char -> Bool) -> T.Text -> Bool
 prop_tokenTypeContent tType predicate input =
     L.and [ T.all predicate $ tokenText token
-          | token <- tokenize' input
+          | token <- tokenize' "<prop_tokenTypeContent>" input
           , isType tType token
           ]
 
@@ -89,9 +89,27 @@ prop_isSeparator =
 prop_symbolLength :: T.Text -> Bool
 prop_symbolLength input =
     L.and [ 1 == tokenLength token
-          | token <- tokenize' input
+          | token <- tokenize' "<prop_symbolLength>" input
           , tokenType token `elem` [PunctuationToken, SymbolToken, MarkToken]
           ]
+
+-- The source should be the same on all tokens.
+prop_source :: T.Text -> Bool
+prop_source = L.all (== source) . map tokenSource . tokenize' source
+    where source = "<prop_source>"
+
+-- The position should be monotonically increasing.
+prop_offsetIncreasing :: T.Text -> Bool
+prop_offsetIncreasing =
+    monotonic . map tokenOffset . tokenize' "<prop_offsetIncreasing>"
+    where monotonic []                   = True
+          monotonic [_]                  = True
+          monotonic (a:b:xs) | a < b     = monotonic (b:xs)
+                             | otherwise = False
+
+-- The tokenizer should return something, as long as the input length is > 0.
+prop_returnSomething :: T.Text -> Bool
+prop_returnSomething = (0 <) . length . tokenize' "<prop_returnSomething>"
 
 -- This is a helper function to handle the boilerplate for the unit tests.
 assertTokensEqual :: String -> [[String]] -> [String] -> Assertion
@@ -100,7 +118,7 @@ assertTokensEqual msg expected actual =
     where
         msg' = msg ++ show actual'
         expected' = map (map T.pack) expected
-        actual' = map (map tokenText . getTokens . tokenize . T.pack) actual
+        actual' = map (map tokenText . getTokens . tokenize msg . T.pack) actual
 
         getTokens (Right tokens) = tokens
         getTokens (Left _)       = []
@@ -183,6 +201,9 @@ tokenizerTests =
                              , testProperty "isSymbol" prop_isSymbol
                              , testProperty "isMark" prop_isMark
                              , testProperty "symbolLength" prop_symbolLength
+                             , testProperty "source" prop_source
+                             , testProperty "offsetIncreasing" prop_offsetIncreasing
+                             , testProperty "returnSomething" prop_returnSomething
                              ]
     , testGroup "unittests"  [ testCase "alpha" assertAlpha
                              , testCase "number" assertNumber

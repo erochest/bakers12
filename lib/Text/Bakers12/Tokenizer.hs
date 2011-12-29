@@ -44,6 +44,10 @@ data Token = Token
     , tokenLength :: Int            -- ^ The length of the raw token.
     , tokenType   :: TokenType      -- ^ The type of data contained in the
                                     -- token.
+    , tokenSource :: FilePath       -- ^ The source (sometimes a file) that
+                                    -- the token was found in.
+    , tokenOffset :: Integer        -- ^ The character offset of the start of
+                                    -- the token in the source (zero-indexed).
     }
     deriving (Eq, Show)
 
@@ -61,8 +65,9 @@ data TokenType =
 
 -- | This reads text from an instance of Data.Text.Text and returns a list of
 -- Token instances.
-tokenize :: T.Text -> Either SomeException [Token]
-tokenize input = E.runLists [[input]] (tokenizeStream E.=$ EL.consume)
+tokenize :: FilePath -> T.Text -> Either SomeException [Token]
+tokenize source input =
+    E.runLists [[input]] (tokenizeStream source 0 E.=$ EL.consume)
 
 -- | This reads the input from a file and returns a list of Token instances.
 tokenizeFile :: FilePath -> IO (Either SomeException [Token])
@@ -71,31 +76,40 @@ tokenizeFile inputFile =
 
 -- | This creates an Enumerator that reads from a file and produces Tokens.
 tokenizeFileStream :: FilePath -> E.Enumerator Token IO b
-tokenizeFileStream inputFile = ET.enumFile inputFile E.$= tokenizeStream
+tokenizeFileStream inputFile =
+    ET.enumFile inputFile E.$= tokenizeStream inputFile 0
 
 -- | This is an Enumeratee that takes a stream of Char and transforms it into a
 -- stream of Token.
-tokenizeStream :: Monad m => E.Enumeratee T.Text Token m b
-tokenizeStream cont@(E.Continue k) = do
+tokenizeStream :: Monad m =>
+                  FilePath -> Integer -> E.Enumeratee T.Text Token m b
+tokenizeStream source offset cont@(E.Continue k) = do
     maybeC <- ET.head
     case maybeC of
         Just c  -> do
-            token <- tokenize' c
+            token <- tokenize' source offset c
             next  <- lift $ E.runIteratee $ k $ E.Chunks [token]
-            tokenizeStream next
+            tokenizeStream source (offset + fromIntegral (tokenLength token)) next
         Nothing -> return cont
-tokenizeStream step = return step
+tokenizeStream _ _ step = return step
 
 -- | This takes a character and dispatches the handle the tokenizing the rest
 -- of the token from it.
-tokenize' :: Monad m => Char -> E.Iteratee T.Text m Token
-tokenize' c | C.isAlpha c       = tokenFromTaken AlphaToken c C.isAlpha
-tokenize' c | C.isNumber c      = tokenFromTaken NumberToken c C.isNumber
-tokenize' c | isSeparator c     = tokenFromTaken SeparatorToken c isSeparator
-tokenize' c | C.isPunctuation c = return . makeToken PunctuationToken $ T.singleton c
-tokenize' c | C.isSymbol c      = return . makeToken SymbolToken $ T.singleton c
-tokenize' c | C.isMark c        = return . makeToken MarkToken $ T.singleton c
-tokenize' c | otherwise         = return . makeToken UnknownToken $ T.singleton c
+tokenize' :: Monad m => FilePath -> Integer -> Char -> E.Iteratee T.Text m Token
+tokenize' source offset c | C.isAlpha c =
+    tokenFromTaken source offset AlphaToken c C.isAlpha
+tokenize' source offset c | C.isNumber c =
+    tokenFromTaken source offset NumberToken c C.isNumber
+tokenize' source offset c | isSeparator c =
+    tokenFromTaken source offset SeparatorToken c isSeparator
+tokenize' source offset c | C.isPunctuation c =
+    return . makeToken source offset PunctuationToken $ T.singleton c
+tokenize' source offset c | C.isSymbol c =
+    return . makeToken source offset SymbolToken $ T.singleton c
+tokenize' source offset c | C.isMark c =
+    return . makeToken source offset MarkToken $ T.singleton c
+tokenize' source offset c | otherwise =
+    return . makeToken source offset UnknownToken $ T.singleton c
 
 -- | This is an augmented separator predicate that also tests for spaces.
 isSeparator :: Char -> Bool
@@ -104,15 +118,22 @@ isSeparator c = C.isSpace c || C.isSeparator c
 -- | This runs takeWhile with the predicate, conses the initial element to the
 -- front, and creates a Token of the given type.
 tokenFromTaken :: Monad m =>
-                  TokenType -> Char -> (Char -> Bool) -> E.Iteratee T.Text m Token
-tokenFromTaken tType initial predicate =
+                  FilePath ->                   -- ^ tokenSource
+                  Integer ->                    -- ^ tokenOffset
+                  TokenType ->                  -- ^ tokenType
+                  Char ->                       -- ^ Initial character.
+                  (Char -> Bool) ->             -- ^ Predicate for taking the
+                                                -- rest of the token.
+                  E.Iteratee T.Text m Token
+tokenFromTaken source offset tType initial predicate =
     ET.takeWhile predicate >>=
-    return . makeToken tType . LT.toStrict . LT.cons initial
+    return . makeToken source offset tType . LT.toStrict . LT.cons initial
 
 -- | In the context of an Enumerator, this takes a [Char] list and returns a
 -- Token.
-makeToken :: TokenType -> T.Text -> Token
-makeToken tType raw = Token normalized raw rawLength tType
+makeToken :: FilePath -> Integer -> TokenType -> T.Text -> Token
+makeToken source offset tType raw =
+    Token normalized raw rawLength tType source offset
     where
         normalized = normalizeToken raw
         rawLength  = T.length raw
