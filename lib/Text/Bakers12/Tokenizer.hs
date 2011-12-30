@@ -31,6 +31,7 @@ import           Control.Exception (SomeException)
 import           Control.Monad.Trans (lift)
 import qualified Data.Char as C
 import qualified Data.Enumerator as E
+import qualified Data.Enumerator.Binary as EB
 import qualified Data.Enumerator.List as EL
 import qualified Data.Enumerator.Text as ET
 import qualified Data.Text as T
@@ -76,17 +77,17 @@ tokenizeFile inputFile =
     E.run (tokenizeFileStream inputFile E.$$ EL.consume)
 
 -- | This creates an Enumerator that reads from a file and produces Tokens.
+--
+-- This assumes that the files are UTF8.
 tokenizeFileStream :: FilePath -> E.Enumerator Token IO b
--- :: FilePath -> Step Token IO b -> Iteratee Token IO b
--- Step Token IO b :: Continue (Stream Token -> Iteratee Token IO b)
 tokenizeFileStream inputFile =
-    ET.enumFile inputFile E.$= tokenizeStream inputFile 0
+    EB.enumFile inputFile E.$=
+    ET.decode ET.utf8 E.$=
+    tokenizeStream inputFile 0
 
 -- | This is an Enumeratee that takes a FilePath and returns a Enumerator of
 -- Tokens.
 tokenizeE :: E.Enumeratee FilePath Token IO b
--- :: Step Token IO b -> Iteratee FilePath IO (Step Token IO b)
--- Step Token IO b :: Continue (Stream Token -> Iteratee Token IO b)
 tokenizeE cont@(E.Continue k) = do
     maybeFP <- EL.head
     case maybeFP of

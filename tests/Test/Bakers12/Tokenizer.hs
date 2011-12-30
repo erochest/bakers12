@@ -188,6 +188,15 @@ assertMark =
           actual   = [ "\768\769\770\771\772"
                      ]
 
+assertNewline :: Assertion
+assertNewline =
+    assertTokensEqual "assertNewline" expected actual
+    where expected = [ [ "one", " ", "line", ";", "\n"
+                       , "two", " ", "lines", "."
+                       ]
+                     ]
+          actual   = [ "One line;\nTwo lines." ]
+
 -- All the active properties and tests.
 tokenizerTests :: [Test]
 tokenizerTests =
@@ -211,6 +220,7 @@ tokenizerTests =
                              , testCase "punctuation" assertPunctuation
                              , testCase "symbol" assertSymbol
                              , testCase "mark" assertMark
+                             , testCase "newline" assertNewline
                              ]
     ]
 
