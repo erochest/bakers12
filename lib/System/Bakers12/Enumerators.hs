@@ -35,18 +35,24 @@ expandDirectories cont@(E.Continue k) = do
     case maybeFP of
         Just filePath -> do
             isFile <- liftIO $ doesFileExist filePath
-            if isFile
-                then return cont
-                else do
+            isDir  <- liftIO $ doesDirectoryExist filePath
+            case (isFile, isDir) of
+                (True, False)  -> do
+                    next <- lift $ E.runIteratee $ k $ E.Chunks [filePath]
+                    expandDirectories next
+                (False, True)  -> do
                     next <- lift $ E.runIteratee $ k $ E.Chunks []
                     expandDirectories next E.>>== enumDirectory filePath
+                _              -> do
+                    next <- lift $ E.runIteratee $ k $ E.Chunks []
+                    expandDirectories next
         Nothing -> return cont
 expandDirectories step = return step
 
 -- | This returns an Enumerator that walks over a directory tree.
 --
 -- This is taken from http://www.mew.org/~kazu/proj/enumerator/.
-enumDirectory :: MonadIO m => FilePath -> E.Enumerator String m b
+enumDirectory :: MonadIO m => FilePath -> E.Enumerator FilePath m b
 enumDirectory dirname = list
     where
         list (E.Continue k) = do

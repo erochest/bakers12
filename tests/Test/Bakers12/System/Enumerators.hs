@@ -3,6 +3,7 @@ module Test.Bakers12.System.Enumerators
     ( systemEnumeratorTests
     ) where
 
+import           Control.Applicative
 import qualified Data.Enumerator as E
 import qualified Data.Enumerator.List as EL
 import           Control.Monad.Trans (lift)
@@ -10,6 +11,8 @@ import           Test.Framework (Test, testGroup)
 import           Test.Framework.Providers.HUnit (testCase)
 import           Test.HUnit (Assertion, assertBool)
 import           System.Bakers12.Enumerators
+import           System.Directory
+import           System.FilePath
 
 assertPipe :: String ->
               [FilePath] ->
@@ -35,38 +38,73 @@ assertRmMissingKeepExistingDirectory =
 assertRmMissingRemoveMissingFiles :: Assertion
 assertRmMissingRemoveMissingFiles =
     assertPipe "assertRmMissingRemoveMissingFiles" expected input removeMissingFiles
-    where input = ["not1", "not2", "not3"]
+    where input    = ["not1", "not2", "not3"]
           expected = []
 
 assertRmMissingMixed :: Assertion
 assertRmMissingMixed =
     assertPipe "assertRmMissingMixed" expected input removeMissingFiles
-    where input = ["not1", "bakers12.cabal", "src", "LICENSE", "not3"]
+    where input    = ["not1", "bakers12.cabal", "src", "LICENSE", "not3"]
           expected = ["bakers12.cabal", "src", "LICENSE"]
 
 assertExpDirFiles :: Assertion
 assertExpDirFiles =
-    assertBool "assertExpDirFiles" False
+    assertPipe "assertExpDirFiles" expected input expandDirectories
+    where input    = ["bakers12.cabal", "LICENSE"]
+          expected = input
 
 assertExpDirMissing :: Assertion
 assertExpDirMissing =
-    assertBool "assertExpDirMissing" False
+    assertPipe "assertExpDirMissing" expected input expandDirectories
+    where input    = ["doesnotexist"]
+          expected = []
 
 assertExpDirExpandShallow :: Assertion
-assertExpDirExpandShallow =
-    assertBool "assertExpDirExpandShallow" False
+assertExpDirExpandShallow = do
+    expected <- map ("bin" </>) . filter (`notElem` [".", ".."])
+                <$> getDirectoryContents "bin"
+    assertPipe "assertExpDirExpandShallow" expected input expandDirectories
+    where input = ["bin"]
 
+-- TODO: This will break at every opportunity!
 assertExpDirExpandDeep :: Assertion
 assertExpDirExpandDeep =
-    assertBool "assertExpDirExpandDeep" False
+    assertPipe "assertExpDirExpandDeep" expected input expandDirectories
+    where input    = ["tests"]
+          expected = [ "tests/TestBakers12.hs"
+                     , "tests/Test/Bakers12/Tokenizer.hs"
+                     , "tests/Test/Bakers12/System/Enumerators.hs"
+                     ]
+
+assertExpDirExpandMixed :: Assertion
+assertExpDirExpandMixed = do
+    expected <- ("bakers12.cabal" :)
+                <$> map ("bin" </>) . filter (`notElem` [".", ".."])
+                <$> getDirectoryContents "bin"
+    assertPipe "assertExpDirExpandMixed" expected input expandDirectories
+    where input    = ["doesnotexist", "bakers12.cabal", "bin"]
+
+assertEnumDirectory :: String -> FilePath -> [FilePath] -> Assertion
+assertEnumDirectory msg dirname expected = do
+    output <- E.run_ (enumDirectory dirname E.$$ EL.consume)
+    let msg' = msg ++ ": " ++ show output
+    assertBool msg' $ expected == output
 
 assertEnDirShallow :: Assertion
-assertEnDirShallow =
-    assertBool "assertEnDirShallow" False
+assertEnDirShallow = do
+    expected <- map ("bin" </>) . filter (`notElem` [".", ".."])
+                <$> getDirectoryContents "bin"
+    assertEnumDirectory "assertEnDirShallow" "bin" expected
 
+-- TODO: This will break at every opportunity!
 assertEnDirDeep :: Assertion
 assertEnDirDeep =
-    assertBool "assertEnDirDeep" False
+    assertEnumDirectory "assertEnDirDeep" "tests" expected
+    where input    = ["tests"]
+          expected = [ "tests/TestBakers12.hs"
+                     , "tests/Test/Bakers12/Tokenizer.hs"
+                     , "tests/Test/Bakers12/System/Enumerators.hs"
+                     ]
 
 
 systemEnumeratorTests :: [Test]
@@ -80,6 +118,7 @@ systemEnumeratorTests =
                                      , testCase "skip missing" assertExpDirMissing
                                      , testCase "expand shallow directory" assertExpDirExpandShallow
                                      , testCase "expand deep directory" assertExpDirExpandDeep
+                                     , testCase "mixed" assertExpDirExpandMixed
                                      ]
     , testGroup "enumDirectory"      [ testCase "enumerate a shallow directory" assertEnDirShallow
                                      , testCase "enumerate a deep directory" assertEnDirDeep

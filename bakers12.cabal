@@ -128,6 +128,8 @@ Test-Suite test-bakers12
     , HUnit >=1.2 && <2
     , QuickCheck >=2.4 && <3
     , text >=0.10 && <1
+    , filepath >=1.2 && <2
+    , directory >=1.1 && <2
     , enumerator >=0.4 && <5
     , bakers12
   ghc-options:		 -Wall -rtsopts
