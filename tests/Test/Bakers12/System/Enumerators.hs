@@ -73,6 +73,7 @@ assertExpDirExpandDeep =
     where input    = ["tests"]
           expected = [ "tests/TestBakers12.hs"
                      , "tests/Test/Bakers12/Tokenizer.hs"
+                     , "tests/Test/Bakers12/Tokenizer/PennTreebank.hs"
                      , "tests/Test/Bakers12/System/Enumerators.hs"
                      ]
 
@@ -103,6 +104,7 @@ assertEnDirDeep =
     where input    = ["tests"]
           expected = [ "tests/TestBakers12.hs"
                      , "tests/Test/Bakers12/Tokenizer.hs"
+                     , "tests/Test/Bakers12/Tokenizer/PennTreebank.hs"
                      , "tests/Test/Bakers12/System/Enumerators.hs"
                      ]
 
