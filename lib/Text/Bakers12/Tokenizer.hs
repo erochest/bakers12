@@ -113,20 +113,14 @@ tokenizeStream _ _ step = return step
 -- | This takes a character and dispatches the handle the tokenizing the rest
 -- of the token from it.
 tokenize' :: Monad m => FilePath -> Integer -> Char -> E.Iteratee T.Text m Token
-tokenize' source offset c | C.isAlpha c =
-    tokenFromTaken source offset AlphaToken c C.isAlpha
-tokenize' source offset c | C.isNumber c =
-    tokenFromTaken source offset NumberToken c C.isNumber
-tokenize' source offset c | isSeparator c =
-    tokenFromTaken source offset SeparatorToken c isSeparator
-tokenize' source offset c | C.isPunctuation c =
-    return . makeToken source offset PunctuationToken $ T.singleton c
-tokenize' source offset c | C.isSymbol c =
-    return . makeToken source offset SymbolToken $ T.singleton c
-tokenize' source offset c | C.isMark c =
-    return . makeToken source offset MarkToken $ T.singleton c
-tokenize' source offset c | otherwise =
-    return . makeToken source offset UnknownToken $ T.singleton c
+tokenize' source offset c
+    | C.isAlpha c       = tokenFromTaken source offset AlphaToken c C.isAlpha
+    | C.isNumber c      = tokenFromTaken source offset NumberToken c C.isNumber
+    | isSeparator c     = tokenFromTaken source offset SeparatorToken c isSeparator
+    | C.isPunctuation c = return . makeToken source offset PunctuationToken $ T.singleton c
+    | C.isSymbol c      = return . makeToken source offset SymbolToken $ T.singleton c
+    | C.isMark c        = return . makeToken source offset MarkToken $ T.singleton c
+    | otherwise         = return . makeToken source offset UnknownToken $ T.singleton c
 
 -- | This is an augmented separator predicate that also tests for spaces.
 isSeparator :: Char -> Bool
