@@ -12,7 +12,7 @@ import qualified Data.Text as T
 import           Test.Framework (Test, testGroup)
 import           Test.Framework.Providers.HUnit (testCase)
 import           Test.HUnit (Assertion, assertBool)
-import           Text.Bakers12.Tokenizer.PennTreebank (tokenizer)
+import           Text.Bakers12.Tokenizer.PennTreebank (Token(..), TokenType(..), tokenize)
 
 
 tokenize' :: FilePath -> T.Text-> [Token]
@@ -31,8 +31,8 @@ assertAll :: String -> String -> (Token -> Bool) -> Assertion
 assertAll msg input p = assertBool msg' all
     where
         msg'   = msg ++ ": " ++ show output
-        output = map (T.unpack . tokenText) . tokenize' msg $ T.pack input
-        all    = L.all . map p $ output
+        output = tokenize' msg $ T.pack input
+        all    = L.all p output
 
 
 assertDoubleQuotes :: Assertion
