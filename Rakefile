@@ -82,6 +82,11 @@ namespace :hs do
   task :build do
     sh %{cabal build}
   end
+
+  desc 'This creates the documentation. (This fails unless the "Executable" section is removed from bakers12.cabal.)'
+  task :docs do
+    sh %{cabal haddock --hyperlink-source}
+  end
 end
 
 namespace :release do
