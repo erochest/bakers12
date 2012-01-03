@@ -101,14 +101,14 @@ isSeparator c = C.isSpace c || C.isSeparator c
 
 -- | This runs takeWhile with the predicate, conses the initial element to the
 -- front, and creates a Token of the given type.
-tokenFromTaken :: Monad m =>
-                  FilePath ->                   -- ^ tokenSource
-                  Integer ->                    -- ^ tokenOffset
-                  TokenType ->                  -- ^ tokenType
-                  Char ->                       -- ^ Initial character.
-                  (Char -> Bool) ->             -- ^ Predicate for taking the
+tokenFromTaken :: Monad m   
+               => FilePath                      -- ^ tokenSource
+               -> Integer                       -- ^ tokenOffset
+               -> TokenType                     -- ^ tokenType
+               -> Char                          -- ^ Initial character.
+               -> (Char -> Bool)                -- ^ Predicate for taking the
                                                 -- rest of the token.
-                  E.Iteratee T.Text m Token
+               -> E.Iteratee T.Text m Token
 tokenFromTaken source offset tType initial predicate =
     ET.takeWhile predicate >>=
     return . makeToken source offset tType . LT.toStrict . LT.cons initial
