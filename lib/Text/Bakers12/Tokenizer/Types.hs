@@ -11,6 +11,7 @@
 module Text.Bakers12.Tokenizer.Types
     ( Token(..)
     , TokenType(..)
+    , isReadable
     ) where
 
 import qualified Data.Text as T
@@ -42,4 +43,10 @@ data TokenType =
     | MarkToken                     -- ^ One Unicode mark character.
     | UnknownToken                  -- ^ None of the categories above.
     deriving (Eq, Show)
+
+-- | This tests whether a token is "readable." I.e., whether its type is
+-- AlphaToken or NumberToken.
+isReadable :: Token -> Bool
+isReadable token = tType == AlphaToken || tType == NumberToken
+    where tType = tokenType token
 

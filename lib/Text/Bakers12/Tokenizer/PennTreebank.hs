@@ -25,6 +25,7 @@ import           Control.Exception (SomeException)
 import           Control.Monad.Trans (lift)
 import qualified Data.Enumerator as E
 import qualified Data.Enumerator.List as EL
+import qualified Data.List as L
 import qualified Data.Text as T
 import qualified Text.Bakers12.Tokenizer as B12
 import           Text.Bakers12.Tokenizer.Types
@@ -92,8 +93,11 @@ pennFilter step = return step
 -- | This actually handles breaking everything apart and putting it back
 -- together.
 penn :: [Token] -> [Token]
-penn [t]    | tokenText t == T.pack "\"" = [t { tokenText = T.pack "''" }]
-penn (t:ts) | tokenText t == T.pack "\"" = t { tokenText = T.pack "``" } : penn ts
-penn (t:ts) = t : penn ts
+penn (t:ts)
+    | tokenText t == T.pack "\"" && L.all (not . isReadable) ts =
+        t { tokenText = T.pack "''" } : penn ts
+    | tokenText t == T.pack "\"" = t { tokenText = T.pack "``" } : penn ts
+    | otherwise = t : penn ts
 penn []     = []
+
 

@@ -38,9 +38,10 @@ assertAll msg input p = assertBool msg' all
 assertDoubleQuotes :: Assertion
 assertDoubleQuotes = assertTokenizes "assertDoubleQuotes" input expected
     where
-        input    = "\"This is quoted.\" \"More quotes.\""
+        input    = "\"This is quoted.\" \"More quotes.\" '\"More quotes.\"'"
         expected = [ "``", "this", "is", "quoted", ".", "''"
                    , "``", "more", "quotes", ".", "''"
+                   , "'", "``", "more", "quotes", ".", "''", "'"
                    ]
 
 assertSplitFromWords :: Assertion
