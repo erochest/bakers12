@@ -39,8 +39,8 @@ assertDoubleQuotes :: Assertion
 assertDoubleQuotes = assertTokenizes "assertDoubleQuotes" input expected
     where
         input    = "\"This is quoted.\" \"More quotes.\""
-        expected = [ "\"", "this", "is", "quoted", ".", "\""
-                   , "\"", "more", "quotes", ".", "\""
+        expected = [ "``", "this", "is", "quoted", ".", "''"
+                   , "``", "more", "quotes", ".", "''"
                    ]
 
 assertSplitFromWords :: Assertion
