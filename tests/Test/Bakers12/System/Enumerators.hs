@@ -6,6 +6,8 @@ module Test.Bakers12.System.Enumerators
 import           Control.Applicative
 import qualified Data.Enumerator as E
 import qualified Data.Enumerator.List as EL
+import           Data.Function (on)
+import qualified Data.List as L
 import           Control.Monad.Trans (lift)
 import           Test.Framework (Test, testGroup)
 import           Test.Framework.Providers.HUnit (testCase)
@@ -14,16 +16,19 @@ import           System.Bakers12.Enumerators
 import           System.Directory
 import           System.FilePath
 
-assertPipe :: String ->
-              [FilePath] ->
-              [FilePath] ->
-              E.Enumeratee FilePath FilePath IO [FilePath] ->
-              Assertion
+sorteq :: [String] -> [String] -> Bool
+sorteq = (==) `on` L.sort
+
+assertPipe :: String
+           -> [FilePath]
+           -> [FilePath]
+           -> E.Enumeratee FilePath FilePath IO [FilePath]
+           -> Assertion
 assertPipe msg expected input pipe = do
     output <- E.run_ (E.enumList 1 input `E.joinE` pipe
                       E.$$ EL.consume)
     let msg' = msg ++ ": " ++ show output
-    assertBool msg' $ expected == output
+    assertBool msg' $ expected `sorteq` output
 
 assertRmMissingKeepExistingFiles :: Assertion
 assertRmMissingKeepExistingFiles =
@@ -89,7 +94,7 @@ assertEnumDirectory :: String -> FilePath -> [FilePath] -> Assertion
 assertEnumDirectory msg dirname expected = do
     output <- E.run_ (enumDirectory dirname E.$$ EL.consume)
     let msg' = msg ++ ": " ++ show output
-    assertBool msg' $ expected == output
+    assertBool msg' $ expected `sorteq` output
 
 assertEnDirShallow :: Assertion
 assertEnDirShallow = do
