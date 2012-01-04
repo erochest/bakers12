@@ -92,5 +92,8 @@ pennFilter step = return step
 -- | This actually handles breaking everything apart and putting it back
 -- together.
 penn :: [Token] -> [Token]
-penn input = input
+penn [t]    | tokenText t == T.pack "\"" = [t { tokenText = T.pack "''" }]
+penn (t:ts) | tokenText t == T.pack "\"" = t { tokenText = T.pack "``" } : penn ts
+penn (t:ts) = t : penn ts
+penn []     = []
 
