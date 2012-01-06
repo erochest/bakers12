@@ -94,27 +94,29 @@ pennFilter step = return step
 -- | This actually handles breaking everything apart and putting it back
 -- together.
 penn :: [Token] -> [Token]
-penn tlist@(t:ts)
+penn (t:ts)
     | tokenText t == T.pack "\"" && L.all (not . isReadable) ts =
         t { tokenText = T.pack "''" } : penn ts
     | tokenText t == T.pack "\"" = t { tokenText = T.pack "``" } : penn ts
-    | L.all (dash ==) . map tokenText $ take2 =
-        Tkn.concat take2 : penn drop2
-    | L.all (dot ==) . map tokenText $ take3 =
-        Tkn.concat take3 : penn drop3
     | T.singleton '(' == tokenText t = t { tokenText = T.pack "-LRB-" } : penn ts
     | T.singleton ')' == tokenText t = t { tokenText = T.pack "-RRB-" } : penn ts
     | T.singleton '[' == tokenText t = t { tokenText = T.pack "-LSB-" } : penn ts
     | T.singleton ']' == tokenText t = t { tokenText = T.pack "-RSB-" } : penn ts
     | T.singleton '{' == tokenText t = t { tokenText = T.pack "-LCB-" } : penn ts
     | T.singleton '}' == tokenText t = t { tokenText = T.pack "-RCB-" } : penn ts
-    | length tlist >= 2 && T.pack "'" == tokenText a && T.singleton 's' == tokenText b =
-        Tkn.concat take2 : penn drop2
-    | otherwise = t : penn ts
-    where (take2, drop2) = L.splitAt 2 tlist
-          (take3, drop3) = L.splitAt 3 tlist
-          [a, b]      = take2
-          dash = T.singleton '-'
-          dot  = T.singleton '.'
+penn (t1:t2:ts)
+    | (tokenText t1 == dash) && (tokenText t2 == dash) =
+        Tkn.append t1 t2 : penn ts
+    | squote == tokenText t1 && s == tokenText t2 =
+        Tkn.append t1 t2 : penn ts
+    where dash   = T.singleton '-'
+          s      = T.singleton 's'
+          squote = T.pack "'"
+penn (t1:t2:t3:ts)
+    | L.all (dot ==) . map tokenText $ take3 =
+        Tkn.concat take3 : penn ts
+    where dot   = T.singleton '.'
+          take3 = [t1, t2, t3]
+penn (t:ts) = t : penn ts
 penn []     = []
 
