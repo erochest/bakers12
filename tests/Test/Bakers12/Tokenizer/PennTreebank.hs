@@ -110,9 +110,9 @@ assertContractions = assertTokenizes "assertContractions" input expected
 assertRunOns :: Assertion
 assertRunOns = assertTokenizes "assertRunOns" input expected
     where
-        input    = "gonna cannot d'ye gimme 'tis wanna"
-        expected = [ "gon", "na", "can", "not", "d", "ye", "gim", "me"
-                   , "'t", "is", "wan", "na"
+        input    = "gonna cannot d'ye gimme 'tis wanna more'n"
+        expected = [ "gon", "na", "can", "not", "d'", "ye", "gim", "me"
+                   , "'t", "is", "wan", "na", "more", "'n"
                    ]
 
 assertRemovesWhitespace :: Assertion

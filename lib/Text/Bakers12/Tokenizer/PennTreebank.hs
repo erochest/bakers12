@@ -98,29 +98,47 @@ penn (t:ts)
     | tokenText t == T.pack "\"" && L.all (not . isReadable) ts =
         t { tokenText = T.pack "''" } : penn ts
     | tokenText t == T.pack "\"" = t { tokenText = T.pack "``" } : penn ts
+    -- brackets of various sorts.
     | T.singleton '(' == tokenText t = t { tokenText = T.pack "-LRB-" } : penn ts
     | T.singleton ')' == tokenText t = t { tokenText = T.pack "-RRB-" } : penn ts
     | T.singleton '[' == tokenText t = t { tokenText = T.pack "-LSB-" } : penn ts
     | T.singleton ']' == tokenText t = t { tokenText = T.pack "-RSB-" } : penn ts
     | T.singleton '{' == tokenText t = t { tokenText = T.pack "-LCB-" } : penn ts
     | T.singleton '}' == tokenText t = t { tokenText = T.pack "-RCB-" } : penn ts
+    -- Run-ons.
+    | tokenText t `elem` runOns = tsplit 3 t ++ penn ts
+    where tsplit n t = let (t1, t2) = Tkn.splitAt n t
+                       in  [t1, t2]
+          runOns = map T.pack ["cannot", "gimme", "gonna", "gotta", "lemme", "wanna"]
 penn (t1:t2:ts)
     | (tokenText t1 == dash) && (tokenText t2 == dash) =
         Tkn.append t1 t2 : penn ts
     | squote == tokenText t1 && tokenText t2 `elem` contractions =
         Tkn.append t1 t2 : penn ts
-    where dash         = T.singleton '-'
-          contractions = map T.pack ["s", "ll", "m", "d", "re", "ve"]
-          squote       = T.pack "'"
+    | squote == tokenText t1 && tokenText t2 `elem` tcontractions =
+        let (ttoken, trest) = Tkn.splitAt 1 t2
+        in  Tkn.append t1 ttoken : trest : penn ts
+    where dash          = T.singleton '-'
+          squote        = T.pack "'"
+          contractions  = map T.pack ["s", "ll", "m", "d", "re", "ve"]
+          tcontractions = map T.pack ["tis", "twas"]
 penn (t1:t2:t3:ts)
     | L.all (dot ==) . map tokenText $ take3 =
         Tkn.concat take3 : penn ts
     | (T.last $ tokenText t1) == n && tokenText t2 == squote && tokenText t3 == t =
         t1 { tokenText = T.init $ tokenText t1 } : nt : penn ts
+    | tokenText t1 == d && tokenText t2 == squote && tokenText t3 == ye =
+        Tkn.append t1 t2 : t3 : penn ts
+    | tokenText t1 == more && tokenText t2 == squote && tokenText t3 == textn =
+        t1 : Tkn.append t2 t3 : penn ts
     where dot    = T.singleton '.'
           squote = T.pack "'"
+          d      = T.singleton 'd'
           n      = 'n'
+          textn  = T.singleton n
           t      = T.singleton 't'
+          ye     = T.pack "ye"
+          more   = T.pack "more"
           nt     = t2 { tokenText   = T.pack "n't"
                       , tokenRaw    = T.pack "n't"
                       , tokenLength = 3

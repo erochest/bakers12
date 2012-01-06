@@ -15,11 +15,12 @@ module Text.Bakers12.Tokenizer.Types
     , isReadable
     , append
     , concat
+    , splitAt
     ) where
 
 import qualified Data.List as L
 import qualified Data.Text as T
-import           Prelude hiding (concat)
+import           Prelude hiding (concat, splitAt)
 
 -- * Token Type
 
@@ -90,4 +91,19 @@ concat ts@(a:_) =
         -- would insure that the list was only walked twice. Someday.)
         (texts, raws, lengths) = L.unzip3 . map getFields $ ts
         getFields t = (tokenText t, tokenRaw t, tokenLength t)
+
+-- | This splits a token on position N in the tokenText. This copies the raw
+-- token, unchanged, into each of the resulting tokens. However, the offset of
+-- the second token is moved up and the length of the tokens reflects the
+-- length of the split token texts.
+splitAt :: Int -> Token -> (Token, Token)
+splitAt n token = (t1, t2)
+    where (text1, text2) = T.splitAt n $ tokenText token
+          t1 = token { tokenText   = text1
+                     , tokenLength = T.length text1
+                     }
+          t2 = token { tokenText   = text2
+                     , tokenOffset = tokenOffset token + fromIntegral (T.length text1)
+                     , tokenLength = T.length text2
+                     }
 
