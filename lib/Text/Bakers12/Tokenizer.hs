@@ -65,6 +65,7 @@ tokenizeE cont@(E.Continue k) = do
     maybeFP <- EL.head
     case maybeFP of
         Just filePath -> do
+            -- lift . putStrLn . (">>> " ++) $ filePath
             tokenizeFileStream filePath cont E.>>== tokenizeE
         Nothing -> return cont
 tokenizeE step = return step
