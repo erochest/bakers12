@@ -11,10 +11,15 @@
 module Text.Bakers12.Tokenizer.Types
     ( Token(..)
     , TokenType(..)
+    , empty
     , isReadable
+    , append
+    , concat
     ) where
 
+import qualified Data.List as L
 import qualified Data.Text as T
+import           Prelude hiding (concat)
 
 -- * Token Type
 
@@ -44,9 +49,45 @@ data TokenType =
     | UnknownToken                  -- ^ None of the categories above.
     deriving (Eq, Show)
 
+-- | This is an empty token.
+empty = Token T.empty T.empty 0 UnknownToken "" 0
+
 -- | This tests whether a token is "readable." I.e., whether its type is
 -- AlphaToken or NumberToken.
 isReadable :: Token -> Bool
 isReadable token = tType == AlphaToken || tType == NumberToken
     where tType = tokenType token
+
+-- | This takes two tokens (presumably right next to each other in the input
+-- stream, although this doesn't verify that) and concatenates them by
+-- concatenating their text and raw data and their lengths.
+append :: Token -> Token -> Token
+append a b =
+    a { tokenText   = T.append (tokenText a) (tokenText b)
+      , tokenRaw    = T.append (tokenRaw a) (tokenRaw b)
+      , tokenLength = (tokenLength a) + (tokenLength b)
+      }
+
+-- | This takes a list of tokens and appends them. Like append above, it
+-- assumes that the tokens occur right next to each other.
+--
+-- The implementation of this could use fold, but I thought that using T.concat
+-- and not constructing any intermediate Tokens would be faster.
+concat :: [Token] -> Token
+concat []       = empty
+concat [t]      = t
+concat [t1, t2] = append t1 t2
+concat ts@(a:_) =
+    a { tokenText   = T.concat texts
+      , tokenRaw    = T.concat raws
+      , tokenLength = sum lengths
+      }
+    where
+        -- Another small optimization, so we don't have to walk the input list
+        -- more than once. If these operations can be fused, that would be
+        -- best, but even just walking the list twice is better than walking it
+        -- three times. (Best would be to write unzipWith3 or something, which
+        -- would insure that the list was only walked twice. Someday.)
+        (texts, raws, lengths) = L.unzip3 . map getFields $ ts
+        getFields t = (tokenText t, tokenRaw t, tokenLength t)
 

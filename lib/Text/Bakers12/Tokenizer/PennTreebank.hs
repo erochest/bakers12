@@ -28,7 +28,8 @@ import qualified Data.Enumerator.List as EL
 import qualified Data.List as L
 import qualified Data.Text as T
 import qualified Text.Bakers12.Tokenizer as B12
-import           Text.Bakers12.Tokenizer.Types
+import           Text.Bakers12.Tokenizer.Types hiding (append, concat)
+import qualified Text.Bakers12.Tokenizer.Types as Tkn
 
 -- | This reads text from an instance of Data.Text.Text and returns a list of
 -- Token instances.
@@ -93,11 +94,13 @@ pennFilter step = return step
 -- | This actually handles breaking everything apart and putting it back
 -- together.
 penn :: [Token] -> [Token]
-penn (t:ts)
+penn tlist@(t:ts)
     | tokenText t == T.pack "\"" && L.all (not . isReadable) ts =
         t { tokenText = T.pack "''" } : penn ts
     | tokenText t == T.pack "\"" = t { tokenText = T.pack "``" } : penn ts
+    | L.all (T.singleton '.' ==) . map tokenText $ ellipses =
+        Tkn.concat ellipses : penn rest
     | otherwise = t : penn ts
+    where (ellipses, rest) = L.splitAt 3 tlist
 penn []     = []
-
 
