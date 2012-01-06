@@ -15,6 +15,7 @@ import qualified Data.Text as T
 import           System.Bakers12.Enumerators (removeMissingFiles, expandDirectories)
 import           System.IO (stdout)
 import           Text.Bakers12.Tokenizer (Token(..), tokenizeE)
+import           Text.Bakers12.Tokenizer.PennTreebank (pennFilter)
 
 -- | This takes a list of possible file paths and tokenizes each one. It prints
 -- the tokens out as CSV. Missing files are silently skipped and directories
@@ -25,6 +26,7 @@ tokenize :: [FilePath] -> IO ()
 tokenize files =
     run_ (enumLists [files] $= removeMissingFiles $= expandDirectories $=
           tokenizeE $=
+          pennFilter $=
           tokenToList $=
           listToCsvText $$
           ET.iterHandle stdout)
