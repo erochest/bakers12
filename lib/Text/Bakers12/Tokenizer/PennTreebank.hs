@@ -107,16 +107,26 @@ penn (t:ts)
 penn (t1:t2:ts)
     | (tokenText t1 == dash) && (tokenText t2 == dash) =
         Tkn.append t1 t2 : penn ts
-    | squote == tokenText t1 && s == tokenText t2 =
+    | squote == tokenText t1 && tokenText t2 `elem` contractions =
         Tkn.append t1 t2 : penn ts
-    where dash   = T.singleton '-'
-          s      = T.singleton 's'
-          squote = T.pack "'"
+    where dash         = T.singleton '-'
+          contractions = map T.pack ["s", "ll", "m", "d", "re", "ve"]
+          squote       = T.pack "'"
 penn (t1:t2:t3:ts)
     | L.all (dot ==) . map tokenText $ take3 =
         Tkn.concat take3 : penn ts
-    where dot   = T.singleton '.'
-          take3 = [t1, t2, t3]
+    | (T.last $ tokenText t1) == n && tokenText t2 == squote && tokenText t3 == t =
+        t1 { tokenText = T.init $ tokenText t1 } : nt : penn ts
+    where dot    = T.singleton '.'
+          squote = T.pack "'"
+          n      = 'n'
+          t      = T.singleton 't'
+          nt     = t2 { tokenText   = T.pack "n't"
+                      , tokenRaw    = T.pack "n't"
+                      , tokenLength = 3
+                      , tokenOffset = tokenOffset t2 - 1
+                      }
+          take3  = [t1, t2, t3]
 penn (t:ts) = t : penn ts
 penn []     = []
 
