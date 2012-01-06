@@ -104,6 +104,8 @@ penn tlist@(t:ts)
         Tkn.concat take3 : penn drop3
     | T.singleton '(' == tokenText t = t { tokenText = T.pack "-LRB-" } : penn ts
     | T.singleton ')' == tokenText t = t { tokenText = T.pack "-RRB-" } : penn ts
+    | T.singleton '[' == tokenText t = t { tokenText = T.pack "-LSB-" } : penn ts
+    | T.singleton ']' == tokenText t = t { tokenText = T.pack "-RSB-" } : penn ts
     | otherwise = t : penn ts
     where (take2, drop2) = L.splitAt 2 tlist
           (take3, drop3) = L.splitAt 3 tlist
