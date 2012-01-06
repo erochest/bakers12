@@ -98,9 +98,14 @@ penn tlist@(t:ts)
     | tokenText t == T.pack "\"" && L.all (not . isReadable) ts =
         t { tokenText = T.pack "''" } : penn ts
     | tokenText t == T.pack "\"" = t { tokenText = T.pack "``" } : penn ts
-    | L.all (T.singleton '.' ==) . map tokenText $ ellipses =
-        Tkn.concat ellipses : penn rest
+    | L.all (dash ==) . map tokenText $ take2 =
+        Tkn.concat take2 : penn drop2
+    | L.all (dot ==) . map tokenText $ take3 =
+        Tkn.concat take3 : penn drop3
     | otherwise = t : penn ts
-    where (ellipses, rest) = L.splitAt 3 tlist
+    where (take2, drop2) = L.splitAt 2 tlist
+          (take3, drop3) = L.splitAt 3 tlist
+          dash = T.singleton '-'
+          dot  = T.singleton '.'
 penn []     = []
 
