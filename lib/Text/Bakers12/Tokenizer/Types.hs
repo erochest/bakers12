@@ -51,6 +51,7 @@ data TokenType =
     deriving (Eq, Show)
 
 -- | This is an empty token.
+empty :: Token
 empty = Token T.empty T.empty 0 UnknownToken "" 0
 
 -- | This tests whether a token is "readable." I.e., whether its type is
