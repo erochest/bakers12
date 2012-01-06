@@ -108,9 +108,12 @@ penn tlist@(t:ts)
     | T.singleton ']' == tokenText t = t { tokenText = T.pack "-RSB-" } : penn ts
     | T.singleton '{' == tokenText t = t { tokenText = T.pack "-LCB-" } : penn ts
     | T.singleton '}' == tokenText t = t { tokenText = T.pack "-RCB-" } : penn ts
+    | length tlist >= 2 && T.pack "'" == tokenText a && T.singleton 's' == tokenText b =
+        Tkn.concat take2 : penn drop2
     | otherwise = t : penn ts
     where (take2, drop2) = L.splitAt 2 tlist
           (take3, drop3) = L.splitAt 3 tlist
+          [a, b]      = take2
           dash = T.singleton '-'
           dot  = T.singleton '.'
 penn []     = []
