@@ -50,6 +50,10 @@ Flag development
   Description:	Whether to build in development mode.
   Default:	False
 
+Flag profiling
+  Description:  Whether to build for profiling.
+  Default:      False
+
 Library
   hs-source-dirs:  lib
 
@@ -75,14 +79,19 @@ Library
   if flag(development)
     cpp-options -DDEVELOPMENT
     -- build-depends: hint >= 0.3.2 && < 0.4
-    ghc-options: -threaded -w -O
+    ghc-options: -DDEVELOPMENT -threaded -w
   else
-    if impl(ghc >= 6.12.0)
-      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                   -fno-warn-orphans -fno-warn-unused-do-bind -rtsopts
+    if flag(profiling)
+      cpp-options -DDEVELOPMENT
+      -- build-depends: hint >= 0.3.2 && < 0.4
+      ghc-options: -DDEVELOPMENT -threaded -w -O -rtsopts -prof
     else
-      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                   -fno-warn-orphans -rtsopts
+      if impl(ghc >= 6.12.0)
+        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                     -fno-warn-orphans -fno-warn-unused-do-bind -rtsopts
+      else
+        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                     -fno-warn-orphans -rtsopts
 
 Executable bakers12
   hs-source-dirs:  src
@@ -108,14 +117,19 @@ Executable bakers12
   if flag(development)
     cpp-options -DDEVELOPMENT
     -- build-depends: hint >= 0.3.2 && < 0.4
-    ghc-options: -DDEVELOPMENT -threaded -w -O -rtsopts -prof
+    ghc-options: -DDEVELOPMENT -threaded -w -O
   else
-    if impl(ghc >= 6.12.0)
-      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                   -fno-warn-orphans -fno-warn-unused-do-bind -rtsopts
+    if flag(profiling)
+      cpp-options -DDEVELOPMENT
+      -- build-depends: hint >= 0.3.2 && < 0.4
+      ghc-options: -DDEVELOPMENT -threaded -w -O -rtsopts -prof
     else
-      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                   -fno-warn-orphans -rtsopts
+      if impl(ghc >= 6.12.0)
+        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                     -fno-warn-orphans -fno-warn-unused-do-bind -rtsopts
+      else
+        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                     -fno-warn-orphans -rtsopts
 
 Test-Suite test-bakers12
   type:                  exitcode-stdio-1.0

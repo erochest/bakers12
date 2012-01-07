@@ -23,7 +23,7 @@ task :config, [:target] do |t, args|
   when 'development'
     flags = %{-f development --enable-tests}
   when 'profiling'
-    flags = %{-f development --enable-library-profiling --ghc-option=-auto-all}
+    flags = %{-f profiling --enable-library-profiling --ghc-option=-auto-all}
   else
     flags = ''
   end
