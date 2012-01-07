@@ -36,19 +36,22 @@ tokenToList cont@(Continue k) = do
     maybeT <- EL.head
     case maybeT of
         Just token -> do
-            next <- lift $ runIteratee $ k $ Chunks [list]
+            next <- lift $ runIteratee $ k $ Chunks [t2l token]
             tokenToList next
-            where list = [ tokenText token
-                         , tokenRaw token
-                         , showText $ tokenLength token
-                         , showText $ tokenType token
-                         , T.pack   $ tokenSource token
-                         , showText $ tokenOffset token
-                         ]
-                  showText :: Show a => a -> T.Text
-                  showText = T.pack . show
         Nothing -> return cont
 tokenToList step = return step
+
+showText :: Show a => a -> T.Text
+showText = T.pack . show
+
+t2l :: Token -> [T.Text]
+t2l token = [ tokenText token
+            , tokenRaw token
+            , showText $ tokenLength token
+            , showText $ tokenType token
+            , T.pack   $ tokenSource token
+            , showText $ tokenOffset token
+            ]
 
 listToCsvText :: Monad m => Enumeratee [T.Text] T.Text m b
 listToCsvText cont@(Continue k) = do
@@ -57,15 +60,21 @@ listToCsvText cont@(Continue k) = do
         Just list -> do
             next <- lift $ runIteratee $ k $ Chunks [chunk]
             listToCsvText next
-            where chunk = flip T.snoc '\n'
-                        . T.intercalate (T.singleton ',')
+            where chunk = flip T.append nl
+                        . T.intercalate comma
                         $ map escape list
+                  nl = T.singleton '\n'
+                  comma = T.singleton ','
         Nothing -> return cont
-    where
-        escape input =
-            let i1 = T.replace (T.singleton '"') (T.pack "\"\"") input
-            in  if T.any (not . C.isAlphaNum) i1
-                then T.cons '"' $ T.snoc i1 '"'
-                else input
 listToCsvText step = return step
+
+-- mapAccumL :: (a -> Char -> (a, Char)) -> a -> Text -> (a, Text)
+
+escape :: T.Text -> T.Text
+escape input = if T.any (not . C.isAlphaNum) input
+               then T.concat [quote, escaped, quote]
+               else input
+    where
+        quote   = T.singleton '"'
+        escaped = T.replace quote (T.pack "\"\"") input
 
