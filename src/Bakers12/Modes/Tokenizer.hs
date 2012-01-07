@@ -11,6 +11,7 @@ import qualified Data.Char as C
 import           Data.Enumerator hiding (map)
 import qualified Data.Enumerator.List as EL
 import qualified Data.Enumerator.Text as ET
+import qualified Data.List as L
 import qualified Data.Text as T
 import           System.Bakers12.Enumerators (removeMissingFiles, expandDirectories)
 import           System.IO (stdout)
@@ -27,9 +28,36 @@ tokenize files =
     run_ (enumLists [files] $= removeMissingFiles $= expandDirectories $=
           tokenizeE $=
           pennFilter $=
-          tokenToList $=
-          listToCsvText $$
-          ET.iterHandle stdout)
+          tokenToCsv $$
+          iterPutStrLn)
+
+tokenToCsv :: Monad m => Enumeratee Token String m b
+tokenToCsv cont@(Continue k) = do
+    maybeT <- EL.head
+    case maybeT of
+        Just token -> do
+            next <- lift $ runIteratee $ k $ Chunks [showToken token]
+            tokenToCsv next
+        Nothing -> return cont
+tokenToCsv step = return step
+
+iterPutStrLn :: Iteratee String IO ()
+iterPutStrLn = do
+    maybeS <- EL.head
+    case maybeS of
+        Just output -> do
+            lift $ putStrLn output
+            iterPutStrLn
+        Nothing -> return ()
+
+showToken :: Token -> String
+showToken token = L.intercalate "," [ show . escape $ tokenText token
+                                    , show . escape $ tokenRaw token
+                                    , show $ tokenLength token
+                                    , show $ tokenType token
+                                    , tokenSource token
+                                    , show $ tokenOffset token
+                                    ]
 
 tokenToList :: Monad m => Enumeratee Token [T.Text] m b
 tokenToList cont@(Continue k) = do
@@ -67,8 +95,6 @@ listToCsvText cont@(Continue k) = do
                   comma = T.singleton ','
         Nothing -> return cont
 listToCsvText step = return step
-
--- mapAccumL :: (a -> Char -> (a, Char)) -> a -> Text -> (a, Text)
 
 escape :: T.Text -> T.Text
 escape input = if T.any (not . C.isAlphaNum) input
