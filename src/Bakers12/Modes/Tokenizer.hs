@@ -9,10 +9,15 @@ module Bakers12.Modes.Tokenizer
 import           Control.Monad.Trans (lift)
 import qualified Data.Char as C
 import           Data.Enumerator hiding (map)
+import qualified Data.Enumerator.Binary as EB
 import qualified Data.Enumerator.List as EL
 import qualified Data.Enumerator.Text as ET
 import qualified Data.List as L
+import           Data.Monoid (mappend)
 import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Builder as TB
+import qualified Data.Text.Lazy.Builder.Int as TBI
 import           System.Bakers12.Enumerators (removeMissingFiles, expandDirectories)
 import           System.IO (stdout)
 import           Text.Bakers12.Tokenizer (Token(..), tokenizeE)
@@ -28,10 +33,11 @@ tokenize files =
     run_ (enumLists [files] $= removeMissingFiles $= expandDirectories $=
           tokenizeE $=
           pennFilter $=
-          tokenToCsv $$
-          iterPutStrLn)
+          tokenToCsv $=
+          ET.encode ET.utf8 $$
+          EB.iterHandle stdout)
 
-tokenToCsv :: Monad m => Enumeratee Token String m b
+tokenToCsv :: Monad m => Enumeratee Token T.Text m b
 tokenToCsv cont@(Continue k) = do
     maybeT <- EL.head
     case maybeT of
@@ -50,14 +56,24 @@ iterPutStrLn = do
             iterPutStrLn
         Nothing -> return ()
 
-showToken :: Token -> String
-showToken token = L.intercalate "," [ show . escape $ tokenText token
-                                    , show . escape $ tokenRaw token
-                                    , show $ tokenLength token
-                                    , show $ tokenType token
-                                    , tokenSource token
-                                    , show $ tokenOffset token
-                                    ]
+showToken :: Token -> T.Text
+showToken token@(Token tText tRaw tLen tType tSource tOffset) =
+    TL.toStrict $ TB.toLazyText line
+    where
+        comma  = TB.singleton ','
+        nl     = TB.singleton '\n'
+
+        text   = TB.fromText . escape $ tText
+        raw    = TB.fromText . escape $ tRaw
+        len    = TBI.decimal tLen
+        typ    = TB.fromString . show $ tType
+        src    = TB.fromString tSource
+        offs   = TBI.decimal tOffset
+
+        fields = [ text, raw, len, typ, src ]
+
+        push field builder = field `mappend` (comma `mappend` builder)
+        line = foldr mappend (offs `mappend` nl) fields
 
 tokenToList :: Monad m => Enumeratee Token [T.Text] m b
 tokenToList cont@(Continue k) = do
