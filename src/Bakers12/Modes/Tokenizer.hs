@@ -31,10 +31,9 @@ import           Text.Bakers12.Tokenizer.PennTreebank (pennFilter)
 tokenize :: [FilePath] -> IO ()
 tokenize files =
     run_ (enumLists [files] $= removeMissingFiles $= expandDirectories $=
-          tokenizeE $=
-          pennFilter $=
-          tokenToCsv $=
-          ET.encode ET.utf8 $$
+          tokenizeE $= pennFilter $$
+          tokenToCsv =$
+          ET.encode ET.utf8 =$
           EB.iterHandle stdout)
 
 tokenToCsv :: Monad m => Enumeratee Token T.Text m b
@@ -63,8 +62,8 @@ showToken token@(Token tText tRaw tLen tType tSource tOffset) =
         comma  = TB.singleton ','
         nl     = TB.singleton '\n'
 
-        text   = TB.fromText . escape $ tText
-        raw    = TB.fromText . escape $ tRaw
+        text   = escape tText
+        raw    = escape tRaw
         len    = TBI.decimal tLen
         typ    = TB.fromString . show $ tType
         src    = TB.fromString tSource
@@ -97,26 +96,11 @@ t2l token = [ tokenText token
             , showText $ tokenOffset token
             ]
 
-listToCsvText :: Monad m => Enumeratee [T.Text] T.Text m b
-listToCsvText cont@(Continue k) = do
-    maybeL <- EL.head
-    case maybeL of
-        Just list -> do
-            next <- lift $ runIteratee $ k $ Chunks [chunk]
-            listToCsvText next
-            where chunk = flip T.append nl
-                        . T.intercalate comma
-                        $ map escape list
-                  nl = T.singleton '\n'
-                  comma = T.singleton ','
-        Nothing -> return cont
-listToCsvText step = return step
-
-escape :: T.Text -> T.Text
+escape :: T.Text -> TB.Builder
 escape input = if T.any (not . C.isAlphaNum) input
-               then T.concat [quote, escaped, quote]
-               else input
+               then quote `mappend` (TB.fromText escaped `mappend` quote)
+               else TB.fromText input
     where
-        quote   = T.singleton '"'
-        escaped = T.replace quote (T.pack "\"\"") input
+        quote   = TB.singleton '"'
+        escaped = T.replace (T.singleton '"') (T.pack "\"\"") input
 
