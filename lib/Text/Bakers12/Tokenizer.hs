@@ -61,7 +61,7 @@ tokenizeFileStream inputFile =
 -- | This is an Enumeratee that takes a FilePath and returns a Enumerator of
 -- Tokens.
 tokenizeE :: E.Enumeratee FilePath Token IO b
-tokenizeE cont@(E.Continue k) = do
+tokenizeE cont@(E.Continue _) = do
     maybeFP <- EL.head
     case maybeFP of
         Just filePath -> do

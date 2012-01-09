@@ -107,8 +107,8 @@ penn (t:ts)
     | T.singleton '}' == tokenText t = t { tokenText = T.pack "-RCB-" } : penn ts
     -- Run-ons.
     | tokenText t `elem` runOns = tsplit 3 t ++ penn ts
-    where tsplit n t = let (t1, t2) = Tkn.splitAt n t
-                       in  [t1, t2]
+    where tsplit n tkn = let (t1, t2) = Tkn.splitAt n tkn
+                         in  [t1, t2]
           runOns = map T.pack ["cannot", "gimme", "gonna", "gotta", "lemme", "wanna"]
 penn (t1:t2:ts)
     | (tokenText t1 == dash) && (tokenText t2 == dash) =

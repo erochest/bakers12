@@ -6,7 +6,7 @@ module Bakers12.Modes
     ( execBakers12
     ) where
 
-import Bakers12.Cli
+import Bakers12.Cli hiding (files)
 import Bakers12.Modes.Tokenizer (tokenize)
 
 -- | This dispatching function.

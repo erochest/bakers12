@@ -12,7 +12,6 @@ import           Data.Enumerator hiding (map)
 import qualified Data.Enumerator.Binary as EB
 import qualified Data.Enumerator.List as EL
 import qualified Data.Enumerator.Text as ET
-import qualified Data.List as L
 import           Data.Monoid (mappend)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
@@ -46,17 +45,8 @@ tokenToCsv cont@(Continue k) = do
         Nothing -> return cont
 tokenToCsv step = return step
 
-iterPutStrLn :: Iteratee String IO ()
-iterPutStrLn = do
-    maybeS <- EL.head
-    case maybeS of
-        Just output -> do
-            lift $ putStrLn output
-            iterPutStrLn
-        Nothing -> return ()
-
 showToken :: Token -> T.Text
-showToken token@(Token tText tRaw tLen tType tSource tOffset) =
+showToken (Token tText tRaw tLen tType tSource tOffset) =
     TL.toStrict $ TB.toLazyText line
     where
         comma  = TB.singleton ','
@@ -72,29 +62,7 @@ showToken token@(Token tText tRaw tLen tType tSource tOffset) =
         fields = [ text, raw, len, typ, src ]
 
         push field builder = field `mappend` (comma `mappend` builder)
-        line = foldr mappend (offs `mappend` nl) fields
-
-tokenToList :: Monad m => Enumeratee Token [T.Text] m b
-tokenToList cont@(Continue k) = do
-    maybeT <- EL.head
-    case maybeT of
-        Just token -> do
-            next <- lift $ runIteratee $ k $ Chunks [t2l token]
-            tokenToList next
-        Nothing -> return cont
-tokenToList step = return step
-
-showText :: Show a => a -> T.Text
-showText = T.pack . show
-
-t2l :: Token -> [T.Text]
-t2l token = [ tokenText token
-            , tokenRaw token
-            , showText $ tokenLength token
-            , showText $ tokenType token
-            , T.pack   $ tokenSource token
-            , showText $ tokenOffset token
-            ]
+        line = foldr push (offs `mappend` nl) fields
 
 escape :: T.Text -> TB.Builder
 escape input = if T.any (not . C.isAlphaNum) input

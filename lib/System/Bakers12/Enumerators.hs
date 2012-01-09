@@ -20,7 +20,7 @@ import           System.FilePath
 -- | This is an Enumeratee that removes missing files from a stream of file
 -- names.
 removeMissingFiles :: MonadIO m => E.Enumeratee FilePath FilePath m b
-removeMissingFiles = E.filterM (liftIO . exists)
+removeMissingFiles = EL.filterM (liftIO . exists)
     where exists :: FilePath -> IO Bool
           exists f = do
             isFile <- doesFileExist f

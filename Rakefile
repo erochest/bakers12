@@ -24,6 +24,8 @@ task :config, [:target] do |t, args|
     flags = %{-f development --enable-tests}
   when 'profiling'
     flags = %{-f profiling --enable-library-profiling --ghc-option=-auto-all}
+  when 'production'
+    flags = %{--ghc-option=-dno-debug-output}
   else
     flags = ''
   end
