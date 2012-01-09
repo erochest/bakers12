@@ -89,6 +89,11 @@ namespace :hs do
   task :docs do
     sh %{cabal haddock --hyperlink-source}
   end
+
+  desc 'This runs hlint on the library.'
+  task :lint do
+    sh %{hlint lib}
+  end
 end
 
 namespace :release do
