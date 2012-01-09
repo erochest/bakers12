@@ -67,7 +67,7 @@ append :: Token -> Token -> Token
 append a b =
     a { tokenText   = T.append (tokenText a) (tokenText b)
       , tokenRaw    = T.append (tokenRaw a) (tokenRaw b)
-      , tokenLength = (tokenLength a) + (tokenLength b)
+      , tokenLength = tokenLength a + tokenLength b
       }
 
 -- | This takes a list of tokens and appends them. Like append above, it

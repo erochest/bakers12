@@ -125,7 +125,7 @@ penn (t1:t2:ts)
 penn (t1:t2:t3:ts)
     | L.all (dot ==) . map tokenText $ take3 =
         Tkn.concat take3 : penn ts
-    | (T.last $ tokenText t1) == n && tokenText t2 == squote && tokenText t3 == t =
+    | T.last (tokenText t1) == n && tokenText t2 == squote && tokenText t3 == t =
         t1 { tokenText = T.init $ tokenText t1 } : nt : penn ts
     | tokenText t1 == d && tokenText t2 == squote && tokenText t3 == ye =
         Tkn.append t1 t2 : t3 : penn ts

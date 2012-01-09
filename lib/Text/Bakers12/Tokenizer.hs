@@ -28,6 +28,7 @@ module Text.Bakers12.Tokenizer
     ) where
 
 import           Control.Exception (SomeException)
+import           Control.Monad (liftM)
 import           Control.Monad.Trans (lift)
 import qualified Data.Char as C
 import qualified Data.Enumerator as E
@@ -64,9 +65,7 @@ tokenizeE :: E.Enumeratee FilePath Token IO b
 tokenizeE cont@(E.Continue _) = do
     maybeFP <- EL.head
     case maybeFP of
-        Just filePath -> do
-            -- lift . putStrLn . (">>> " ++) $ filePath
-            tokenizeFileStream filePath cont E.>>== tokenizeE
+        Just filePath -> tokenizeFileStream filePath cont E.>>== tokenizeE
         Nothing -> return cont
 tokenizeE step = return step
 
@@ -111,8 +110,8 @@ tokenFromTaken :: Monad m
                                                 -- rest of the token.
                -> E.Iteratee T.Text m Token
 tokenFromTaken source offset tType initial predicate =
-    ET.takeWhile predicate >>=
-    return . makeToken source offset tType . LT.toStrict . LT.cons initial
+    liftM (makeToken source offset tType . LT.toStrict . LT.cons initial)
+          (ET.takeWhile predicate)
 
 -- | In the context of an Enumerator, this takes a [Char] list and returns a
 -- Token.
