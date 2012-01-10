@@ -60,6 +60,7 @@ Library
   exposed-modules:
       System.Bakers12.Enumerators
     , Text.Bakers12.Tokenizer
+    , Text.Bakers12.Tokenizer.Minimal
     , Text.Bakers12.Tokenizer.PennTreebank
     , Text.Bakers12.Tokenizer.Types
 
