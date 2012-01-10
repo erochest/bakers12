@@ -7,9 +7,11 @@ module Bakers12.Modes
     ) where
 
 import Bakers12.Cli hiding (files)
-import Bakers12.Modes.Tokenizer (tokenize)
+import Bakers12.Modes.Tokenizer (TokenFilter(..), tokenize)
+import Data.Maybe (fromMaybe)
 
 -- | This dispatching function.
 execBakers12 :: Modes -> IO ()
-execBakers12 (Tokenize files) = tokenize files
+execBakers12 (Tokenize filter files) = tokenize filter' files
+    where filter' = fromMaybe Minimal filter
 
