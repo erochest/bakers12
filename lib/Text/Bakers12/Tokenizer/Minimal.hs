@@ -23,7 +23,6 @@ import qualified Data.Enumerator.List as EL
 import qualified Data.Text as T
 import qualified Text.Bakers12.Tokenizer as B12
 import           Text.Bakers12.Tokenizer.Types hiding (append, concat)
-import qualified Text.Bakers12.Tokenizer.Types as Tkn
 
 -- | This reads text from an instsance of Data.Text.Text and returns a list of
 -- Token instances.

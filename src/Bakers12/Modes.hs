@@ -6,9 +6,10 @@ module Bakers12.Modes
     ( execBakers12
     ) where
 
-import Bakers12.Cli hiding (files)
+import Bakers12.Cli hiding (files, filter)
 import Bakers12.Modes.Tokenizer (TokenFilter(..), tokenize)
 import Data.Maybe (fromMaybe)
+import Prelude hiding (filter)
 
 -- | This dispatching function.
 execBakers12 :: Modes -> IO ()
