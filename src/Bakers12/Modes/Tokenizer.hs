@@ -22,7 +22,9 @@ import qualified Data.Text.Lazy.Builder.Int as TBI
 import           System.Bakers12.Enumerators (removeMissingFiles, expandDirectories)
 import           System.Console.CmdArgs (Data, Typeable)
 import           System.IO (stdout)
+import           Text.Bakers12.Csv (toCSVE)
 import           Text.Bakers12.Tokenizer (Token(..), tokenizeE)
+import           Text.Bakers12.Tokenizer.Csv ()
 import           Text.Bakers12.Tokenizer.Minimal (minimalFilter)
 import           Text.Bakers12.Tokenizer.PennTreebank (pennFilter)
 
@@ -50,44 +52,7 @@ tokenize tokenFilter files =
                         Null    -> tokenEnum
                         Minimal -> tokenEnum $= minimalFilter
                         Penn    -> tokenEnum $= pennFilter
-        outputIter = tokenToCsv =$
+        outputIter = toCSVE =$
                      ET.encode ET.utf8 =$
                      EB.iterHandle stdout
-
-tokenToCsv :: Monad m => Enumeratee Token T.Text m b
-tokenToCsv cont@(Continue k) = do
-    maybeT <- EL.head
-    case maybeT of
-        Just token -> do
-            next <- lift $ runIteratee $ k $ Chunks [showToken token]
-            tokenToCsv next
-        Nothing -> return cont
-tokenToCsv step = return step
-
-showToken :: Token -> T.Text
-showToken (Token tText tRaw tLen tType tSource tOffset) =
-    TL.toStrict $ TB.toLazyText line
-    where
-        comma  = TB.singleton ','
-        nl     = TB.singleton '\n'
-
-        text   = escape tText
-        raw    = escape tRaw
-        len    = TBI.decimal tLen
-        typ    = TB.fromString . show $ tType
-        src    = TB.fromString tSource
-        offs   = TBI.decimal tOffset
-
-        fields = [ text, raw, len, typ, src ]
-
-        push field builder = field `mappend` (comma `mappend` builder)
-        line = foldr push (offs `mappend` nl) fields
-
-escape :: T.Text -> TB.Builder
-escape input = if T.any (not . C.isAlphaNum) input
-               then quote `mappend` (TB.fromText escaped `mappend` quote)
-               else TB.fromText input
-    where
-        quote   = TB.singleton '"'
-        escaped = T.replace (T.singleton '"') (T.pack "\"\"") input
 
