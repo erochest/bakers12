@@ -10,7 +10,7 @@ module Bakers12.Cli
     , cmdArgs
     ) where
 
-import           Bakers12.Modes.Tokenizer (TokenFilter(..))
+import           Bakers12.Modes.Tokenizer (TokenFilter(..), OutputFormat(..))
 import qualified Data.List as L
 import           Data.Version (Version(..))
 import           Paths_bakers12 (version)
@@ -21,6 +21,7 @@ import           System.Console.CmdArgs
 data Modes
     = Tokenize
         { filter :: Maybe TokenFilter
+        , format :: Maybe OutputFormat
         , files  :: [FilePath]
         }
     deriving (Show, Data, Typeable)
@@ -33,6 +34,11 @@ bakers12Modes = modes
                  &= help "The filter to use on the output tokens. This can\
                           \ be one of 'null', 'minimal', 'penn'. The default\
                           \ is 'minimal'."
+        , format = def &= name "F" &= typ "OUTPUT FORMAT"
+                 &= help "The output format to use. This can be either\
+                         \ 'csv' or 'json'. If there is no input, currently \
+                         \ the JSON formatter outputs nothing. This should \
+                         \ probably be an empty list."
         , files = def &= args &= typ "FILES/DIRS"
         } &= details ["This takes one or files and tokenizes them."]
     ] &= summary ( "bakers12 v" ++ versionStr ++ (tagStrs $ versionTags version) ++

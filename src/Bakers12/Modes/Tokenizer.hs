@@ -6,6 +6,7 @@
 module Bakers12.Modes.Tokenizer
     ( tokenize
     , TokenFilter(..)
+    , OutputFormat(..)
     ) where
 
 import           Control.Monad.Trans (lift)
@@ -23,8 +24,10 @@ import           System.Bakers12.Enumerators (removeMissingFiles, expandDirector
 import           System.Console.CmdArgs (Data, Typeable)
 import           System.IO (stdout)
 import           Text.Bakers12.Csv (toCSVE)
+import           Text.Bakers12.JSON.Enumerators (toJSONE)
 import           Text.Bakers12.Tokenizer (Token(..), tokenizeE)
 import           Text.Bakers12.Tokenizer.Csv ()
+import           Text.Bakers12.Tokenizer.JSON ()
 import           Text.Bakers12.Tokenizer.Minimal (minimalFilter)
 import           Text.Bakers12.Tokenizer.PennTreebank (pennFilter)
 
@@ -37,22 +40,30 @@ data TokenFilter
     | Penn
     deriving (Data, Enum, Eq, Show, Typeable)
 
+-- | These are the available output formats.
+data OutputFormat
+    = CSV
+    | JSON
+    deriving (Data, Enum, Eq, Show, Typeable)
+
 -- | This takes a list of possible file paths and tokenizes each one. It prints
 -- the tokens out as CSV. Missing files are silently skipped and directories
 -- are expanded into all the files in that directory and subdirectories. All of
 -- this is handled with Enumerators, so it's memory consumption should be
 -- decent.
-tokenize :: TokenFilter -> [FilePath] -> IO ()
-tokenize tokenFilter files =
-    run_ (tokenEnum' $$ outputIter)
+tokenize :: TokenFilter -> OutputFormat -> [FilePath] -> IO ()
+tokenize tokenFilter format files =
+    run_ (input $= tokenFilter' $$ formatter =$ output)
     where
-        fileEnum   = enumLists [files] $= removeMissingFiles $= expandDirectories
-        tokenEnum  = fileEnum $= tokenizeE
-        tokenEnum' = case tokenFilter of
-                        Null    -> tokenEnum
-                        Minimal -> tokenEnum $= minimalFilter
-                        Penn    -> tokenEnum $= pennFilter
-        outputIter = toCSVE =$
-                     ET.encode ET.utf8 =$
-                     EB.iterHandle stdout
+        fileEnum     = enumLists [files] $= removeMissingFiles $= expandDirectories
+        input        = fileEnum $= tokenizeE
+
+        tokenFilter' = case tokenFilter of
+                        Null    -> EL.map id
+                        Minimal -> minimalFilter
+                        Penn    -> pennFilter
+        formatter    = case format of
+                        CSV  -> toCSVE
+                        JSON -> toJSONE
+        output       = ET.encode ET.utf8 =$ EB.iterHandle stdout
 

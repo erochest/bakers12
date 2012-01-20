@@ -63,8 +63,10 @@ Library
     , Text.Bakers12.Csv.Enumerators
     , Text.Bakers12.Csv.Types
     , Text.Bakers12.Csv.Utils
+    , Text.Bakers12.JSON.Enumerators
     , Text.Bakers12.Tokenizer
     , Text.Bakers12.Tokenizer.Csv
+    , Text.Bakers12.Tokenizer.JSON
     , Text.Bakers12.Tokenizer.Minimal
     , Text.Bakers12.Tokenizer.PennTreebank
     , Text.Bakers12.Tokenizer.Types
@@ -79,6 +81,7 @@ Library
     , directory >=1.1 && <2
     , text >=0.10 && <1
     , enumerator >=0.4 && <5
+    , aeson >=0.5 && <0.6
 
   extensions: TypeSynonymInstances
 
