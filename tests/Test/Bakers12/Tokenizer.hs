@@ -1,199 +1,226 @@
 
-module Test.Bakers12.Tokenizer (tokenizerTests) where
+module Test.Bakers12.Tokenizer
+    ( tokenizerTests
+    ) where
 
-
+import           Control.Exception (throw)
 import qualified Data.Char as C
 import qualified Data.List as L
-import           Test.HUnit (Assertion, assertBool)
--- import           Test.QuickCheck
+import qualified Data.Text as T
 import           Test.Framework (Test, testGroup)
 import           Test.Framework.Providers.HUnit (testCase)
 import           Test.Framework.Providers.QuickCheck2 (testProperty)
+import           Test.HUnit (Assertion, assertBool)
+import           Test.QuickCheck
 import           Text.Bakers12.Tokenizer
-import           Text.Bakers12.Tokenizer.String ()
-import qualified Text.Bakers12.Tokenizer.Xml as X
 
+instance Arbitrary T.Text where
+    arbitrary =
+        fmap T.pack . listOf1 $ suchThat (choose chrRange) C.isPrint
+        where chrRange = (C.chr 0, C.chr maxChr)
 
--- Full Tokenizer Tests:
--- property : normalized (toLower)
-pFullNormalized :: String -> Bool
-pFullNormalized input =
-    L.and [(tokenText token) == (toLowerStr $ tokenRaw token) | token <- tokens]
-    where tokens = fullTokenize "<pFullNormalized>" input
-          toLowerStr = map C.toLower
+              maxChr   :: Int
+              maxChr   = 2^16
 
--- property : length raw == tokenLength
-pRawLength :: String -> Bool
-pRawLength input =
-    L.and [(tokenLength token) == (L.length $ tokenRaw token) | token <- tokens]
-    where tokens = fullTokenize "<pRawLength>" input
+    shrink = shrinkNothing
 
--- property : tokenOffset is monotonically increasing
-pOffsetIncreasing :: String -> Bool
-pOffsetIncreasing input =
-    let (_, ok) = L.foldl' increasing (-1, True) offsets
-    in  ok
-    where tokens  = fullTokenize "<pOffsetIncreasing>" input
-          offsets = map tokenOffset tokens
+-- This tokenizes some text and throws errors.
+tokenize' :: FilePath -> T.Text -> [Token]
+tokenize' source input =
+    case tokenize source input of
+        Right tokens -> tokens
+        Left  err    -> throw err
 
-          increasing :: (Int, Bool) -> Int -> (Int, Bool)
-          increasing (prev, ok) current =
-                (current, ok && prev <= current)
+-- tokenText must be normalized with no upper-case characters.
+prop_normalized :: T.Text -> Bool
+prop_normalized = L.all textIsLower . tokenize' "<prop_normalized>"
+    where charIsLower c = (not $ C.isAlpha c) || (C.isLower c) || (C.toUpper c == c)
+          textIsLower = T.all charIsLower . tokenText
 
-assertFullTokensEqual :: String -> [String] -> [[String]] -> Assertion
-assertFullTokensEqual msg expected actual =
-    assertBool msg' . L.and $ L.zipWith (==) expTokens actual
-    where expFull   = map (fullTokenize "<assertFullTokensEqual>") expected
-          expTokens = map (map tokenText) expFull
-          msg' = msg ++ show expTokens
+-- The length of the tokens must equal the length of the raw text.
+prop_tokenLength :: T.Text -> Bool
+prop_tokenLength = L.all lengthIsEqualRawLength . tokenize' "<prop_tokenLength>"
+    where lengthIsEqualRawLength t = tokenLength t == T.length (tokenRaw t)
 
--- unit     : tokenized correctly
-assertFullTokenizedCorrectly :: Assertion
-assertFullTokenizedCorrectly =
-    assertFullTokensEqual "assertFullTokenizedCorrectly" expected actual
+-- The total length of the tokens equals the length of the raw input.
+prop_totalLength :: T.Text -> Bool
+prop_totalLength input = T.length input == total
+    where total = L.sum . map tokenLength $ tokenize' "<prop_totalLength>" input
+
+-- This creates a predicate for a given token type.
+isType :: TokenType -> (Token -> Bool)
+isType tType = (==) tType . tokenType
+
+-- This creates a property to test tokens of a given type against a predicate.
+prop_tokenTypeContent :: TokenType -> (C.Char -> Bool) -> T.Text -> Bool
+prop_tokenTypeContent tType predicate input =
+    L.and [ T.all predicate $ tokenText token
+          | token <- tokenize' "<prop_tokenTypeContent>" input
+          , isType tType token
+          ]
+
+-- Alphabetic tokens only contain isAlpha.
+prop_isAlpha :: T.Text -> Bool
+prop_isAlpha = prop_tokenTypeContent AlphaToken C.isAlpha
+
+-- Numeric tokens only contain isNumber.
+prop_isNumber :: T.Text -> Bool
+prop_isNumber = prop_tokenTypeContent NumberToken C.isNumber
+
+-- Punctuation tokens only contain isPunctuation.
+prop_isPunctuation :: T.Text -> Bool
+prop_isPunctuation = prop_tokenTypeContent PunctuationToken C.isPunctuation
+
+-- Symbol tokens only contain isSymbol.
+prop_isSymbol :: T.Text -> Bool
+prop_isSymbol = prop_tokenTypeContent SymbolToken C.isSymbol
+
+-- Mark tokens only contain isMark.
+prop_isMark :: T.Text -> Bool
+prop_isMark = prop_tokenTypeContent MarkToken C.isMark
+
+-- Separators are spaces or separators.
+prop_isSeparator :: T.Text -> Bool
+prop_isSeparator =
+    prop_tokenTypeContent SeparatorToken $ \c ->
+        C.isSpace c || C.isSeparator c
+
+-- Punctuation, symbol, and mark tokens are only one character long.
+prop_symbolLength :: T.Text -> Bool
+prop_symbolLength input =
+    L.and [ 1 == tokenLength token
+          | token <- tokenize' "<prop_symbolLength>" input
+          , tokenType token `elem` [PunctuationToken, SymbolToken, MarkToken]
+          ]
+
+-- The source should be the same on all tokens.
+prop_source :: T.Text -> Bool
+prop_source = L.all (== source) . map tokenSource . tokenize' source
+    where source = "<prop_source>"
+
+-- The position should be monotonically increasing.
+prop_offsetIncreasing :: T.Text -> Bool
+prop_offsetIncreasing =
+    monotonic . map tokenOffset . tokenize' "<prop_offsetIncreasing>"
+    where monotonic []                   = True
+          monotonic [_]                  = True
+          monotonic (a:b:xs) | a < b     = monotonic (b:xs)
+                             | otherwise = False
+
+-- The tokenizer should return something, as long as the input length is > 0.
+prop_returnSomething :: T.Text -> Bool
+prop_returnSomething = (0 <) . length . tokenize' "<prop_returnSomething>"
+
+-- This is a helper function to handle the boilerplate for the unit tests.
+assertTokensEqual :: String -> [[String]] -> [String] -> Assertion
+assertTokensEqual msg expected actual =
+    assertBool msg' . L.and $ L.zipWith (==) expected' actual'
     where
-        expected = [ "These are the days that try men's souls."
-                   , "I said, \"Hi there.\""
-                   , "Oh-la-la-la."
-                   ]
-        actual   = [ ["these", "are", "the", "days", "that", "try", "men's", "souls", "."]
-                   , ["i", "said", ",", "\"", "hi", "there", ".", "\""]
-                   , ["oh", "-", "la", "-", "la", "-", "la", "."]
-                   ]
+        msg' = msg ++ show actual'
+        expected' = map (map T.pack) expected
+        actual' = map (map tokenText . getTokens . tokenize msg . T.pack) actual
 
--- unit     : tokenized numbers
-assertFullTokenizedNumbers :: Assertion
-assertFullTokenizedNumbers =
-    assertFullTokensEqual "assertFullTokenizedNumbers" expected actual
-    where
-        expected = [ "1 2 3 4 5 3.1415 1,200,000 -33" ]
-        actual   = [ ["1", "2", "3", "4", "5", "3", ".", "1415", "1", ",", "200", ",", "000", "-", "33" ] ]
+        getTokens (Right tokens) = tokens
+        getTokens (Left _)       = []
 
--- unit     : tokenized contractions
-assertFullTokenizedContractions :: Assertion
-assertFullTokenizedContractions =
-    assertFullTokensEqual "assertFullTokenizedContractions" expected actual
-    where
-        expected = [ "They'll can't isn't won't" ]
-        actual   = [ ["they'll", "can't", "isn't", "won't" ] ]
+assertAlpha :: Assertion
+assertAlpha =
+    assertTokensEqual "assertAlpha" expected actual
+    where expected = [ [ "these", " ", "are", " ", "the", " ", "days", " "
+                       , "that", " ", "try" , " ", "men", "'", "s", " "
+                       , "souls", "."
+                       ]
+                     , [ "i", " ", "said", ",", " ", "\"", "hi", " ", "there"
+                       , ".", "\""
+                       ]
+                     , [ "oh", "-", "la", "-", "la", "-", "la", "."
+                       ]
+                     ]
+          actual   = [ "These are the days that try men's souls."
+                     , "I said, \"Hi there.\""
+                     , "Oh-la-la-la."
+                     ]
 
--- unit     : not tokenized leading-, trailing-apostrophes
-assertFullTokenizedApos :: Assertion
-assertFullTokenizedApos =
-    assertFullTokensEqual "assertFullTokenizedApos" expected actual
-    where
-        expected = [ "'tis 'will young'uns eat'?" ]
-        actual   = [ ["'", "tis", "'", "will", "young", "'uns", "eat", "'", "?"] ]
+assertNumber :: Assertion
+assertNumber =
+    assertTokensEqual "assertNumber" expected actual
+    where expected = [ [ "1", " ", "2", " ", "3", " ", "4", " ", "5", " "
+                       , "3", ".", "1415", " ", "1", ",", "200", ",", "000"
+                       , " ", "-", "33"
+                       ]
+                     ]
+          actual   = [ "1 2 3 4 5 3.1415 1,200,000 -33"
+                     ]
 
--- Fast Tokenizer Tests:
--- property : toLower
-pFastNormalized :: String -> Bool
-pFastNormalized input =
-    L.and [L.all isLowerAlpha token | token <- tokens]
-    where tokens = fastTokenize input
-          isLowerAlpha c = C.isLower c || not (C.isLetter c)
+assertSeparator :: Assertion
+assertSeparator =
+    assertTokensEqual "assertSeparator" expected actual
+    where expected = [ [ "\t\n\v\f\r \160\5760\6158\8192"
+                       ]
+                     ]
+          actual   = [ "\t\n\v\f\r \160\5760\6158\8192"
+                     ]
 
--- unit     : tokenized correctly
-assertFastTokensEqual :: String -> [String] -> [[String]] -> Assertion
-assertFastTokensEqual msg expected actual =
-    assertBool msg' . L.and $ L.zipWith (==) expTokens actual
-    where expTokens = map fastTokenize expected
-          msg' = msg ++ show expTokens
+assertPunctuation :: Assertion
+assertPunctuation =
+    assertTokensEqual "assertPunctuation" expected actual
+    where expected = [ [ ".", ",", "\"", "&", "   ", "*", "^"
+                       ]
+                     ]
+          actual   = [ ".,\"&   *^"
+                     ]
 
-assertFastTokenizedCorrectly :: Assertion
-assertFastTokenizedCorrectly =
-    assertFastTokensEqual "assertFastTokenizedCorrectly" expected actual
-    where
-        expected = [ "These are the days that try men's souls."
-                   , "I said, \"Hi there.\""
-                   , "Oh-la-la-la."
-                   ]
-        actual   = [ ["these", "are", "the", "days", "that", "try", "men's", "souls", "."]
-                   , ["i", "said", ",", "\"", "hi", "there", ".", "\""]
-                   , ["oh", "-", "la", "-", "la", "-", "la", "."]
-                   ]
+assertSymbol :: Assertion
+assertSymbol =
+    assertTokensEqual "assertSymbol" expected actual
+    where expected = [ [ "|", "~", "\162", "\163", "\164"
+                       ]
+                     ]
+          actual   = [ "|~\162\163\164"
+                     ]
 
--- unit     : tokenized numbers
-assertFastTokenizedNumbers :: Assertion
-assertFastTokenizedNumbers =
-    assertFastTokensEqual "assertFastTokenizedNumbers" expected actual
-    where
-        expected = [ "1 2 3 4 5 3.1415 1,200,000 -33" ]
-        actual   = [ ["1", "2", "3", "4", "5", "3", ".", "1415", "1", ",", "200", ",", "000", "-", "33" ] ]
+assertMark :: Assertion
+assertMark =
+    assertTokensEqual "assertMark" expected actual
+    where expected = [ [ "\768", "\769", "\770", "\771", "\772"
+                       ]
+                     ]
+          actual   = [ "\768\769\770\771\772"
+                     ]
 
--- unit     : tokenized contractions
-assertFastTokenizedContractions :: Assertion
-assertFastTokenizedContractions =
-    assertFastTokensEqual "assertFastTokenizedContractions" expected actual
-    where
-        expected = [ "They'll can't isn't won't" ]
-        actual   = [ ["they'll", "can't", "isn't", "won't" ] ]
+assertNewline :: Assertion
+assertNewline =
+    assertTokensEqual "assertNewline" expected actual
+    where expected = [ [ "one", " ", "line", ";", "\n"
+                       , "two", " ", "lines", "."
+                       ]
+                     ]
+          actual   = [ "One line;\nTwo lines." ]
 
--- unit     : not tokenized leading-, trailing-apostrophes
-assertFastTokenizedApos :: Assertion
-assertFastTokenizedApos =
-    assertFastTokensEqual "assertFastTokenizedApos" expected actual
-    where
-        expected = [ "'tis 'will young'uns eat'?" ]
-        actual   = [ ["'", "tis", "will", "young'uns", "eat", "?"] ]
-
--- Both:
--- property : normalized output is the same for both
-pMatchTokenizers :: String -> Bool
-pMatchTokenizers input =
-    L.and [((tokenText full) == fast) | (full, fast) <- L.zip fullTokens fastTokens]
-    where fullTokens = fullTokenize "<pMatchTokenizers>" input
-          fastTokens = fastTokenize input
-
--- XML:
-assertXmlTokenizerCorrect :: Assertion
-assertXmlTokenizerCorrect = do
-    tokens <- X.fullTokenize "input" "id" input
-    let actual = map makeTokenPair tokens
-    assertBool "XML Tokenizer" . L.and $ L.zipWith (==) expected actual
-    where
-        expected = [ ("input", "this")
-                   , ("input", "is")
-                   , ("input#a", "the")
-                   , ("input#a", "first")
-                   , ("input", "day")
-                   , ("input", "of")
-                   , ("input#b", "the")
-                   , ("input#b", "rest")
-                   , ("input#c", "of")
-                   , ("input#c", "my")
-                   , ("input", "life")
-                   ]
-
-        input =  "<doc><p>This is <span id='a'>the first</span> "
-              ++ "day of <span id='b'>the rest <span id='c'>of my</span> "
-              ++ "</span> life.</p></doc>"
-
-        makeTokenPair :: Token String -> (String, String)
-        makeTokenPair tkn = (tokenSource tkn, tokenText tkn)
-
-
+-- All the active properties and tests.
 tokenizerTests :: [Test]
 tokenizerTests =
-    [ testGroup "fullTokenize" [ testProperty "normalized-tokens" pFullNormalized
-                               , testProperty "raw-length" pRawLength
-                               , testProperty "increasing-offsets" pOffsetIncreasing
-                               , testCase "tokenized-correctly" assertFullTokenizedCorrectly
-                               , testCase "tokenized-numbers" assertFullTokenizedNumbers
-                               , testCase "tokenized-contractions" assertFullTokenizedContractions
-                               , testCase "tokenized-apostrophes" assertFullTokenizedApos
-                               ]
-    , testGroup "fastTokenize" [ testProperty "normalized-tokens" pFastNormalized
-                               , testCase "tokenized-correctly" assertFastTokenizedCorrectly
-                               , testCase "tokenized-numbers" assertFastTokenizedNumbers
-                               , testCase "tokenized-contractions" assertFastTokenizedContractions
-                               , testCase "tokenized-apostrophes" assertFastTokenizedApos
-                               ]
-    , testGroup "XML Tokenizer" [ testCase "tokenized-xml" assertXmlTokenizerCorrect
-                                ]
-    , testGroup "bothTokenizers" [ testProperty "tokenizers-match" pMatchTokenizers
-                                 ]
+    [ testGroup "properties" [ testProperty "normalized" prop_normalized
+                             , testProperty "tokenLength" prop_tokenLength
+                             , testProperty "totalLength" prop_totalLength
+                             , testProperty "isAlpha" prop_isAlpha
+                             , testProperty "isNumber" prop_isNumber
+                             , testProperty "isSeparator" prop_isSeparator
+                             , testProperty "isPunctuation" prop_isPunctuation
+                             , testProperty "isSymbol" prop_isSymbol
+                             , testProperty "isMark" prop_isMark
+                             , testProperty "symbolLength" prop_symbolLength
+                             , testProperty "source" prop_source
+                             , testProperty "offsetIncreasing" prop_offsetIncreasing
+                             , testProperty "returnSomething" prop_returnSomething
+                             ]
+    , testGroup "unittests"  [ testCase "alpha" assertAlpha
+                             , testCase "number" assertNumber
+                             , testCase "separator" assertSeparator
+                             , testCase "punctuation" assertPunctuation
+                             , testCase "symbol" assertSymbol
+                             , testCase "mark" assertMark
+                             , testCase "newline" assertNewline
+                             ]
     ]
-
-
 

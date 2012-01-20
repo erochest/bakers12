@@ -6,6 +6,7 @@ dist/
 *.hc
 *.o
 *.orig
+*.log
 .DS_Store
 .bundle/
 .sass-cache/
@@ -15,6 +16,8 @@ snap-tmp/
 flot/
 American National Corpus v1/
 anc/
+sample/
 texts/
 data/
-*.log
+utils/
+bin/bakers12

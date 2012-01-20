@@ -22,6 +22,10 @@ task :config, [:target] do |t, args|
   case target
   when 'development'
     flags = %{-f development --enable-tests}
+  when 'profiling'
+    flags = %{-f profiling --enable-library-profiling --ghc-option=-auto-all}
+  when 'production'
+    flags = %{--ghc-option=-dno-debug-output}
   else
     flags = ''
   end
@@ -81,6 +85,16 @@ namespace :hs do
   desc 'This builds the Haskell part of the project.'
   task :build do
     sh %{cabal build}
+  end
+
+  desc 'This creates the documentation. (This fails unless the "Executable" section is removed from bakers12.cabal.)'
+  task :docs do
+    sh %{cabal haddock --hyperlink-source}
+  end
+
+  desc 'This runs hlint on the library.'
+  task :lint do
+    sh %{hlint lib}
   end
 end
 

@@ -3,7 +3,7 @@
 -- http://www.haskell.org/cabal/release/cabal-latest/doc/users-guide/authors.html#pkg-descr.
 
 Name:		bakers12
-Version:	0.1
+Version:	0.0.0
 Synopsis:	This is a boot-camp style series of thirteen one-day coding projects. The aim is to experiment with NLP in Haskell.
 Homepage:	https://bitbucket.org/erochest/bakers12
 License:	BSD3
@@ -31,122 +31,132 @@ Extra-source-files:
   , bakers12/templates/echo.tpl
   , bakers12/templates/index.tpl
 data-files:
-  bakers12/resource-dir-marker,
-  bakers12/static/*.html,
-  bakers12/static/*.png,
-  bakers12/static/*.xml,
-  bakers12/static/*.ico,
-  bakers12/static/*.txt,
-  bakers12/static/images/*.png,
-  bakers12/static/js/libs/flot/*.min.js,
-  bakers12/static/js/libs/flot/*.flot.min.js,
-  bakers12/static/js/libs/jquery-1.6.3.min.js,
-  bakers12/static/js/libs/modernizr-2.0.6.min.js,
-  bakers12/static/js/*.js,
-  bakers12/static/stylesheets/*.css,
-  bakers12/templates/*.tpl
+    bakers12/resource-dir-marker
+  , bakers12/static/*.html
+  , bakers12/static/*.png
+  , bakers12/static/*.xml
+  , bakers12/static/*.ico
+  , bakers12/static/*.txt
+  , bakers12/static/images/*.png
+  , bakers12/static/js/libs/flot/*.min.js
+  , bakers12/static/js/libs/flot/*.flot.min.js
+  , bakers12/static/js/libs/jquery-1.6.3.min.js
+  , bakers12/static/js/libs/modernizr-2.0.6.min.js
+  , bakers12/static/js/*.js
+  , bakers12/static/stylesheets/*.css
+  , bakers12/templates/*.tpl
 
 Flag development
   Description:	Whether to build in development mode.
   Default:	False
 
+Flag profiling
+  Description:  Whether to build for profiling.
+  Default:      False
+
 Library
-  hs-source-dirs:  src
+  hs-source-dirs:  lib
 
   exposed-modules:
-    Text.Bakers12.Tokenizer
-    Text.Bakers12.Tokenizer.ByteString
-    Text.Bakers12.Tokenizer.String
-    Text.Bakers12.Tokenizer.Text
-    Text.Bakers12.Tokenizer.Types
-    Text.Bakers12.Tokenizer.Xml
-    Text.Bakers12.Stats
+      System.Bakers12.Enumerators
+    , Text.Bakers12.Csv
+    , Text.Bakers12.Csv.Enumerators
+    , Text.Bakers12.Csv.Types
+    , Text.Bakers12.Csv.Utils
+    , Text.Bakers12.JSON.Enumerators
+    , Text.Bakers12.Tokenizer
+    , Text.Bakers12.Tokenizer.Csv
+    , Text.Bakers12.Tokenizer.JSON
+    , Text.Bakers12.Tokenizer.Minimal
+    , Text.Bakers12.Tokenizer.PennTreebank
+    , Text.Bakers12.Tokenizer.Types
 
-  -- other-modules:
+  other-modules:
 
   Build-depends:
-    base >= 4.3 && < 5,
-    mtl >= 2.0.1.0 && < 3,
-    bytestring >= 0.9.1.10 && < 0.10,
-    text >= 0.11.0.6 && < 0.12,
-    containers >= 0.4.0.0 && < 1,
-    hxt >= 9.1.4 && < 10
+      base >=3 && <5
+    , mtl >=2 && <3
+    , transformers >=0.2 && <1
+    , filepath >=1.2 && <2
+    , directory >=1.1 && <2
+    , text >=0.10 && <1
+    , enumerator >=0.4 && <5
+    , aeson >=0.5 && <0.6
 
   extensions: TypeSynonymInstances
 
   if flag(development)
     cpp-options -DDEVELOPMENT
-    build-depends: hint >= 0.3.2 && < 0.4
-    ghc-options: -threaded -w
+    -- build-depends: hint >= 0.3.2 && < 0.4
+    ghc-options: -DDEVELOPMENT -threaded -w -Wall
   else
-    if impl(ghc >= 6.12.0)
-      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                   -fno-warn-orphans -fno-warn-unused-do-bind
+    if flag(profiling)
+      cpp-options -DDEVELOPMENT
+      -- build-depends: hint >= 0.3.2 && < 0.4
+      ghc-options: -DDEVELOPMENT -threaded -w -O -rtsopts -prof
     else
-      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                   -fno-warn-orphans
+      if impl(ghc >= 6.12.0)
+        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                     -fno-warn-orphans -fno-warn-unused-do-bind -rtsopts
+      else
+        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                     -fno-warn-orphans -rtsopts
 
 Executable bakers12
   hs-source-dirs:  src
   Main-is:	   Bakers12.hs
   
   Build-depends:
-    base >= 4.3 && < 5,
-    cmdargs >= 0.8,
-    mtl >= 2.0.1.0 && < 3,
-    filepath >= 1.2.0.0 && < 2,
-    directory >= 1.1.0.0 && < 2,
-    containers >= 0.4.0.0 && < 1,
-    bytestring >= 0.9.1 && < 0.10,
-    heist >= 0.5 && < 0.6,
-    MonadCatchIO-transformers >= 0.2.1 && < 0.3,
-    snap == 0.5.*,
-    snap-core == 0.5.*,
-    snap-server == 0.5.*,
-    text >= 0.11 && < 0.12,
-    time >= 1.1 && < 1.3,
-    xmlhtml == 0.1.*,
-    transformers >= 0.2.2.0 && < 1,
-    process >= 1.0.1.5 && < 2,
-    hxt >= 9.1.4 && < 10,
-    bakers12
+      base >=3 && <5
+    , mtl >=2 && <3
+    , cmdargs >=0.9 && <1
+    , enumerator >=0.4 && <5
+    , text >=0.10 && <1
+    , bakers12
 
-  extensions: DeriveDataTypeable TypeSynonymInstances MultiParamTypeClasses
+  extensions:
+      TypeSynonymInstances
 
-  -- Modules not exported by this package.
   Other-modules:
-    System.Bakers12.Utils,
-    Paths_bakers12
-  
-  -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
-  -- Build-tools:	   
+      Paths_bakers12
+    , Bakers12.Cli
+    , Bakers12.Modes
+    , Bakers12.Modes.Tokenizer
 
   if flag(development)
     cpp-options -DDEVELOPMENT
-    build-depends: hint >= 0.3.2 && < 0.4
-    ghc-options: -DDEVELOPMENT -threaded -w
+    -- build-depends: hint >= 0.3.2 && < 0.4
+    ghc-options: -DDEVELOPMENT -threaded -w -O
   else
-    if impl(ghc >= 6.12.0)
-      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                   -fno-warn-orphans -fno-warn-unused-do-bind
+    if flag(profiling)
+      cpp-options -DDEVELOPMENT
+      -- build-depends: hint >= 0.3.2 && < 0.4
+      ghc-options: -DDEVELOPMENT -threaded -w -O -rtsopts -prof
     else
-      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                   -fno-warn-orphans
+      if impl(ghc >= 6.12.0)
+        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                     -fno-warn-orphans -fno-warn-unused-do-bind -rtsopts
+      else
+        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                     -fno-warn-orphans -rtsopts
 
 Test-Suite test-bakers12
   type:                  exitcode-stdio-1.0
   hs-source-dirs:	 tests
   main-is:               TestBakers12.hs
   build-depends:
-    base >= 4.3 && < 5,
-    test-framework >= 0.3.3 && < 0.5,
-    test-framework-quickcheck2 >= 0.2.9 && < 0.3,
-    test-framework-hunit >= 0.2.6 && < 0.3,
-    QuickCheck >= 2.4.0.1,
-    HUnit >= 1.2 && < 2,
-    text >= 0.11 && < 0.12,
-    containers >= 0.4.0.0 && < 1,
-    bakers12
+      base >=3 && <5
+    , mtl >=2 && <3
+    , test-framework >=0.4 && <0.5
+    , test-framework-hunit >=0.2.6 && <0.3
+    , test-framework-quickcheck2 >=0.2.9 && <0.3
+    , HUnit >=1.2 && <2
+    , QuickCheck >=2.4 && <3
+    , text >=0.10 && <1
+    , filepath >=1.2 && <2
+    , directory >=1.1 && <2
+    , enumerator >=0.4 && <5
+    , bakers12
   ghc-options:		 -Wall -rtsopts
 
 source-repository head

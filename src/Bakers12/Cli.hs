@@ -1,57 +1,56 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 
-{-| This defines the CLI interface for the bakers12 executable. This includes
- - command-line arguments for each mode.
+{- | This defines the CLI for the bakers12 executable. This includes
+ - command-line arguments for each execution mode.
  -}
-
 
 module Bakers12.Cli
     ( Modes(..)
     , bakers12Modes
-    , cmdArgs           -- From CmdArgs
+    , cmdArgs
     ) where
 
-{-| To handle the command-line parsing, we pass everything off to cmdargs.
- -}
+import           Bakers12.Modes.Tokenizer (TokenFilter(..), OutputFormat(..))
+import qualified Data.List as L
+import           Data.Version (Version(..))
+import           Paths_bakers12 (version)
+import           Prelude hiding (filter)
+import           System.Console.CmdArgs
 
-import System.Console.CmdArgs
-
-{-| The main type that defines the command-line options is Modes, with one
- - constructor for each mode.
- -}
-
+-- | The main type that the defines the command-line options.
 data Modes
     = Tokenize
-        { files :: [FilePath]
-        , idattr :: String
-        }
-    | Freq
-        { files :: [FilePath]
-        }
-    | Serve
-        { port :: Int
+        { filter :: Maybe TokenFilter
+        , format :: Maybe OutputFormat
+        , files  :: [FilePath]
         }
     deriving (Show, Data, Typeable)
 
-defaultPort :: Int
-defaultPort = 8080
-
+-- | An instance of modes that defines the CLI.
 bakers12Modes :: Modes
 bakers12Modes = modes
     [ Tokenize
-        { files = def &= args
-                      &= typ "FILES/DIRS"
-        , idattr = def &= typ "ID-ATTRIBUTE"
-                       &= help "The name of the attribute to look for for IDs when tokenizing XML files (default is 'id')."
-                       &= name "i"
-        } &= details ["This takes one or more files and tokenizes them."]
-    , Freq
-        { files = def &= args
-                      &= typ "FILES/DIRS"
-        } &= details ["This takes one or more files and calculates the frequencies for their types."]
-    , Serve
-        { port = defaultPort &= name "p"
-        } &= details ["This starts a web server on http://localhost:8080 (or another port) for interacting with the program."]
-    ] &= summary "bakers12 v0.1, (c) Eric Rochester 2011"
+        { filter = def &= name "f" &= typ "TOKEN FILTER"
+                 &= help "The filter to use on the output tokens. This can\
+                          \ be one of 'null', 'minimal', 'penn'. The default\
+                          \ is 'minimal'."
+        , format = def &= name "F" &= typ "OUTPUT FORMAT"
+                 &= help "The output format to use. This can be either\
+                         \ 'csv' or 'json'. If there is no input, currently \
+                         \ the JSON formatter outputs nothing. This should \
+                         \ probably be an empty list."
+        , files = def &= args &= typ "FILES/DIRS"
+        } &= details ["This takes one or files and tokenizes them."]
+    ] &= summary ( "bakers12 v" ++ versionStr ++ (tagStrs $ versionTags version) ++
+                   ", (c) Eric Rochester 2011, 2012" )
       &= program "bakers12"
+    where
+        versionStr :: String
+        versionStr = L.intercalate "." . map show $ versionBranch version
 
+        tagStrs :: [String] -> String
+        tagStrs []     = []
+        tagStrs [tag]  = tag
+        tagStrs (x:xs) = '-' : x ++ tagStrs xs
+        
 

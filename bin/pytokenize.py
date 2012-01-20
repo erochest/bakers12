@@ -10,7 +10,7 @@ import sys
 
 
 Token = namedtuple('Token', 'text source raw offset length')
-reTOKEN = re.compile(r"\w+('+\w+)?")
+reTOKEN = re.compile(r"(\w+('+\w+)?)|(\S)")
 
 
 def get_files(args):
@@ -40,6 +40,10 @@ def tokenize(filename):
         for line in fin:
             for match in reTOKEN.finditer(line):
                 raw = match.group(0)
+                if not raw:
+                    raw = match.group(2)
+                if not raw:
+                    continue
                 (start, end) = match.span()
 
                 yield Token(

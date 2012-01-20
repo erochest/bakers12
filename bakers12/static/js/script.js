@@ -1,4 +1,5 @@
 (function() {
+
   $(function() {
     $('#ratiograph').each(function(idx, ratioGraph) {
       return $.plot(ratioGraph, [
@@ -30,4 +31,5 @@
       });
     });
   });
+
 }).call(this);
