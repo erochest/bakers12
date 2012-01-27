@@ -8,7 +8,7 @@ end
 
 desc 'This builds the summary descriptions for the CCSWG12.'
 file 'ccswg12.html' => ['ccswg12.md'] do |t|
-  sh %(pandoc --standalone --html5 --smart --output=#{t.name} --css=stylesheets/screen.css #{t.prerequisites.join(' ')})
+  sh %(pandoc --standalone --html5 --smart --output=#{t.name} --include-in-header=header.html --toc #{t.prerequisites.join(' ')})
 end
 
 namespace :compass do
