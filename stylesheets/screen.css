@@ -67,8 +67,176 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
-/* line 8, ../sass/screen.scss */
+/* line 18, ../sass/screen.scss */
+body {
+  font-family: 'Galdeano', sans-serif;
+  padding: 2em 3em;
+}
+
+/* line 26, ../sass/screen.scss */
 h1 {
   font-size: 2.2em;
   font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+/* line 34, ../sass/screen.scss */
+h2 {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+/* line 42, ../sass/screen.scss */
+h3 {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+/* line 50, ../sass/screen.scss */
+h4 {
+  font-size: 1.2em;
+  font-style: italic;
+  margin-bottom: 0.25em;
+}
+
+/* line 59, ../sass/screen.scss */
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+  color: inherit;
+  text-decoration: inherit;
+  cursor: inherit;
+}
+/* line 6, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.7/frameworks/compass/stylesheets/compass/typography/links/_unstyled-link.scss */
+h1 a:active, h1 a:focus, h2 a:active, h2 a:focus, h3 a:active, h3 a:focus, h4 a:active, h4 a:focus, h5 a:active, h5 a:focus, h6 a:active, h6 a:focus {
+  outline: none;
+}
+
+/* line 64, ../sass/screen.scss */
+a {
+  text-decoration: none;
+}
+/* line 4, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.7/frameworks/compass/stylesheets/compass/typography/links/_hover-link.scss */
+a:hover {
+  text-decoration: underline;
+}
+
+/* line 68, ../sass/screen.scss */
+code {
+  font-family: "Lucida Console", monospace;
+  font-size: 0.8em;
+  color: #333;
+}
+
+/* line 74, ../sass/screen.scss */
+dd {
+  margin-left: 2em;
+}
+
+/* line 78, ../sass/screen.scss */
+dl {
+  margin-left: 1em;
+}
+
+/* line 82, ../sass/screen.scss */
+dt {
+  font-weight: bold;
+}
+
+/* line 86, ../sass/screen.scss */
+em {
+  font-style: italic;
+}
+
+/* line 90, ../sass/screen.scss */
+p {
+  margin-bottom: 1em;
+}
+
+/* line 94, ../sass/screen.scss */
+pre {
+  margin: 1em 2em;
+}
+
+/* line 98, ../sass/screen.scss */
+strong {
+  font-weight: bold;
+}
+
+/* line 102, ../sass/screen.scss */
+ul {
+  margin-left: 1em;
+  margin-bottom: 1em;
+  list-style-type: disc;
+}
+
+/* line 110, ../sass/screen.scss */
+header {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  -moz-box-shadow: 0px 0px 5px #333333;
+  -webkit-box-shadow: 0px 0px 5px #333333;
+  -o-box-shadow: 0px 0px 5px #333333;
+  box-shadow: 0px 0px 5px #333333;
+  overflow: hidden;
+  *zoom: 1;
+  padding: 0.5em;
+  background: #eee;
+  margin-bottom: 2em;
+}
+/* line 119, ../sass/screen.scss */
+header h1 {
+  display: inline;
+  float: left;
+  font-size: 2.5em;
+  margin-bottom: 0em;
+}
+/* line 124, ../sass/screen.scss */
+header h3, header h4 {
+  display: inline;
+  float: right;
+}
+
+/* line 129, ../sass/screen.scss */
+nav#TOC {
+  display: inline;
+  float: right;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  -moz-box-shadow: 0px 0px 5px #333333;
+  -webkit-box-shadow: 0px 0px 5px #333333;
+  -o-box-shadow: 0px 0px 5px #333333;
+  box-shadow: 0px 0px 5px #333333;
+  display: -moz-box;
+  display: -webkit-box;
+  display: -ms-box;
+  display: box;
+  padding: 0.5em;
+  background: #eee;
+}
+/* line 138, ../sass/screen.scss */
+nav#TOC ul {
+  margin-left: 0.75em;
+}
+/* line 140, ../sass/screen.scss */
+nav#TOC ul li {
+  margin-bottom: 0.25em;
+}
+/* line 144, ../sass/screen.scss */
+nav#TOC a {
+  color: inherit;
+  text-decoration: inherit;
+  cursor: inherit;
+}
+/* line 6, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.7/frameworks/compass/stylesheets/compass/typography/links/_unstyled-link.scss */
+nav#TOC a:active, nav#TOC a:focus {
+  outline: none;
 }

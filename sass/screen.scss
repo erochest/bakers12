@@ -5,10 +5,144 @@
 
 @import "compass/reset";
 
+@import "compass/css3/border-radius";
+@import "compass/css3/box";
+@import "compass/css3/box-shadow";
+@import "compass/typography/links";
+@import "compass/utilities/general/clearfix";
+@import "compass/utilities/general/float";
+
+$inset-margin: 1em;
+$console: 'Lucida Console', monospace;
+
+body {
+    font: {
+        family: 'Galdeano', sans-serif;
+    }
+
+    padding: 2em 3em;
+}
+
 h1 {
     font: {
         size: 2.2em;
         weight: bold;
+    }
+    margin-bottom: 0.5em;
+}
+
+h2 {
+    font: {
+        size: 1.8em;
+        weight: bold;
+    }
+    margin-bottom: 0.5em;
+}
+
+h3 {
+    font: {
+        size: 1.2em;
+        weight: bold;
+    }
+    margin-bottom: 0.5em;
+}
+
+h4 {
+    font: {
+        size: 1.2em;
+        style: italic;
+    }
+    margin-bottom: 0.25em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    a {
+        @include unstyled-link;
+    }
+}
+
+a {
+    @include hover-link;
+}
+
+code {
+    font-family: $console;
+    font-size: 0.8em;
+    color: #333;
+}
+
+dd {
+    margin-left: 2em;
+}
+
+dl {
+    margin-left: $inset-margin;
+}
+
+dt {
+    font-weight: bold;
+}
+
+em {
+    font-style: italic;
+}
+
+p {
+    margin-bottom: 1em;
+}
+
+pre {
+    margin: 1em 2em;
+}
+
+strong {
+    font-weight: bold;
+}
+
+ul {
+    li {
+    }
+    margin-left: 1em;
+    margin-bottom: 1em;
+    list-style-type: disc;
+}
+
+header {
+    @include border-radius;
+    @include box-shadow;
+    @include clearfix;
+
+    padding: 0.5em;
+    background: #eee;
+    margin-bottom: 2em;
+
+    h1 {
+        @include float-left;
+        font-size: 2.5em;
+        margin-bottom: 0em;
+    }
+    h3, h4 {
+        @include float-right;
+    }
+}
+
+nav#TOC {
+    @include float-right;
+    @include border-radius;
+    @include box-shadow;
+    @include display-box;
+
+    padding: 0.5em;
+    background: #eee;
+
+    ul {
+        margin-left: 0.75em;
+        li {
+            margin-bottom: 0.25em;
+        }
+    }
+    a {
+        @include unstyled-link;
     }
 }
 
