@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="critical-code-studies-working-group-2012">Critical Code Studies Working Group 2012</h1>
+<h2 id="code-critique">Code Critique</h2>
+<h3 id="overview">Overview</h3>
+<p><strong>Name of Software</strong>: Bakers12</p>
+<p><strong>Programming Language</strong>: Haskell</p>
+<p><strong>Hardware Requirements</strong>: You'll need hardware. PC.</p>
+<p><strong>Software Requirements</strong>: Git, Haskell, command line. See <em>Getting the Code</em> and <em>Compiling and Running</em>. This should work on Mac, Windows, and Linux. (And I've tested it on all of them.)</p>
+<p><strong>Year of Launch</strong>: 2011</p>
+<p><strong>Author</strong>: <script type="text/javascript">
+<!--
+h='&#118;&#x69;&#114;&#x67;&#x69;&#110;&#x69;&#x61;&#46;&#x65;&#100;&#x75;';a='&#64;';n='&#x65;&#114;&#x6f;&#x63;&#104;&#x65;&#x73;&#116;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+'Eric Rochester'+'<\/'+'a'+'>');
+// -->
+</script><noscript>&#x45;&#114;&#x69;&#x63;&#32;&#82;&#x6f;&#x63;&#104;&#x65;&#x73;&#116;&#x65;&#114;&#32;&#40;&#x65;&#114;&#x6f;&#x63;&#104;&#x65;&#x73;&#116;&#32;&#x61;&#116;&#32;&#118;&#x69;&#114;&#x67;&#x69;&#110;&#x69;&#x61;&#32;&#100;&#x6f;&#116;&#32;&#x65;&#100;&#x75;&#x29;</noscript></p>
+<h3 id="installation">Installation</h3>
+<h4 id="getting-the-binary">Getting the Binary</h4>
+<p><strong>TODO</strong></p>
+<h4 id="getting-the-code">Getting the Code</h4>
+<p>To get the code, either use <code>git</code>:</p>
+<pre><code>git clone --branch dev git://github.com/erochest/bakers12.git
+</code></pre>
+<p>Or download it from</p>
+<ul>
+<li><a href="https://github.com/erochest/bakers12/zipball/dev" title="ZIP file">https://github.com/erochest/bakers12/zipball/dev</a></li>
+<li><a href="https://github.com/erochest/bakers12/tarball/dev" title="tar file">https://github.com/erochest/bakers12/tarball/dev</a></li>
+</ul>
+<h4 id="compiling">Compiling</h4>
+<p>If you don't already have Haskell installed, the easiest way to get running is to download and install the <a href="http://hackage.haskell.org/platform/" title="Haskell Platform">Haskell Platform</a>.</p>
+<p>Now, open up a command line (Terminal, console, or whatever your platform calls it). Obviously, you'll need to change the first line to change into whatever directory you clones or unpacked the source into.</p>
+<pre><code>cd bakers12
+cabal install
+</code></pre>
+<p>That's it. It will download any dependencies it needs and compile the executable. It will also install it into a place of its own choosing. This varies by platform, and can be a little hard to find (see <a href="http://www.haskell.org/cabal/users-guide/#paths-in-the-simple-build-system" title="Installation Paths">this chart</a>, which actually doesn't cover the Mac locations).</p>
+<p>Fortunately, you can also get to the executable in the source directory, inside <code>dist/build/bakers12</code>. That file should contain everything, so you can just copy it wherever is convenient.</p>
+<h4 id="running">Running</h4>
+<p>Assuming that the you've successfully compiled the program or downloaded it (<strong>TODO</strong>) and that you've put it somewhere on your path, you can open a console window and use it like this:</p>
+<pre><code>$ bakers12 -\?
+bakers12 v0.0.0, (c) Eric Rochester 2011, 2012
+
+bakers12 [OPTIONS] [FILES/DIRS]
+
+Common flags:
+  -f --filter=TOKEN FILTER   The filter to use on the output tokens. This can
+                             be one of 'null', 'minimal', 'penn'. The default
+                             is 'minimal'.
+  -F --format=OUTPUT FORMAT  The output format to use. This can be either
+                             'csv' or 'json'. If there is no input, currently
+                             the JSON formatter outputs nothing. This should
+                             probably be an empty list.
+  -? --help                  Display help message
+  -V --version               Print version information
+
+This takes one or files and tokenizes them.
+
+$ bakers12 -f penn README.md | head
+&quot;#&quot;,&quot;#&quot;,1,PunctuationToken,README.md,1
+baker,Baker,5,AlphaToken,README.md,3
+&quot;'s&quot;,&quot;'s&quot;,2,PunctuationToken,README.md,8
+dozen,Dozen,5,AlphaToken,README.md,11
+this,This,4,AlphaToken,README.md,18
+is,is,2,AlphaToken,README.md,23
+a,a,1,AlphaToken,README.md,26
+boot,boot,4,AlphaToken,README.md,28
+&quot;-&quot;,&quot;-&quot;,1,PunctuationToken,README.md,32
+
+$ bakers12 -f penn -F json README.md  | aeson-pretty | head -25
+[
+    {
+        &quot;offset&quot;: 1,
+        &quot;source&quot;: &quot;README.md&quot;,
+        &quot;text&quot;: &quot;#&quot;,
+        &quot;raw&quot;: &quot;#&quot;,
+        &quot;length&quot;: 1,
+        &quot;type&quot;: &quot;PunctuationToken&quot;
+    },
+    {
+        &quot;offset&quot;: 3,
+        &quot;source&quot;: &quot;README.md&quot;,
+        &quot;text&quot;: &quot;baker&quot;,
+        &quot;raw&quot;: &quot;Baker&quot;,
+        &quot;length&quot;: 5,
+        &quot;type&quot;: &quot;AlphaToken&quot;
+    },
+    {
+        &quot;offset&quot;: 8,
+        &quot;source&quot;: &quot;README.md&quot;,
+        &quot;text&quot;: &quot;'s&quot;,
+        &quot;raw&quot;: &quot;'s&quot;,
+        &quot;length&quot;: 2,
+        &quot;type&quot;: &quot;PunctuationToken&quot;
+    },
+</code></pre>
+<p>(<code>aeson-pretty</code> is a utility for pretty-printing JSON.)</p>
+<p>Originally, this had more features. But I decided that I wanted to go in a slightly different direction, so I razed it to the ground and started over. The original version is on the <code>master</code> branch, however, so you can check that you if you want.</p>
+<h2 id="about">About</h2>
+<p><em>[Write a few words to begin the discussion of the code, including your gloss on the code, explaining its functionality and significance. Let the members know what questions you have about the code and how it fits into larger questions you are pursuing. Please link to any resources necessary to provide context or enhance understanding. We would like to make these examples accessible to the widest range of members possible.]</em></p>
+</body>
+</html>
