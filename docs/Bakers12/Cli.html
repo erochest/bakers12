@@ -1,0 +1,51 @@
+<!DOCTYPE html>  <html> <head>   <title>Cli.hs</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               Cli.hs             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="cm">{-# LANGUAGE DeriveDataTypeable #-}</span>
+
+<span class="cm">{- | This defines the CLI for the bakers12 executable. This includes</span>
+<span class="cm"> - command-line arguments for each execution mode.</span>
+<span class="cm"> -}</span>
+
+<span class="kr">module</span> <span class="nn">Bakers12.Cli</span>
+    <span class="p">(</span> <span class="kt">Modes</span><span class="p">(</span><span class="o">..</span><span class="p">)</span>
+    <span class="p">,</span> <span class="nf">bakers12Modes</span>
+    <span class="p">,</span> <span class="nf">cmdArgs</span>
+    <span class="p">)</span> <span class="kr">where</span>
+
+<span class="kr">import</span>           <span class="nn">Bakers12.Modes.Tokenizer</span> <span class="p">(</span><span class="kt">TokenFilter</span><span class="p">(</span><span class="o">..</span><span class="p">),</span> <span class="kt">OutputFormat</span><span class="p">(</span><span class="o">..</span><span class="p">))</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.List</span> <span class="k">as</span> <span class="n">L</span>
+<span class="kr">import</span>           <span class="nn">Data.Version</span> <span class="p">(</span><span class="kt">Version</span><span class="p">(</span><span class="o">..</span><span class="p">))</span>
+<span class="kr">import</span>           <span class="nn">Paths_bakers12</span> <span class="p">(</span><span class="nf">version</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">Prelude</span> <span class="k">hiding</span> <span class="p">(</span><span class="nf">filter</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">System.Console.CmdArgs</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>| The main type that the defines the command-line options.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kr">data</span> <span class="kt">Modes</span>
+    <span class="ow">=</span> <span class="kt">Tokenize</span>
+        <span class="p">{</span> <span class="n">filter</span> <span class="ow">::</span> <span class="kt">Maybe</span> <span class="kt">TokenFilter</span>
+        <span class="p">,</span> <span class="n">format</span> <span class="ow">::</span> <span class="kt">Maybe</span> <span class="kt">OutputFormat</span>
+        <span class="p">,</span> <span class="n">files</span>  <span class="ow">::</span> <span class="p">[</span><span class="kt">FilePath</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">,</span> <span class="kt">Data</span><span class="p">,</span> <span class="kt">Typeable</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>| An instance of modes that defines the CLI.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nf">bakers12Modes</span> <span class="ow">::</span> <span class="kt">Modes</span>
+<span class="nf">bakers12Modes</span> <span class="ow">=</span> <span class="n">modes</span>
+    <span class="p">[</span> <span class="kt">Tokenize</span>
+        <span class="p">{</span> <span class="n">filter</span> <span class="ow">=</span> <span class="n">def</span> <span class="o">&amp;=</span> <span class="n">name</span> <span class="s">&quot;f&quot;</span> <span class="o">&amp;=</span> <span class="n">typ</span> <span class="s">&quot;TOKEN FILTER&quot;</span>
+                 <span class="o">&amp;=</span> <span class="n">help</span> <span class="s">&quot;The filter to use on the output tokens. This can</span><span class="se">\</span>
+<span class="se">                          \</span><span class="s"> be one of &#39;null&#39;, &#39;minimal&#39;, &#39;penn&#39;. The default</span><span class="se">\</span>
+<span class="se">                          \</span><span class="s"> is &#39;minimal&#39;.&quot;</span>
+        <span class="p">,</span> <span class="n">format</span> <span class="ow">=</span> <span class="n">def</span> <span class="o">&amp;=</span> <span class="n">name</span> <span class="s">&quot;F&quot;</span> <span class="o">&amp;=</span> <span class="n">typ</span> <span class="s">&quot;OUTPUT FORMAT&quot;</span>
+                 <span class="o">&amp;=</span> <span class="n">help</span> <span class="s">&quot;The output format to use. This can be either</span><span class="se">\</span>
+<span class="se">                         \</span><span class="s"> &#39;csv&#39; or &#39;json&#39;. If there is no input, currently </span><span class="se">\</span>
+<span class="se">                         \</span><span class="s"> the JSON formatter outputs nothing. This should </span><span class="se">\</span>
+<span class="se">                         \</span><span class="s"> probably be an empty list.&quot;</span>
+        <span class="p">,</span> <span class="n">files</span> <span class="ow">=</span> <span class="n">def</span> <span class="o">&amp;=</span> <span class="n">args</span> <span class="o">&amp;=</span> <span class="n">typ</span> <span class="s">&quot;FILES/DIRS&quot;</span>
+        <span class="p">}</span> <span class="o">&amp;=</span> <span class="n">details</span> <span class="p">[</span><span class="s">&quot;This takes one or files and tokenizes them.&quot;</span><span class="p">]</span>
+    <span class="p">]</span> <span class="o">&amp;=</span> <span class="n">summary</span> <span class="p">(</span> <span class="s">&quot;bakers12 v&quot;</span> <span class="o">++</span> <span class="n">versionStr</span> <span class="o">++</span> <span class="p">(</span><span class="n">tagStrs</span> <span class="o">$</span> <span class="n">versionTags</span> <span class="n">version</span><span class="p">)</span> <span class="o">++</span>
+                   <span class="s">&quot;, (c) Eric Rochester 2011, 2012&quot;</span> <span class="p">)</span>
+      <span class="o">&amp;=</span> <span class="n">program</span> <span class="s">&quot;bakers12&quot;</span>
+    <span class="kr">where</span>
+        <span class="n">versionStr</span> <span class="ow">::</span> <span class="kt">String</span>
+        <span class="n">versionStr</span> <span class="ow">=</span> <span class="kt">L</span><span class="o">.</span><span class="n">intercalate</span> <span class="s">&quot;.&quot;</span> <span class="o">.</span> <span class="n">map</span> <span class="n">show</span> <span class="o">$</span> <span class="n">versionBranch</span> <span class="n">version</span>
+
+        <span class="n">tagStrs</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="kt">String</span>
+        <span class="n">tagStrs</span> <span class="kt">[]</span>     <span class="ow">=</span> <span class="kt">[]</span>
+        <span class="n">tagStrs</span> <span class="p">[</span><span class="n">tag</span><span class="p">]</span>  <span class="ow">=</span> <span class="n">tag</span>
+        <span class="n">tagStrs</span> <span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">xs</span><span class="p">)</span> <span class="ow">=</span> <span class="sc">&#39;-&#39;</span> <span class="kt">:</span> <span class="n">x</span> <span class="o">++</span> <span class="n">tagStrs</span> <span class="n">xs</span>
+        
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

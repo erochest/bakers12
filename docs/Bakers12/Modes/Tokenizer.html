@@ -1,0 +1,56 @@
+<!DOCTYPE html>  <html> <head>   <title>Tokenizer.hs</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               Tokenizer.hs             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="cm">{-# LANGUAGE DeriveDataTypeable #-}</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>| This is the controller for the <code>tokenizer</code> mode. It runs the tokenizer and
+prints out the output.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kr">module</span> <span class="nn">Bakers12.Modes.Tokenizer</span>
+    <span class="p">(</span> <span class="nf">tokenize</span>
+    <span class="p">,</span> <span class="kt">TokenFilter</span><span class="p">(</span><span class="o">..</span><span class="p">)</span>
+    <span class="p">,</span> <span class="kt">OutputFormat</span><span class="p">(</span><span class="o">..</span><span class="p">)</span>
+    <span class="p">)</span> <span class="kr">where</span>
+
+<span class="kr">import</span>           <span class="nn">Control.Monad.Trans</span> <span class="p">(</span><span class="nf">lift</span><span class="p">)</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Char</span> <span class="k">as</span> <span class="n">C</span>
+<span class="kr">import</span>           <span class="nn">Data.Enumerator</span> <span class="k">hiding</span> <span class="p">(</span><span class="nf">map</span><span class="p">)</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Enumerator.Binary</span> <span class="k">as</span> <span class="n">EB</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Enumerator.List</span> <span class="k">as</span> <span class="n">EL</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Enumerator.Text</span> <span class="k">as</span> <span class="n">ET</span>
+<span class="kr">import</span>           <span class="nn">Data.Monoid</span> <span class="p">(</span><span class="nf">mappend</span><span class="p">)</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text.Lazy</span> <span class="k">as</span> <span class="n">TL</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text.Lazy.Builder</span> <span class="k">as</span> <span class="n">TB</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text.Lazy.Builder.Int</span> <span class="k">as</span> <span class="n">TBI</span>
+<span class="kr">import</span>           <span class="nn">System.Bakers12.Enumerators</span> <span class="p">(</span><span class="nf">removeMissingFiles</span><span class="p">,</span> <span class="nf">expandDirectories</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">System.Console.CmdArgs</span> <span class="p">(</span><span class="kt">Data</span><span class="p">,</span> <span class="kt">Typeable</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">System.IO</span> <span class="p">(</span><span class="nf">stdout</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">Text.Bakers12.Csv</span> <span class="p">(</span><span class="nf">toCSVE</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">Text.Bakers12.JSON.Enumerators</span> <span class="p">(</span><span class="nf">toJSONE</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">Text.Bakers12.Tokenizer</span> <span class="p">(</span><span class="kt">Token</span><span class="p">(</span><span class="o">..</span><span class="p">),</span> <span class="nf">tokenizeE</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">Text.Bakers12.Tokenizer.Csv</span> <span class="p">()</span>
+<span class="kr">import</span>           <span class="nn">Text.Bakers12.Tokenizer.JSON</span> <span class="p">()</span>
+<span class="kr">import</span>           <span class="nn">Text.Bakers12.Tokenizer.Minimal</span> <span class="p">(</span><span class="nf">minimalFilter</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">Text.Bakers12.Tokenizer.PennTreebank</span> <span class="p">(</span><span class="nf">pennFilter</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>| This is an enumeration of the types of token filters provided by other
+modules.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kr">data</span> <span class="kt">TokenFilter</span>
+    <span class="ow">=</span> <span class="kt">Null</span>
+    <span class="o">|</span> <span class="kt">Minimal</span>
+    <span class="o">|</span> <span class="kt">Penn</span>
+    <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Data</span><span class="p">,</span> <span class="kt">Enum</span><span class="p">,</span> <span class="kt">Eq</span><span class="p">,</span> <span class="kt">Show</span><span class="p">,</span> <span class="kt">Typeable</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>| These are the available output formats.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kr">data</span> <span class="kt">OutputFormat</span>
+    <span class="ow">=</span> <span class="kt">CSV</span>
+    <span class="o">|</span> <span class="kt">JSON</span>
+    <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Data</span><span class="p">,</span> <span class="kt">Enum</span><span class="p">,</span> <span class="kt">Eq</span><span class="p">,</span> <span class="kt">Show</span><span class="p">,</span> <span class="kt">Typeable</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>| This takes a list of possible file paths and tokenizes each one. It prints
+the tokens out as CSV. Missing files are silently skipped and directories
+are expanded into all the files in that directory and subdirectories. All of
+this is handled with Enumerators, so it's memory consumption should be
+decent.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nf">tokenize</span> <span class="ow">::</span> <span class="kt">TokenFilter</span> <span class="ow">-&gt;</span> <span class="kt">OutputFormat</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">FilePath</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="kt">IO</span> <span class="nb">()</span>
+<span class="nf">tokenize</span> <span class="n">tokenFilter</span> <span class="n">format</span> <span class="n">files</span> <span class="ow">=</span>
+    <span class="n">run_</span> <span class="p">(</span><span class="n">input</span> <span class="o">$=</span> <span class="n">tokenFilter&#39;</span> <span class="o">$$</span> <span class="n">formatter</span> <span class="o">=$</span> <span class="n">output</span><span class="p">)</span>
+    <span class="kr">where</span>
+        <span class="n">fileEnum</span>     <span class="ow">=</span> <span class="n">enumLists</span> <span class="p">[</span><span class="n">files</span><span class="p">]</span> <span class="o">$=</span> <span class="n">removeMissingFiles</span> <span class="o">$=</span> <span class="n">expandDirectories</span>
+        <span class="n">input</span>        <span class="ow">=</span> <span class="n">fileEnum</span> <span class="o">$=</span> <span class="n">tokenizeE</span>
+
+        <span class="n">tokenFilter&#39;</span> <span class="ow">=</span> <span class="kr">case</span> <span class="n">tokenFilter</span> <span class="kr">of</span>
+                        <span class="kt">Null</span>    <span class="ow">-&gt;</span> <span class="kt">EL</span><span class="o">.</span><span class="n">map</span> <span class="n">id</span>
+                        <span class="kt">Minimal</span> <span class="ow">-&gt;</span> <span class="n">minimalFilter</span>
+                        <span class="kt">Penn</span>    <span class="ow">-&gt;</span> <span class="n">pennFilter</span>
+        <span class="n">formatter</span>    <span class="ow">=</span> <span class="kr">case</span> <span class="n">format</span> <span class="kr">of</span>
+                        <span class="kt">CSV</span>  <span class="ow">-&gt;</span> <span class="n">toCSVE</span>
+                        <span class="kt">JSON</span> <span class="ow">-&gt;</span> <span class="n">toJSONE</span>
+        <span class="n">output</span>       <span class="ow">=</span> <span class="kt">ET</span><span class="o">.</span><span class="n">encode</span> <span class="kt">ET</span><span class="o">.</span><span class="n">utf8</span> <span class="o">=$</span> <span class="kt">EB</span><span class="o">.</span><span class="n">iterHandle</span> <span class="n">stdout</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

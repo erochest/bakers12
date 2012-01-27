@@ -1,0 +1,43 @@
+<!DOCTYPE html>  <html> <head>   <title>Enumerators.hs</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               Enumerators.hs             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="cm">{-# LANGUAGE OverloadedStrings #-}</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>| This provides an enumerator interface over the aeson JSON library.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kr">module</span> <span class="nn">Text.Bakers12.JSON.Enumerators</span>
+    <span class="p">(</span> <span class="nf">toJSONE</span>
+    <span class="p">)</span> <span class="kr">where</span>
+
+<span class="kr">import</span>           <span class="nn">Control.Monad.Trans</span> <span class="p">(</span><span class="nf">lift</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">Data.Aeson</span> <span class="p">(</span><span class="kt">ToJSON</span><span class="p">(</span><span class="o">..</span><span class="p">))</span>
+<span class="kr">import</span>           <span class="nn">Data.Aeson.Encode</span> <span class="p">(</span><span class="nf">fromValue</span><span class="p">)</span>
+<span class="kr">import</span>           <span class="nn">Data.Enumerator</span> <span class="k">hiding</span> <span class="p">(</span><span class="nf">map</span><span class="p">)</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Enumerator.List</span> <span class="k">as</span> <span class="n">EL</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text</span> <span class="k">as</span> <span class="n">T</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text.Lazy</span> <span class="k">as</span> <span class="n">TL</span>
+<span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Text.Lazy.Builder</span> <span class="k">as</span> <span class="n">TLB</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>| This takes a stream of ToJSON objects and interprets them as an array.  To
+do this, it breaks strict monad laws by outputting a '[' before starting to
+process the stream and by outputting a ']' when the stream is done.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nf">toJSONE</span> <span class="ow">::</span> <span class="p">(</span><span class="kt">ToJSON</span> <span class="n">a</span><span class="p">,</span> <span class="kt">Monad</span> <span class="n">m</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="kt">Enumeratee</span> <span class="n">a</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span> <span class="n">m</span> <span class="n">b</span>
+<span class="nf">toJSONE</span> <span class="ow">=</span> <span class="n">loop</span> <span class="mi">0</span>
+    <span class="kr">where</span>
+        <span class="n">loop</span> <span class="n">n</span> <span class="n">cont</span><span class="o">@</span><span class="p">(</span><span class="kt">Continue</span> <span class="n">k</span><span class="p">)</span> <span class="ow">=</span> <span class="kr">do</span>
+            <span class="n">maybeItem</span> <span class="ow">&lt;-</span> <span class="kt">EL</span><span class="o">.</span><span class="n">head</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Ugly, ugly, ugly. There's probably something monadic I can do to
+pretty it up.</p>             </td>             <td class="code">               <div class="highlight"><pre>            <span class="kr">case</span> <span class="n">maybeItem</span> <span class="kr">of</span>
+                <span class="kt">Just</span> <span class="n">item</span> <span class="ow">-&gt;</span> <span class="kr">do</span>
+                    <span class="kr">let</span> <span class="n">chunks</span> <span class="ow">=</span> <span class="kt">Chunks</span> <span class="p">[</span><span class="n">prefix</span> <span class="n">n</span><span class="p">,</span> <span class="n">jsonize</span> <span class="n">item</span><span class="p">]</span>
+                    <span class="n">next</span> <span class="ow">&lt;-</span> <span class="n">lift</span> <span class="o">$</span> <span class="n">runIteratee</span> <span class="o">$</span> <span class="n">k</span> <span class="o">$</span> <span class="n">chunks</span>
+                    <span class="n">loop</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="n">next</span>
+                <span class="kt">Nothing</span>   <span class="ow">-&gt;</span>
+                    <span class="kr">case</span> <span class="p">(</span><span class="n">suffix</span> <span class="n">n</span><span class="p">)</span> <span class="kr">of</span>
+                        <span class="kt">Just</span> <span class="n">close</span> <span class="ow">-&gt;</span> <span class="kr">do</span>
+                            <span class="n">next</span> <span class="ow">&lt;-</span> <span class="n">lift</span> <span class="o">$</span> <span class="n">runIteratee</span> <span class="o">$</span> <span class="n">k</span> <span class="o">$</span> <span class="kt">Chunks</span> <span class="p">[</span><span class="n">close</span><span class="p">]</span>
+                            <span class="n">loop</span> <span class="mi">0</span> <span class="n">next</span>
+                        <span class="kt">Nothing</span>    <span class="ow">-&gt;</span> <span class="n">return</span> <span class="n">cont</span>
+
+        <span class="n">loop</span> <span class="kr">_</span> <span class="n">step</span> <span class="ow">=</span> <span class="n">return</span> <span class="n">step</span>
+
+        <span class="n">prefix</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+        <span class="n">prefix</span> <span class="mi">0</span> <span class="ow">=</span> <span class="s">&quot;[&quot;</span>
+        <span class="n">prefix</span> <span class="kr">_</span> <span class="ow">=</span> <span class="s">&quot;,&quot;</span>
+
+        <span class="n">suffix</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Maybe</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span>
+        <span class="n">suffix</span> <span class="mi">0</span> <span class="ow">=</span> <span class="kt">Nothing</span>
+        <span class="n">suffix</span> <span class="kr">_</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="s">&quot;]&quot;</span>
+
+        <span class="n">jsonize</span> <span class="ow">=</span> <span class="kt">TL</span><span class="o">.</span><span class="n">toStrict</span> <span class="o">.</span> <span class="kt">TLB</span><span class="o">.</span><span class="n">toLazyText</span> <span class="o">.</span> <span class="n">fromValue</span> <span class="o">.</span> <span class="n">toJSON</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
