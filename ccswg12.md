@@ -1,4 +1,4 @@
-
+y
 # Critical Code Studies Working Group 2012
 
 ## Code Critique
@@ -24,6 +24,9 @@ I've tested it on all of them.)
 #### Getting the Binary
 
 **TODO**
+
+A smattering of pre-compiled binaries are available from
+[https://github.com/erochest/bakers12/downloads][downloads].
 
 #### Getting the Code
 
@@ -141,4 +144,5 @@ accessible to the widest range of members possible.]*
 [tarball]: https://github.com/erochest/bakers12/tarball/dev "tar file"
 [platform]: http://hackage.haskell.org/platform/ "Haskell Platform"
 [install-paths]: http://www.haskell.org/cabal/users-guide/#paths-in-the-simple-build-system "Installation Paths"
+[downloads]: https://github.com/erochest/bakers12/downloads "Downloads"
 
