@@ -1,34 +1,46 @@
-y
-# Critical Code Studies Working Group 2012
+% Critical Code Studies Working Group 2012
+% Eric Rochester
+% January 27, 2012
 
-## Code Critique
+# Code Critique
 
-### Overview
+## Overview
 
-**Name of Software**: Bakers12
+Name of Software
 
-**Programming Language**: Haskell
+:   Bakers12
 
-**Hardware Requirements**: You'll need hardware. PC.
+Programming Language
+:   Haskell
 
-**Software Requirements**: Git, Haskell, command line. See *Getting the Code*
-and *Compiling and Running*. This should work on Mac, Windows, and Linux. (And
-I've tested it on all of them.)
+Hardware Requirements
 
-**Year of Launch**: 2011
+:   You'll need hardware. PC.
 
-**Author**: [Eric Rochester](mailto:erochest@virginia.edu)
+Software Requirements
 
-### Installation
+:   Git, Haskell, command line. See *Getting the Code* and *Compiling and
+    Running*. This should work on Mac, Windows, and Linux. (And I've tested
+    it on all of them.)
 
-#### Getting the Binary
+Year of Launch
+
+:   2011
+
+Author
+
+:   [Eric Rochester](mailto:erochest@virginia.edu)
+
+## Installation
+
+### Getting the Binary
 
 **TODO**
 
 A smattering of pre-compiled binaries are available from
-[https://github.com/erochest/bakers12/downloads][downloads].
+<https://github.com/erochest/bakers12/downloads>.
 
-#### Getting the Code
+### Getting the Code
 
 To get the code, either use `git`:
 
@@ -36,10 +48,10 @@ To get the code, either use `git`:
 
 Or download it from
 
-* [https://github.com/erochest/bakers12/zipball/dev][zipball]
-* [https://github.com/erochest/bakers12/tarball/dev][tarball]
+* <https://github.com/erochest/bakers12/zipball/dev>
+* <https://github.com/erochest/bakers12/tarball/dev>
 
-#### Compiling
+### Compiling
 
 If you don't already have Haskell installed, the easiest way to get running is
 to download and install the [Haskell Platform][platform].
@@ -62,7 +74,7 @@ Fortunately, you can also get to the executable in the source directory, inside
 `dist/build/bakers12`. That file should contain everything, so you can just
 copy it wherever is convenient.
 
-#### Running
+### Running
 
 Assuming that the you've successfully compiled the program or downloaded it
 (**TODO**) and that you've put it somewhere on your path, you can open a
@@ -131,7 +143,7 @@ slightly different direction, so I razed it to the ground and started over. The
 original version is on the `master` branch, however, so you can check that you
 if you want.
 
-## About 
+# About 
 
 *[Write a few words to begin the discussion of the code, including your gloss
 on the code, explaining its functionality and significance. Let the members
@@ -140,9 +152,6 @@ questions you are pursuing. Please link to any resources necessary to provide
 context or enhance understanding. We would like to make these examples
 accessible to the widest range of members possible.]*
 
-[zipball]: https://github.com/erochest/bakers12/zipball/dev "ZIP file"
-[tarball]: https://github.com/erochest/bakers12/tarball/dev "tar file"
 [platform]: http://hackage.haskell.org/platform/ "Haskell Platform"
 [install-paths]: http://www.haskell.org/cabal/users-guide/#paths-in-the-simple-build-system "Installation Paths"
-[downloads]: https://github.com/erochest/bakers12/downloads "Downloads"
 
