@@ -32,12 +32,72 @@ Author
 
 :   [Eric Rochester](mailto:erochest@virginia.edu)
 
+## About 
+
+Baker's 12 started out as a 13-day (one day per week) bootcamp-style project.
+The purpose was to learn Haskell and experiment with NLP. Each day, I would
+attempt to add a meaningful feature and finish the day with a working program.
+Since then, I've given up on the intense workflow, but I'm continuing to
+develop the project in a more relaxed manner. Recently, I've started over. The
+original code is still in the `master` branch; the new code that we're looking
+at is in the `dev` branch.
+
+This chunk of code is the module to tokenize text. It takes streams of texts
+and produces streams of tokens. The underlying libraries that it uses
+([enumerator][enumerator]) allow it to stream a lot of data with constant
+memory usage. Because of the issues that I'm getting ready to outline, I've
+pushed most of my discussion of the code's functionality into the comments.
+
+I'm interested in how the abstractions that make code powerful and useful also
+push against and prevent readers---all readers, but especially non-expert
+readers---from interpreting these texts. With that in mind, I've selected this
+section of code not only because it's an important, central part of this
+program, but also because it's fairly dense. Not only does it contain
+abstractions that are probably unfamiliar to most programmers (functional
+programming and monads), but it also uses a library that is complicated
+(enumerators). Both monads and enumerators rely on a lot of hidden code, as
+such they resist easy interpretation by even many sophisticated readers.
+
+To help make this more approachable, I've added a lot of comments---many more
+than I normally would. But even here, looking at the
+[docco](http://jashkenas.github.com/docco/)-generated documentation, it's
+debatable whether those comments help or hurt readability.
+
+I'm interested here in questions about how to make the code more approachable,
+I'm undecided whether this is possible or, from the developer's point of view,
+even desirable. I'm interested in the interplay between powerful abstractions
+and accessibility, between tackling complex tasks and communication. That's not
+a question per se, but more of a reason why I'm tossing this out there, see
+what bites.
+
+> *[Write a few words to begin the discussion of the code, including your gloss
+> on the code, explaining its functionality and significance. Let the members
+> know what questions you have about the code and how it fits into larger
+> questions you are pursuing. Please link to any resources necessary to provide
+> context or enhance understanding. We would like to make these examples
+> accessible to the widest range of members possible.]*
+
+### Links
+
+* <http://www.ericrochester.com/bakers12/Text/Bakers12/Tokenizer.html>
+* <https://github.com/erochest/bakers12/blob/dev/lib/Text/Bakers12/Tokenizer.hs>
+* <http://www.ericrochester.com/bakers12/ccswg12.html>
+
+### Deeper Links
+
+If you want more background on some of the concepts involved, I've found these
+links to be helpful:
+
+* [Haskell Wikibook, Understanding Monads](http://en.wikibooks.org/wiki/Haskell/Monads)
+* [A tutorial on the enumerator library](http://www.mew.org/~kazu/proj/enumerator/)
+* [Yesod Book: Enumerator Package](http://www.yesodweb.com/book/enumerator)
+* [Trying to work out iteratees](http://therning.org/magnus/archives/735)
+
 ## Installation
 
 ### Getting the Binary
 
-A smattering of pre-compiled binaries are available from
-<https://github.com/erochest/bakers12/downloads>.
+If requested, I'll dig up some pre-compiled binaries for your platform. Email me.
 
 ### Getting the Code
 
@@ -142,15 +202,8 @@ slightly different direction, so I razed it to the ground and started over. The
 original version is on the `master` branch, however, so you can check that you
 if you want.
 
-# About 
-
-*[Write a few words to begin the discussion of the code, including your gloss
-on the code, explaining its functionality and significance. Let the members
-know what questions you have about the code and how it fits into larger
-questions you are pursuing. Please link to any resources necessary to provide
-context or enhance understanding. We would like to make these examples
-accessible to the widest range of members possible.]*
-
+[enumerator]: http://hackage.haskell.org/package/enumerator "enumerator"
 [platform]: http://hackage.haskell.org/platform/ "Haskell Platform"
 [install-paths]: http://www.haskell.org/cabal/users-guide/#paths-in-the-simple-build-system "Installation Paths"
+
 

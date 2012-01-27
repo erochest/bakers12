@@ -122,55 +122,79 @@ a:hover {
 }
 
 /* line 68, ../sass/screen.scss */
+blockquote {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  -moz-box-shadow: 0px 0px 5px #333333;
+  -webkit-box-shadow: 0px 0px 5px #333333;
+  -o-box-shadow: 0px 0px 5px #333333;
+  box-shadow: 0px 0px 5px #333333;
+  overflow: hidden;
+  *zoom: 1;
+  margin-left: 5em;
+  margin-right: 5em;
+  margin-bottom: 1em;
+  padding: 1em;
+}
+/* line 78, ../sass/screen.scss */
+blockquote p {
+  margin-bottom: 0em;
+}
+
+/* line 83, ../sass/screen.scss */
 code {
   font-family: "Lucida Console", monospace;
   font-size: 0.8em;
   color: #333;
 }
 
-/* line 74, ../sass/screen.scss */
+/* line 89, ../sass/screen.scss */
 dd {
   margin-left: 2em;
 }
 
-/* line 78, ../sass/screen.scss */
+/* line 93, ../sass/screen.scss */
 dl {
   margin-left: 1em;
 }
 
-/* line 82, ../sass/screen.scss */
+/* line 97, ../sass/screen.scss */
 dt {
   font-weight: bold;
 }
 
-/* line 86, ../sass/screen.scss */
+/* line 101, ../sass/screen.scss */
 em {
   font-style: italic;
 }
 
-/* line 90, ../sass/screen.scss */
+/* line 105, ../sass/screen.scss */
 p {
   margin-bottom: 1em;
 }
 
-/* line 94, ../sass/screen.scss */
+/* line 109, ../sass/screen.scss */
 pre {
   margin: 1em 2em;
 }
 
-/* line 98, ../sass/screen.scss */
+/* line 113, ../sass/screen.scss */
 strong {
   font-weight: bold;
 }
 
-/* line 102, ../sass/screen.scss */
+/* line 117, ../sass/screen.scss */
 ul {
   margin-left: 1em;
   margin-bottom: 1em;
   list-style-type: disc;
 }
 
-/* line 110, ../sass/screen.scss */
+/* line 125, ../sass/screen.scss */
 header {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -188,20 +212,20 @@ header {
   background: #eee;
   margin-bottom: 2em;
 }
-/* line 119, ../sass/screen.scss */
+/* line 134, ../sass/screen.scss */
 header h1 {
   display: inline;
   float: left;
   font-size: 2.5em;
   margin-bottom: 0em;
 }
-/* line 124, ../sass/screen.scss */
+/* line 139, ../sass/screen.scss */
 header h3, header h4 {
   display: inline;
   float: right;
 }
 
-/* line 129, ../sass/screen.scss */
+/* line 144, ../sass/screen.scss */
 nav#TOC {
   display: inline;
   float: right;
@@ -222,17 +246,17 @@ nav#TOC {
   padding: 0.5em;
   background: #eee;
 }
-/* line 138, ../sass/screen.scss */
+/* line 153, ../sass/screen.scss */
 nav#TOC ul {
   margin-left: 0.75em;
   margin-bottom: 0em;
   list-style-type: none;
 }
-/* line 142, ../sass/screen.scss */
+/* line 157, ../sass/screen.scss */
 nav#TOC ul li {
   margin-bottom: 0.25em;
 }
-/* line 146, ../sass/screen.scss */
+/* line 161, ../sass/screen.scss */
 nav#TOC a {
   color: inherit;
   text-decoration: inherit;

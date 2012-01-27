@@ -24,6 +24,10 @@
 <ul>
 <li><a href="#code-critique">Code Critique</a><ul>
 <li><a href="#overview">Overview</a></li>
+<li><a href="#about">About</a><ul>
+<li><a href="#links">Links</a></li>
+<li><a href="#deeper-links">Deeper Links</a></li>
+</ul></li>
 <li><a href="#installation">Installation</a><ul>
 <li><a href="#getting-the-binary">Getting the Binary</a></li>
 <li><a href="#getting-the-code">Getting the Code</a></li>
@@ -31,7 +35,6 @@
 <li><a href="#running">Running</a></li>
 </ul></li>
 </ul></li>
-<li><a href="#about">About</a></li>
 </ul>
 </nav>
 <h1 id="code-critique"><a href="#TOC">Code Critique</a></h1>
@@ -61,9 +64,32 @@ document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+'Eric Rochester'+'<\/'+'a'+
 </script><noscript>&#x45;&#114;&#x69;&#x63;&#32;&#82;&#x6f;&#x63;&#104;&#x65;&#x73;&#116;&#x65;&#114;&#32;&#40;&#x65;&#114;&#x6f;&#x63;&#104;&#x65;&#x73;&#116;&#32;&#x61;&#116;&#32;&#118;&#x69;&#114;&#x67;&#x69;&#110;&#x69;&#x61;&#32;&#100;&#x6f;&#116;&#32;&#x65;&#100;&#x75;&#x29;</noscript></p>
 </dd>
 </dl>
+<h2 id="about"><a href="#TOC">About</a></h2>
+<p>Baker’s 12 started out as a 13-day (one day per week) bootcamp-style project. The purpose was to learn Haskell and experiment with NLP. Each day, I would attempt to add a meaningful feature and finish the day with a working program. Since then, I’ve given up on the intense workflow, but I’m continuing to develop the project in a more relaxed manner. Recently, I’ve started over. The original code is still in the <code>master</code> branch; the new code that we’re looking at is in the <code>dev</code> branch.</p>
+<p>This chunk of code is the module to tokenize text. It takes streams of texts and produces streams of tokens. The underlying libraries that it uses (<a href="http://hackage.haskell.org/package/enumerator" title="enumerator">enumerator</a>) allow it to stream a lot of data with constant memory usage. Because of the issues that I’m getting ready to outline, I’ve pushed most of my discussion of the code’s functionality into the comments.</p>
+<p>I’m interested in how the abstractions that make code powerful and useful also push against and prevent readers—all readers, but especially non-expert readers—from interpreting these texts. With that in mind, I’ve selected this section of code not only because it’s an important, central part of this program, but also because it’s fairly dense. Not only does it contain abstractions that are probably unfamiliar to most programmers (functional programming and monads), but it also uses a library that is complicated (enumerators). Both monads and enumerators rely on a lot of hidden code, as such they resist easy interpretation by even many sophisticated readers.</p>
+<p>To help make this more approachable, I’ve added a lot of comments—many more than I normally would. But even here, looking at the <a href="http://jashkenas.github.com/docco/">docco</a>-generated documentation, it’s debatable whether those comments help or hurt readability.</p>
+<p>I’m interested here in questions about how to make the code more approachable, I’m undecided whether this is possible or, from the developer’s point of view, even desirable. I’m interested in the interplay between powerful abstractions and accessibility, between tackling complex tasks and communication. That’s not a question per se, but more of a reason why I’m tossing this out there, see what bites.</p>
+<blockquote>
+<p><em>[Write a few words to begin the discussion of the code, including your gloss on the code, explaining its functionality and significance. Let the members know what questions you have about the code and how it fits into larger questions you are pursuing. Please link to any resources necessary to provide context or enhance understanding. We would like to make these examples accessible to the widest range of members possible.]</em></p>
+</blockquote>
+<h3 id="links"><a href="#TOC">Links</a></h3>
+<ul>
+<li><a href="http://www.ericrochester.com/bakers12/Text/Bakers12/Tokenizer.html"><code class="url">http://www.ericrochester.com/bakers12/Text/Bakers12/Tokenizer.html</code></a></li>
+<li><a href="https://github.com/erochest/bakers12/blob/dev/lib/Text/Bakers12/Tokenizer.hs"><code class="url">https://github.com/erochest/bakers12/blob/dev/lib/Text/Bakers12/Tokenizer.hs</code></a></li>
+<li><a href="http://www.ericrochester.com/bakers12/ccswg12.html"><code class="url">http://www.ericrochester.com/bakers12/ccswg12.html</code></a></li>
+</ul>
+<h3 id="deeper-links"><a href="#TOC">Deeper Links</a></h3>
+<p>If you want more background on some of the concepts involved, I’ve found these links to be helpful:</p>
+<ul>
+<li><a href="http://en.wikibooks.org/wiki/Haskell/Monads">Haskell Wikibook, Understanding Monads</a></li>
+<li><a href="http://www.mew.org/~kazu/proj/enumerator/">A tutorial on the enumerator library</a></li>
+<li><a href="http://www.yesodweb.com/book/enumerator">Yesod Book: Enumerator Package</a></li>
+<li><a href="http://therning.org/magnus/archives/735">Trying to work out iteratees</a></li>
+</ul>
 <h2 id="installation"><a href="#TOC">Installation</a></h2>
 <h3 id="getting-the-binary"><a href="#TOC">Getting the Binary</a></h3>
-<p>A smattering of pre-compiled binaries are available from <a href="https://github.com/erochest/bakers12/downloads"><code class="url">https://github.com/erochest/bakers12/downloads</code></a>.</p>
+<p>If requested, I’ll dig up some pre-compiled binaries for your platform. Email me.</p>
 <h3 id="getting-the-code"><a href="#TOC">Getting the Code</a></h3>
 <p>To get the code, either use <code>git</code>:</p>
 <pre><code>git clone --branch dev git://github.com/erochest/bakers12.git
@@ -142,7 +168,5 @@ $ bakers12 -f penn -F json README.md  | aeson-pretty | head -25
 </code></pre>
 <p>(<code>aeson-pretty</code> is a utility for pretty-printing JSON.)</p>
 <p>Originally, this had more features. But I decided that I wanted to go in a slightly different direction, so I razed it to the ground and started over. The original version is on the <code>master</code> branch, however, so you can check that you if you want.</p>
-<h1 id="about"><a href="#TOC">About</a></h1>
-<p><em>[Write a few words to begin the discussion of the code, including your gloss on the code, explaining its functionality and significance. Let the members know what questions you have about the code and how it fits into larger questions you are pursuing. Please link to any resources necessary to provide context or enhance understanding. We would like to make these examples accessible to the widest range of members possible.]</em></p>
 </body>
 </html>
