@@ -4,21 +4,38 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Eric Rochester" />
-  <meta name="date" content="January 27, 2012" />
   <title>Critical Code Studies Working Group 2012</title>
   <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
-  <link rel="stylesheet" href="stylesheets/screen.css" />
+    <link href='http://fonts.googleapis.com/css?family=Galdeano' rel='stylesheet' type='text/css'>
+    <link href="stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="stylesheets/print.css" media="print" rel="stylesheet" type="text/css" />
+    <!--[if IE]>
+        <link href="stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <![endif]-->
 </head>
 <body>
 <header>
 <h1 class="title">Critical Code Studies Working Group 2012</h1>
 <h3 class="author">Eric Rochester</h3>
-<h4 class="date">January 27, 2012</h4>
 </header>
-<h1 id="code-critique">Code Critique</h1>
-<h2 id="overview">Overview</h2>
+<nav id="TOC">
+<ul>
+<li><a href="#code-critique">Code Critique</a><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#installation">Installation</a><ul>
+<li><a href="#getting-the-binary">Getting the Binary</a></li>
+<li><a href="#getting-the-code">Getting the Code</a></li>
+<li><a href="#compiling">Compiling</a></li>
+<li><a href="#running">Running</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#about">About</a></li>
+</ul>
+</nav>
+<h1 id="code-critique"><a href="#TOC">Code Critique</a></h1>
+<h2 id="overview"><a href="#TOC">Overview</a></h2>
 <dl>
 <dt>Name of Software</dt>
 <dd><p>Bakers12</p>
@@ -44,11 +61,10 @@ document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+'Eric Rochester'+'<\/'+'a'+
 </script><noscript>&#x45;&#114;&#x69;&#x63;&#32;&#82;&#x6f;&#x63;&#104;&#x65;&#x73;&#116;&#x65;&#114;&#32;&#40;&#x65;&#114;&#x6f;&#x63;&#104;&#x65;&#x73;&#116;&#32;&#x61;&#116;&#32;&#118;&#x69;&#114;&#x67;&#x69;&#110;&#x69;&#x61;&#32;&#100;&#x6f;&#116;&#32;&#x65;&#100;&#x75;&#x29;</noscript></p>
 </dd>
 </dl>
-<h2 id="installation">Installation</h2>
-<h3 id="getting-the-binary">Getting the Binary</h3>
-<p><strong>TODO</strong></p>
+<h2 id="installation"><a href="#TOC">Installation</a></h2>
+<h3 id="getting-the-binary"><a href="#TOC">Getting the Binary</a></h3>
 <p>A smattering of pre-compiled binaries are available from <a href="https://github.com/erochest/bakers12/downloads"><code class="url">https://github.com/erochest/bakers12/downloads</code></a>.</p>
-<h3 id="getting-the-code">Getting the Code</h3>
+<h3 id="getting-the-code"><a href="#TOC">Getting the Code</a></h3>
 <p>To get the code, either use <code>git</code>:</p>
 <pre><code>git clone --branch dev git://github.com/erochest/bakers12.git
 </code></pre>
@@ -57,7 +73,7 @@ document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+'Eric Rochester'+'<\/'+'a'+
 <li><a href="https://github.com/erochest/bakers12/zipball/dev"><code class="url">https://github.com/erochest/bakers12/zipball/dev</code></a></li>
 <li><a href="https://github.com/erochest/bakers12/tarball/dev"><code class="url">https://github.com/erochest/bakers12/tarball/dev</code></a></li>
 </ul>
-<h3 id="compiling">Compiling</h3>
+<h3 id="compiling"><a href="#TOC">Compiling</a></h3>
 <p>If you don’t already have Haskell installed, the easiest way to get running is to download and install the <a href="http://hackage.haskell.org/platform/" title="Haskell Platform">Haskell Platform</a>.</p>
 <p>Now, open up a command line (Terminal, console, or whatever your platform calls it). Obviously, you’ll need to change the first line to change into whatever directory you clones or unpacked the source into.</p>
 <pre><code>cd bakers12
@@ -66,8 +82,8 @@ cabal install
 </code></pre>
 <p>That’s it. It will download any dependencies it needs and compile the executable. (You can ignore any compiler warnings.) It will also install it into a place of its own choosing. This varies by platform, and can be a little hard to find (see <a href="http://www.haskell.org/cabal/users-guide/#paths-in-the-simple-build-system" title="Installation Paths">this chart</a>, which actually doesn’t cover the Mac locations).</p>
 <p>Fortunately, you can also get to the executable in the source directory, inside <code>dist/build/bakers12</code>. That file should contain everything, so you can just copy it wherever is convenient.</p>
-<h3 id="running">Running</h3>
-<p>Assuming that the you’ve successfully compiled the program or downloaded it (<strong>TODO</strong>) and that you’ve put it somewhere on your path, you can open a console window and use it like this:</p>
+<h3 id="running"><a href="#TOC">Running</a></h3>
+<p>Assuming that the you’ve successfully <a href="#compiling">compiled the program</a> or <a href="#getting-the-binary">downloaded it</a> and that you’ve put it somewhere on your path, you can open a console window and use it like this:</p>
 <pre><code>$ bakers12 -\?
 bakers12 v0.0.0, (c) Eric Rochester 2011, 2012
 
@@ -126,7 +142,7 @@ $ bakers12 -f penn -F json README.md  | aeson-pretty | head -25
 </code></pre>
 <p>(<code>aeson-pretty</code> is a utility for pretty-printing JSON.)</p>
 <p>Originally, this had more features. But I decided that I wanted to go in a slightly different direction, so I razed it to the ground and started over. The original version is on the <code>master</code> branch, however, so you can check that you if you want.</p>
-<h1 id="about">About</h1>
+<h1 id="about"><a href="#TOC">About</a></h1>
 <p><em>[Write a few words to begin the discussion of the code, including your gloss on the code, explaining its functionality and significance. Let the members know what questions you have about the code and how it fits into larger questions you are pursuing. Please link to any resources necessary to provide context or enhance understanding. We would like to make these examples accessible to the widest range of members possible.]</em></p>
 </body>
 </html>

@@ -1,6 +1,6 @@
 % Critical Code Studies Working Group 2012
 % Eric Rochester
-% January 27, 2012
+% 
 
 # Code Critique
 
@@ -11,6 +11,7 @@ Name of Software
 :   Bakers12
 
 Programming Language
+
 :   Haskell
 
 Hardware Requirements
@@ -34,8 +35,6 @@ Author
 ## Installation
 
 ### Getting the Binary
-
-**TODO**
 
 A smattering of pre-compiled binaries are available from
 <https://github.com/erochest/bakers12/downloads>.
@@ -76,9 +75,9 @@ copy it wherever is convenient.
 
 ### Running
 
-Assuming that the you've successfully compiled the program or downloaded it
-(**TODO**) and that you've put it somewhere on your path, you can open a
-console window and use it like this:
+Assuming that the you've successfully [compiled the program](#compiling) or
+[downloaded it](#getting-the-binary) and that you've put it somewhere on your
+path, you can open a console window and use it like this:
 
     $ bakers12 -\?
     bakers12 v0.0.0, (c) Eric Rochester 2011, 2012
