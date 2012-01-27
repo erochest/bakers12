@@ -70,7 +70,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 /* line 18, ../sass/screen.scss */
 body {
   font-family: 'Galdeano', sans-serif;
-  padding: 2em 3em;
+  padding: 2em 8em;
 }
 
 /* line 26, ../sass/screen.scss */
@@ -225,12 +225,14 @@ nav#TOC {
 /* line 138, ../sass/screen.scss */
 nav#TOC ul {
   margin-left: 0.75em;
+  margin-bottom: 0em;
+  list-style-type: none;
 }
-/* line 140, ../sass/screen.scss */
+/* line 142, ../sass/screen.scss */
 nav#TOC ul li {
   margin-bottom: 0.25em;
 }
-/* line 144, ../sass/screen.scss */
+/* line 146, ../sass/screen.scss */
 nav#TOC a {
   color: inherit;
   text-decoration: inherit;
