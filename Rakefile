@@ -48,6 +48,31 @@ task :test => :build do
   sh %{cabal test}
 end
 
+require 'zayin/rake/docco'
+desc 'This runs docco to create documentation.'
+Zayin::Rake::docco :docco, Dir.glob(File.join('lib', '**', '*.hs'))
+
+desc 'Creates the docs and commits into the gh-pages branch.'
+task :ghpages, [:msg] => [:docs] do |t, args|
+  msg = args[:msg] || 'Updated docs.'
+
+  FileUtils.rmtree('/tmp/bakers12', :verbose => true) if File.exists?('/tmp/bakers12')
+  FileUtils.mv('docs', '/tmp/bakers12', :verbose => true)
+
+  sh %{git stash}
+  sh %{git checkout gh-pages}
+
+  FileUtils.rmtree('docs', :verbose => true) if File.exists?('docs')
+  FileUtils.mv('docs', '/tmp/bakers12', :verbose => true)
+
+  sh %{git add --all docs}
+  sh %{git commit -m "#{msg}"}
+
+  puts "Don't forget to run these commands:"
+  puts "    git checkout master"
+  puts "    git stash pop"
+end
+
 desc 'Runs bakers12.'
 task :run, [:args] => :build do |t, args|
   args.with_default(:args => '')
