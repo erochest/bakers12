@@ -79,7 +79,7 @@ what bites.
 
 ### Links
 
-* <http://www.ericrochester.com/bakers12/Text/Bakers12/Tokenizer.html>
+* <http://www.ericrochester.com/bakers12/docs/Text/Bakers12/Tokenizer.html>
 * <https://github.com/erochest/bakers12/blob/dev/lib/Text/Bakers12/Tokenizer.hs>
 * <http://www.ericrochester.com/bakers12/ccswg12.html>
 
