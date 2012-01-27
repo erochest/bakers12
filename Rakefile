@@ -50,7 +50,7 @@ end
 
 require 'zayin/rake/docco'
 desc 'This runs docco to create documentation.'
-Zayin::Rake::docco :docco, Dir.glob(File.join('lib', '**', '*.hs'))
+Zayin::Rake::docco :docco, Dir.glob(File.join('lib', '**', '*.hs')) + Dir.glob(File.join('src', '**', '*.hs'))
 
 desc 'Creates the docs and commits into the gh-pages branch.'
 task :ghpages, [:msg] => [:docs] do |t, args|
