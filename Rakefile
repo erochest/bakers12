@@ -7,8 +7,8 @@ task :usage do
 end
 
 desc 'This builds the summary descriptions for the CCSWG12.'
-file 'ccswg12.html' => ['ccswg12.md'] do |t|
-  sh %(pandoc --standalone --html5 --smart --output=#{t.name} --include-in-header=header.html --toc #{t.prerequisites.join(' ')})
+file 'ccswg12.html' => ['ccswg12.md', 'header.html', 'footer.html'] do |t|
+  sh %(pandoc --standalone --html5 --smart --output=#{t.name} --include-in-header=header.html -A footer.html --toc ccswg12.md)
 end
 
 namespace :compass do

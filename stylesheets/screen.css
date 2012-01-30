@@ -226,6 +226,33 @@ header h3, header h4 {
 }
 
 /* line 144, ../sass/screen.scss */
+footer {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  -moz-box-shadow: 0px 0px 5px #333333;
+  -webkit-box-shadow: 0px 0px 5px #333333;
+  -o-box-shadow: 0px 0px 5px #333333;
+  box-shadow: 0px 0px 5px #333333;
+  overflow: hidden;
+  *zoom: 1;
+  padding: 0.5em;
+  background: #eee;
+  margin-bottom: 2em;
+  font-size: 0.8em;
+}
+
+/* line 155, ../sass/screen.scss */
+.right {
+  display: inline;
+  float: right;
+  margin-right: 1em;
+}
+
+/* line 160, ../sass/screen.scss */
 nav#TOC {
   display: inline;
   float: right;
@@ -246,17 +273,17 @@ nav#TOC {
   padding: 0.5em;
   background: #eee;
 }
-/* line 153, ../sass/screen.scss */
+/* line 169, ../sass/screen.scss */
 nav#TOC ul {
   margin-left: 0.75em;
   margin-bottom: 0em;
   list-style-type: none;
 }
-/* line 157, ../sass/screen.scss */
+/* line 173, ../sass/screen.scss */
 nav#TOC ul li {
   margin-bottom: 0.25em;
 }
-/* line 161, ../sass/screen.scss */
+/* line 177, ../sass/screen.scss */
 nav#TOC a {
   color: inherit;
   text-decoration: inherit;

@@ -141,6 +141,22 @@ header {
     }
 }
 
+footer {
+    @include border-radius;
+    @include box-shadow;
+    @include clearfix;
+
+    padding: 0.5em;
+    background: #eee;
+    margin-bottom: 2em;
+    font-size: 0.8em;
+}
+
+.right {
+    @include float-right;
+    margin-right: 1em;
+}
+
 nav#TOC {
     @include float-right;
     @include border-radius;
