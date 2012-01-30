@@ -1,6 +1,6 @@
 % Critical Code Studies Working Group 2012
-% Eric Rochester
-% 
+% Eric Rochester, Scholar's Lab, University of Virginia
+%
 
 # Code Critique
 
