@@ -20,9 +20,9 @@ Hardware Requirements
 
 Software Requirements
 
-:   Git, Haskell, command line. See *Getting the Code* and *Compiling and
-    Running*. This should work on Mac, Windows, and Linux. (And I've tested
-    it on all of them.)
+:   Git, Haskell, command line. See [*Getting the Code*](#getting-the-code),
+    [*Compiling*](#compiling), and [*Running*](#running). This should work on
+    Mac, Windows, and Linux.
 
 Year of Launch
 
