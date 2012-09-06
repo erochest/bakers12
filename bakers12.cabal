@@ -4,7 +4,8 @@
 
 Name:		bakers12
 Version:	0.0.1
-Synopsis:	This is a boot-camp style series of thirteen one-day coding projects. The aim is to experiment with NLP in Haskell.
+Synopsis:	An NLP library in Haskell.
+Description: This is a boot-camp style series of thirteen one-day coding projects. The aim is to experiment with NLP in Haskell.
 Homepage:	https://bitbucket.org/erochest/bakers12
 License:	BSD3
 License-file:	LICENSE
@@ -23,12 +24,10 @@ Cabal-version:	>=1.9.2
 -- Extra files to be distributed with the package, such as examples or
 -- a README.
 Extra-source-files:
-    README.mkd
+    README.md
   , tests/TestBakers12.hs
   , log/access.log
   , log/error.log
-  , bakers12/static/screen.css
-  , bakers12/templates/echo.tpl
   , bakers12/templates/index.tpl
 data-files:
     bakers12/resource-dir-marker
@@ -49,10 +48,6 @@ data-files:
 Flag development
   Description:	Whether to build in development mode.
   Default:	False
-
-Flag profiling
-  Description:  Whether to build for profiling.
-  Default:      False
 
 Library
   hs-source-dirs:  lib
@@ -88,19 +83,14 @@ Library
   if flag(development)
     cpp-options -DDEVELOPMENT
     -- build-depends: hint >= 0.3.2 && < 0.4
-    ghc-options: -DDEVELOPMENT -threaded -w -Wall
+    ghc-options: -w -Wall
   else
-    if flag(profiling)
-      cpp-options -DDEVELOPMENT
-      -- build-depends: hint >= 0.3.2 && < 0.4
-      ghc-options: -DDEVELOPMENT -threaded -w -O -rtsopts -prof
+    if impl(ghc >= 6.12.0)
+      ghc-options: -Wall -fwarn-tabs -funbox-strict-fields
+                   -fno-warn-orphans -fno-warn-unused-do-bind -rtsopts
     else
-      if impl(ghc >= 6.12.0)
-        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                     -fno-warn-orphans -fno-warn-unused-do-bind -rtsopts
-      else
-        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                     -fno-warn-orphans -rtsopts
+      ghc-options: -Wall -fwarn-tabs -funbox-strict-fields
+                   -fno-warn-orphans -rtsopts
 
 Executable bakers12
   hs-source-dirs:  src
@@ -126,19 +116,14 @@ Executable bakers12
   if flag(development)
     cpp-options -DDEVELOPMENT
     -- build-depends: hint >= 0.3.2 && < 0.4
-    ghc-options: -DDEVELOPMENT -threaded -w -O
+    ghc-options: -threaded -w
   else
-    if flag(profiling)
-      cpp-options -DDEVELOPMENT
-      -- build-depends: hint >= 0.3.2 && < 0.4
-      ghc-options: -DDEVELOPMENT -threaded -w -O -rtsopts -prof
+    if impl(ghc >= 6.12.0)
+      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields
+                   -fno-warn-orphans -fno-warn-unused-do-bind -rtsopts
     else
-      if impl(ghc >= 6.12.0)
-        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                     -fno-warn-orphans -fno-warn-unused-do-bind -rtsopts
-      else
-        ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                     -fno-warn-orphans -rtsopts
+      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields
+                   -fno-warn-orphans -rtsopts
 
 Test-Suite test-bakers12
   type:                  exitcode-stdio-1.0
