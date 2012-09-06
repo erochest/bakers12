@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 
 -- | This handles the types required for Text.Bakers12.Csv conversion.
 
@@ -24,6 +25,6 @@ class ToCSV a where
     toCSVText :: a -> T.Text
     toCSVText item = buildRow . map escape $ toCSV item
 
-instance ToCSV CSVRow where
+instance ToCSV [T.Text] where
     toCSV = id
 
