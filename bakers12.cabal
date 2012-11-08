@@ -69,14 +69,14 @@ Library
   other-modules:
 
   Build-depends:
-      base >=3 && <5
-    , mtl >=2 && <3
-    , transformers >=0.2 && <1
-    , filepath >=1.2 && <2
-    , directory >=1.1 && <2
-    , text >=0.10 && <1
-    , enumerator >=0.4 && <5
-    , aeson >=0.5 && <0.7
+      base         >= 4
+    , mtl          >= 2.0
+    , transformers >= 0.2
+    , filepath     >= 1.2
+    , directory    >= 1.1
+    , text         >= 0.11
+    , enumerator   >= 0.4
+    , aeson        >= 0.5
 
   extensions: TypeSynonymInstances
 
@@ -97,11 +97,11 @@ Executable bakers12
   Main-is:	   Bakers12.hs
   
   Build-depends:
-      base >=3 && <5
-    , mtl >=2 && <3
-    , cmdargs >=0.9 && <1
-    , enumerator >=0.4 && <5
-    , text >=0.10 && <1
+      base       >= 4
+    , mtl        >= 2.0
+    , cmdargs    >= 0.9
+    , enumerator >= 0.4
+    , text       >= 0.11
     , bakers12
 
   extensions:
@@ -130,17 +130,17 @@ Test-Suite test-bakers12
   hs-source-dirs:	 tests
   main-is:               TestBakers12.hs
   build-depends:
-      base >=3 && <5
-    , mtl >=2 && <3
-    , test-framework >=0.4 && <0.7
-    , test-framework-hunit >=0.2.6 && <0.3
-    , test-framework-quickcheck2 >=0.2.9 && <0.3
-    , HUnit >=1.2 && <2
-    , QuickCheck >=2.4 && <3
-    , text >=0.10 && <1
-    , filepath >=1.2 && <2
-    , directory >=1.1 && <2
-    , enumerator >=0.4 && <5
+      base                       >= 4
+    , mtl                        >= 2.0
+    , test-framework             >= 0.5
+    , test-framework-hunit       >= 0.2
+    , test-framework-quickcheck2 >= 0.2
+    , HUnit                      >= 1.2
+    , QuickCheck                 >= 2.4
+    , text                       >= 0.11
+    , filepath                   >= 1.2
+    , directory                  >= 1.1
+    , enumerator                 >= 0.4
     , bakers12
   ghc-options:		 -Wall -rtsopts
 
